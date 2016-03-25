@@ -1,7 +1,7 @@
 package lua
 
 import (
-	"github.com/lib4go/lib4go/utility"
+	"github.com/yanglei16/lib4go/utility"
 	l "github.com/yuin/gopher-lua"
 )
 
