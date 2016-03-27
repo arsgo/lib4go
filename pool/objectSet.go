@@ -2,16 +2,19 @@ package pool
 
 import (
 	"container/list"
+	"errors"
 	"sync"
 )
 
 type Object interface {
 	Close()
+	Check() bool
+	RequestFatal()
 }
 
 //ObjectFactory
 type ObjectFactory interface {
-	Create() Object
+	Create() (Object, error)
 }
 
 //PoolSet
@@ -34,11 +37,14 @@ func (p *poolSet) get() (Object, error) {
 	defer p.mutex.Unlock()
 	ele := p.list.Front()
 	if ele == nil {
-		object := p.factory.Create()
-		return object, nil
+		return nil, errors.New("cant get object")
 	}
 	p.list.Remove(ele)
-	return ele.Value.(Object), nil
+	obj := ele.Value.(Object)
+	if obj != nil {
+		return obj, nil
+	}
+	return nil, errors.New("no object can create")
 }
 
 func (p *poolSet) add(obj Object) {
@@ -50,20 +56,23 @@ func (p *poolSet) add(obj Object) {
 func (p *poolSet) close() {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
-	for p.list.Len()>0{
-        ele := p.list.Front()
-	    if ele == nil {
-            break
-        }
-        ele.Value.(Object).Close()
-        p.list.Remove(ele)
-    }
+	for p.list.Len() > 0 {
+		ele := p.list.Front()
+		if ele == nil {
+			break
+		}
+		ele.Value.(Object).Close()
+		p.list.Remove(ele)
+	}
 }
-
 
 func (p *poolSet) init() error {
 	for i := 0; i < p.Size; i++ {
-		p.list.PushBack(p.factory.Create())
+		obj, err := p.factory.Create()
+		if err != nil {
+			panic(err)
+		}
+		p.list.PushBack(obj)
 	}
 	return nil
 }

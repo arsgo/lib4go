@@ -12,17 +12,11 @@ func syslibLoader(L *l.LState) int {
 }
 
 var exports = map[string]l.LGFunction{
-	"md5":        md5,
-	"getLocalIP": getLocalIP,
+	"md5": md5,
 }
 
 func md5(L *l.LState) int {
 	input := L.ToString(1)
 	L.Push(l.LString(utility.Md5(input)))
-	return 1
-}
-func getLocalIP(L *l.LState) int {
-	input := L.ToString(1)
-	L.Push(l.LString(utility.GetLocalIP(input)))
 	return 1
 }

@@ -2,9 +2,15 @@ package lua
 
 import (
 	"errors"
+
 	"github.com/colinyl/lib4go/pool"
 	l "github.com/yuin/gopher-lua"
 )
+
+type luafunc struct {
+	name     string
+	function l.LGFunction
+}
 
 type luaPoolObject struct {
 	state *l.LState
@@ -12,7 +18,16 @@ type luaPoolObject struct {
 type luaPoolFactory struct {
 	script string
 	count  int
+	funcs  map[string]l.LGFunction
 }
+
+//LuaPool  LUA对象池
+type luaPool struct {
+	p     *pool.ObjectPool
+	funcs map[string]l.LGFunction
+}
+
+var _pool *luaPool
 
 //Close close a object
 func (p *luaPoolObject) Close() {
@@ -21,28 +36,35 @@ func (p *luaPoolObject) Close() {
 	}
 }
 
+func (l *luaPoolObject) Check() bool {
+	return true
+}
+
+func (l *luaPoolObject) RequestFatal() {
+
+}
+
 //Create create object
-func (f *luaPoolFactory) Create() pool.Object {
+func (f *luaPoolFactory) Create() (pool.Object, error) {
 	f.count++
 	o := &luaPoolObject{}
 	o.state = l.NewState()
 	o.state.PreloadModule("sys", syslibLoader)
+	if f.funcs != nil {
+		for k, f := range f.funcs {
+			o.state.PreloadModule(k, f)
+		}
+	}
+
 	er := o.state.DoFile(f.script)
 	if er != nil {
-		panic(er)
+		return nil, er
 	}
-	return o
+	return o, nil
 }
 func (f *luaPoolFactory) registerFunc(name string, fun l.LGFunction, obj *luaPoolObject) {
 	obj.state.SetGlobal(name, obj.state.NewFunction(fun))
 }
-
-//LuaPool  LUA对象池
-type luaPool struct {
-	p *pool.ObjectPool
-}
-
-var _pool *luaPool
 
 func init() {
 	_pool = NewLuaPool()
@@ -59,13 +81,19 @@ func Call(script string, input ...string) ([]string, error) {
 }
 
 //NewLuaPool 构建LUA对象池
-func NewLuaPool() *luaPool {
-	return &luaPool{p: pool.New()}
+func NewLuaPool(funcs ...luafunc) *luaPool {
+	cfun := make(map[string]l.LGFunction, 0)
+	if len(funcs) > 0 {
+		for _, v := range funcs {
+			cfun[v.name] = v.function
+		}
+	}
+	return &luaPool{p: pool.New(), funcs: cfun}
 }
 
 //PreLoad 预加载脚本
 func (p *luaPool) PreLoad(script string, size int) int {
-	return p.p.Register(script, &luaPoolFactory{script: script}, size)
+	return p.p.Register(script, &luaPoolFactory{script: script, funcs: p.funcs}, size)
 }
 
 //Call 执行脚本main函数
