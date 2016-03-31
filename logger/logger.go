@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"sync"
 	"time"
+    "strings"
 )
 
 const (
@@ -25,15 +26,14 @@ const (
 	ILevel_ALL
 )
 const (
-	SLevel_OFF = "Off"
-	SLevel_Debug= "Debug"
-	SLevel_Warn= "warn"
-	SLevel_Info= "Info"
-	SLevel_Error= "Error"
-	SLevel_Fatal= "Fatal"
-	SLevel_ALL= "All"
+	SLevel_OFF   = "Off"
+	SLevel_Debug = "Debug"
+	SLevel_Warn  = "warn"
+	SLevel_Info  = "Info"
+	SLevel_Error = "Error"
+	SLevel_Fatal = "Fatal"
+	SLevel_ALL   = "All"
 )
-
 
 type LoggerAppender struct {
 	Type  string
@@ -65,33 +65,34 @@ var levelMap []string
 var levelIndexs map[string]int
 
 type Logger struct {
-	Name     string
-	Level    string
-	Config   *LoggerConfig
-	DataChan chan *LoggerEvent
+	Name       string
+	Level      string
+	Config     *LoggerConfig
+	DataChan   chan *LoggerEvent
+	OpenSysLog bool
 }
 
 func init() {
 	levelMap = []string{"Debug", "Warn", "Info", "Error", "Fatal"}
 	levelIndexs = make(map[string]int, 7)
-    levelIndexs["Off"] = ILevel_OFF
+	levelIndexs["Off"] = ILevel_OFF
 	levelIndexs["Debug"] = ILevel_Debug
 	levelIndexs["Warn"] = ILevel_Warn
 	levelIndexs["Info"] = ILevel_Info
 	levelIndexs["Error"] = ILevel_Error
 	levelIndexs["Fatal"] = ILevel_Fatal
-    levelIndexs["All"] = ILevel_ALL
+	levelIndexs["All"] = ILevel_ALL
 	sysLoggers = make(map[string]*Logger)
 	_, err := readLoggerConfig()
 	if err != nil {
 		fmt.Println(err)
 	}
 }
-func Get(nName string, sourceName string) (*Logger, error) {
-	return newLogger(nName, sourceName)
+func Get(nName string, sourceName string, openSysLog bool) (*Logger, error) {
+	return newLogger(nName, sourceName, openSysLog)
 }
-func New(name string) (*Logger, error) {
-	return newLogger(name, name)
+func New(name string, openSysLog bool) (*Logger, error) {
+	return newLogger(name, name, openSysLog)
 }
 
 func (l *Logger) Info(content string) {
@@ -113,8 +114,8 @@ func (l *Logger) Warn(content string) {
 func (l *Logger) Warnf(format string, a ...interface{}) {
 	l.Warn(fmt.Sprintf(format, a...))
 }
-func (l *Logger) Error(content string) {
-	l.doWrite(SLevel_Error, content)
+func (l *Logger) Error(content interface{}) {
+	l.doWrite(SLevel_Error, fmt.Sprint(content))
 }
 func (l *Logger) Errorf(format string, a ...interface{}) {
 	l.Error(fmt.Sprintf(format, a...))
@@ -129,10 +130,8 @@ func (l *Logger) Close() {
 	close(l.DataChan)
 }
 
-
-
 //--------------------以下是私有函数--------------------------------------------
-func newLogger(name string, sourceName string) (*Logger, error) {
+func newLogger(name string, sourceName string, openSysLog bool) (*Logger, error) {
 	logger, b := sysLoggers[name]
 	if b {
 		return logger, nil
@@ -141,6 +140,7 @@ func newLogger(name string, sourceName string) (*Logger, error) {
 	if err != nil {
 		return nil, err
 	}
+	logger.OpenSysLog = openSysLog
 	sysLoggers[name] = logger
 	return logger, nil
 }
@@ -169,10 +169,16 @@ func (l *Logger) doWrite(level string, content string) {
 		if r := recover(); r != nil {
 			fmt.Println("write log exception ", r)
 		}
-	}()   
-	event := &LoggerEvent{Level:level, Name: l.Name, Now: time.Now(), Content: content,
+	}()
+	event := &LoggerEvent{Level: level, Name: l.Name, Now: time.Now(), Content: content,
 		Path: l.Config.Appender.Path}
 	l.DataChan <- event
+	if l.OpenSysLog {       
+        if !strings.EqualFold(level,SLevel_Info){
+           log.SetFlags(log.Ldate |log.Lshortfile)
+        }       
+		log.Println(content)
+	}
 }
 
 func getDefaultConfigLogger() []*LoggerConfig {
@@ -308,7 +314,7 @@ func wirtelog2file(appenders map[string]*FileAppenderWriterEntity, logEvent *Log
 	} else {
 		entity.Log.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
 	}
-	entity.Log.Printf("%s\r\n",logEvent.Content)
+	entity.Log.Printf("%s\r\n", logEvent.Content)
 	entity.LastUse = time.Now().Unix()
 
 }

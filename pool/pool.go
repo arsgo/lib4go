@@ -6,15 +6,13 @@ import (
 	"sync"
 )
 
-
-
 //ObjectPool 对象缓存池
 type ObjectPool struct {
 	pools map[string]*poolSet
 	mutex sync.Mutex
 }
 
-//New 创建一个新的对象
+//New 创建一个新的对象k
 func New() *ObjectPool {
 	pools := &ObjectPool{}
 	pools.pools = make(map[string]*poolSet)
@@ -40,7 +38,7 @@ func (p *ObjectPool) UnRegister(groupName string) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	if v, ok := p.pools[groupName]; ok {
-        v.close()
+		v.close()
 		delete(p.pools, groupName)
 	}
 
@@ -62,17 +60,19 @@ func (p *ObjectPool) Recycle(groupName string, obj Object) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	if v, ok := p.pools[groupName]; ok {
-		v.add(obj)
+		v.back(obj)
 	}
 
 }
 
 //Close 关闭一个对象组
-func (p *ObjectPool) Close(groupName string) {
+func (p *ObjectPool) Close(groupName string)(bool) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
-	if ps, ok := p.pools[groupName]; ok {
+	if ps, ok := p.pools[groupName]; ok && ps.usingCount == 0 {
 		ps.close()
 		delete(p.pools, groupName)
+        return true
 	}
+    return false
 }

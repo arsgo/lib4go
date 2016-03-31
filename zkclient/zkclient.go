@@ -1,7 +1,7 @@
 package zkClient
 
 import (
-	"fmt"
+	//"fmt"
 	"strings"
 	"time"
 	"github.com/samuel/go-zookeeper/zk"
@@ -125,8 +125,7 @@ func (client *ZKCli) WatchChildren(path string, data chan []string) error {
 		}
 		select {
 		case e := <-event:
-			{
-				fmt.Println(e.Type.String())
+			{				
 				switch e.Type {
 				case zk.EventNodeChildrenChanged:
 					data <- []string{"ChildrenChanged"}
