@@ -43,6 +43,12 @@ func (p *ObjectPool) UnRegister(groupName string) {
 	}
 
 }
+func (p *ObjectPool) Exists(groupName string) bool {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+	_, ok := p.pools[groupName]
+	return ok
+}
 
 //Get 从对象组中申请一个对象
 func (p *ObjectPool) Get(groupName string) (Object, error) {
@@ -51,7 +57,7 @@ func (p *ObjectPool) Get(groupName string) (Object, error) {
 	if v, ok := p.pools[groupName]; ok {
 		return v.get()
 	} else {
-		return nil, errors.New(fmt.Sprintf("not find services: %s", groupName))
+		return nil, errors.New(fmt.Sprintf("not find: %s", groupName))
 	}
 }
 
@@ -66,13 +72,13 @@ func (p *ObjectPool) Recycle(groupName string, obj Object) {
 }
 
 //Close 关闭一个对象组
-func (p *ObjectPool) Close(groupName string)(bool) {
+func (p *ObjectPool) Close(groupName string) bool {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	if ps, ok := p.pools[groupName]; ok && ps.usingCount == 0 {
 		ps.close()
 		delete(p.pools, groupName)
-        return true
+		return true
 	}
-    return false
+	return false
 }

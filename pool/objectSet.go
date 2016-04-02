@@ -10,7 +10,7 @@ import (
 type Object interface {
 	Close()
 	Check() bool
-	RequestFatal()
+	Fatal()
 }
 
 //ObjectFactory

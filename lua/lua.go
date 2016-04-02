@@ -2,14 +2,16 @@ package lua
 
 import (
 	"errors"
+	"fmt"
+	"os"
 
 	"github.com/colinyl/lib4go/pool"
 	l "github.com/yuin/gopher-lua"
 )
 
-type luafunc struct {
-	name     string
-	function l.LGFunction
+type Luafunc struct {
+	Name     string
+	Function l.LGFunction
 }
 
 type luaPoolObject struct {
@@ -22,12 +24,12 @@ type luaPoolFactory struct {
 }
 
 //LuaPool  LUA对象池
-type luaPool struct {
+type LuaPool struct {
 	p     *pool.ObjectPool
 	funcs map[string]l.LGFunction
 }
 
-var _pool *luaPool
+var _pool *LuaPool
 
 //Close close a object
 func (p *luaPoolObject) Close() {
@@ -40,7 +42,7 @@ func (l *luaPoolObject) Check() bool {
 	return true
 }
 
-func (l *luaPoolObject) RequestFatal() {
+func (l *luaPoolObject) Fatal() {
 
 }
 
@@ -71,7 +73,7 @@ func init() {
 }
 
 //PreLoad 预加载脚本
-func PreLoad(script string, size int) int {
+func PreLoad(script string, size int) error {
 	return _pool.PreLoad(script, size)
 }
 
@@ -81,23 +83,34 @@ func Call(script string, input ...string) ([]string, error) {
 }
 
 //NewLuaPool 构建LUA对象池
-func NewLuaPool(funcs ...luafunc) *luaPool {
+func NewLuaPool(funcs ...Luafunc) *LuaPool {
 	cfun := make(map[string]l.LGFunction, 0)
 	if len(funcs) > 0 {
 		for _, v := range funcs {
-			cfun[v.name] = v.function
+			cfun[v.Name] = v.Function
 		}
 	}
-	return &luaPool{p: pool.New(), funcs: cfun}
+	return &LuaPool{p: pool.New(), funcs: cfun}
 }
 
 //PreLoad 预加载脚本
-func (p *luaPool) PreLoad(script string, size int) int {
-	return p.p.Register(script, &luaPoolFactory{script: script, funcs: p.funcs}, size)
+func (p *LuaPool) PreLoad(script string, size int) error {
+	if !exist(script) {
+		return errors.New(fmt.Sprintf("not find script :%s", script))
+	}
+	p.p.Register(script, &luaPoolFactory{script: script, funcs: p.funcs}, size)
+	return nil
 }
 
 //Call 执行脚本main函数
-func (p *luaPool) Call(script string, input ...string) ([]string, error) {
+func (p *LuaPool) Call(script string, input ...string) (result []string, er error) {
+	result = []string{}
+	if !p.p.Exists(script) {
+		er = p.PreLoad(script, 1)
+		if er != nil {
+			return
+		}
+	}
 	o, er := p.p.Get(script)
 	if er != nil {
 		return nil, er
@@ -118,9 +131,13 @@ func (p *luaPool) Call(script string, input ...string) ([]string, error) {
 	if st == l.ResumeError {
 		return nil, err
 	}
-	var buffer []string
+
 	for _, lv := range values {
-		buffer = append(buffer, lv.String())
+		result = append(result, lv.String())
 	}
-	return buffer, nil
+	return
+}
+func exist(filename string) bool {
+	_, err := os.Stat(filename)
+	return err == nil || os.IsExist(err)
 }

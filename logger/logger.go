@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"sync"
 	"time"
-    "strings"
 )
 
 const (
@@ -173,10 +172,7 @@ func (l *Logger) doWrite(level string, content string) {
 	event := &LoggerEvent{Level: level, Name: l.Name, Now: time.Now(), Content: content,
 		Path: l.Config.Appender.Path}
 	l.DataChan <- event
-	if l.OpenSysLog {       
-        if !strings.EqualFold(level,SLevel_Info){
-           log.SetFlags(log.Ldate |log.Lshortfile)
-        }       
+	if l.OpenSysLog {
 		log.Println(content)
 	}
 }
