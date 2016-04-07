@@ -10,6 +10,7 @@ import (
 	"net"
 	"regexp"
 	"strings"
+	"sync"
 )
 
 //GetGuid 生成Guid字串
@@ -31,51 +32,61 @@ func Md5(s string) string {
 
 var localIP string
 
-type DataMap map[string]string
+type DataMap struct {
+	data map[string]string
+	lk   sync.Mutex
+}
 
-func NewDataMap() DataMap {
-	return make(map[string]string)
+func NewDataMap() *DataMap {
+	return &DataMap{data: make(map[string]string)}
 }
 
 //Add 添加变量
-func (d DataMap) Set(k string, v string) {
-	d[fmt.Sprintf("@%s", k)] = v
+func (d *DataMap) Set(k string, v string) {
+	d.lk.Lock()
+	defer d.lk.Unlock()
+	d.data[fmt.Sprintf("@%s", k)] = v
 }
 
 //Merge merge new map from current
-func (d DataMap) Merge(n DataMap) DataMap {
+func (d *DataMap) Merge(n DataMap) *DataMap {
+	d.lk.Lock()
+	defer d.lk.Unlock()
 	nmap := NewDataMap()
-	for k, v := range d {
-		nmap[k] = v
+	for k, v := range d.data {
+		nmap.data[k] = v
 	}
-	for k, v := range n {
-		nmap[k] = v
+	for k, v := range n.data {
+		nmap.data[k] = v
 	}
 	return nmap
 }
 
 //Copy Copy the current map to another
-func (d DataMap) Copy() DataMap {
+func (d *DataMap) Copy() *DataMap {
+	d.lk.Lock()
+	defer d.lk.Unlock()
 	nmap := NewDataMap()
-	for k, v := range d {
-		nmap[k] = v
+	for k, v := range d.data {
+		nmap.data[k] = v
 	}
 	return nmap
 }
 
 //Translate 翻译带有@变量的字符串
-func (d DataMap) Translate(format string) string {
-
+func (d *DataMap) Translate(format string) string {
+	d.lk.Lock()
+	defer d.lk.Unlock()
 	brackets, _ := regexp.Compile(`\{@\w+\}`)
 	result := brackets.ReplaceAllStringFunc(format, func(s string) string {
-		return d[s[1:len(s)-1]]
+		return d.data[s[1:len(s)-1]]
 	})
 	word, _ := regexp.Compile(`@\w+`)
 	if word == nil {
 		return format
 	}
 	result = word.ReplaceAllStringFunc(result, func(s string) string {
-		return d[s]
+		return d.data[s]
 	})
 	return result
 
