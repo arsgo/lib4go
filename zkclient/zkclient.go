@@ -4,6 +4,8 @@ import (
 	//"fmt"
 	"strings"
 	"time"
+
+	"github.com/colinyl/lib4go/logger"
 	"github.com/samuel/go-zookeeper/zk"
 )
 
@@ -11,6 +13,7 @@ import (
 type ZKCli struct {
 	conn      *zk.Conn
 	eventChan <-chan zk.Event
+	Log       *logger.Logger
 }
 
 //New 连接到Zookeeper服务器
@@ -22,6 +25,8 @@ func New(servers []string, timeout time.Duration) (*ZKCli, error) {
 	}
 	zkcli.conn = conn
 	zkcli.eventChan = eventChan
+	zkcli.Log, err = logger.New("zk client", true)
+	zkcli.conn.SetLogger(zkcli.Log)
 	return zkcli, nil
 }
 
@@ -125,7 +130,7 @@ func (client *ZKCli) WatchChildren(path string, data chan []string) error {
 		}
 		select {
 		case e := <-event:
-			{				
+			{
 				switch e.Type {
 				case zk.EventNodeChildrenChanged:
 					data <- []string{"ChildrenChanged"}

@@ -125,6 +125,10 @@ func (l *Logger) Fatal(content string) {
 func (l *Logger) Fatalf(format string, a ...interface{}) {
 	l.Fatal(fmt.Sprintf(format, a...))
 }
+func (l *Logger) Printf(format string, a ...interface{}) {
+	l.Info(fmt.Sprintf(format, a...))
+}
+
 func (l *Logger) Close() {
 	close(l.DataChan)
 }
@@ -285,7 +289,8 @@ func transferPath(event *LoggerEvent) string {
 		match, _ := regexp.Compile("%" + i)
 		resultString = match.ReplaceAllString(resultString, v)
 	}
-	return resultString
+	path, _ := filepath.Abs(resultString)
+	return path
 }
 func wirtelog2file(appenders map[string]*FileAppenderWriterEntity, logEvent *LoggerEvent) {
 	defer func() {
@@ -320,7 +325,7 @@ func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
 	if er != nil {
 		return nil, fmt.Errorf(fmt.Sprintf("can't create dir %s", dir))
 	}
-	logFile, logErr := os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
+	logFile, logErr := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if logErr != nil {
 		return nil, fmt.Errorf(fmt.Sprintf("Fail to find file %s", path))
 	}
