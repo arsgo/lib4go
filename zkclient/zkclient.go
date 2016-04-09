@@ -102,6 +102,10 @@ func (client *ZKCli) UpdateValue(path string, value string) error {
 func (client *ZKCli) Delete(path string) error {
 	return client.conn.Delete(path, -1)
 }
+func (client *ZKCli) Close(){
+    client.conn.Close()
+}
+
 
 //WatchValue 监控指定节点的值是否发生变化，变化时返回变化后的值
 func (client *ZKCli) WatchValue(path string, data chan string) error {
