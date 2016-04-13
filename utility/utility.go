@@ -40,12 +40,16 @@ type DataMap struct {
 func NewDataMap() *DataMap {
 	return &DataMap{data: make(map[string]string)}
 }
-
 //Add 添加变量
 func (d *DataMap) Set(k string, v string) {
 	d.lk.Lock()
 	defer d.lk.Unlock()
 	d.data[fmt.Sprintf("@%s", k)] = v
+}
+func (d *DataMap) Get(k string)(string){
+   d.lk.Lock()
+	defer d.lk.Unlock()
+	return d.data[fmt.Sprintf("@%s", k)]
 }
 
 //Merge merge new map from current
@@ -89,7 +93,6 @@ func (d *DataMap) Translate(format string) string {
 		return d.data[s]
 	})
 	return result
-
 }
 
 //GetLocalIP 获取本机IP地址
