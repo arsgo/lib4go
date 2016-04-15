@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/colinyl/lib4go/pool"
 	l "github.com/yuin/gopher-lua"
@@ -105,6 +106,10 @@ func (p *LuaPool) PreLoad(script string, size int) error {
 //Call 执行脚本main函数
 func (p *LuaPool) Call(script string, input ...string) (result []string, er error) {
 	result = []string{}
+	if strings.EqualFold(script, "") {
+		return result, errors.New(fmt.Sprintf("script(%s) is nil", script))
+	}
+
 	if !p.p.Exists(script) {
 		er = p.PreLoad(script, 1)
 		if er != nil {
