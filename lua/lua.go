@@ -22,12 +22,18 @@ type luaPoolFactory struct {
 	script string
 	count  int
 	funcs  map[string]l.LGFunction
+	userData []func(*l.LState)
 }
 
 //LuaPool  LUA对象池
 type LuaPool struct {
-	p     *pool.ObjectPool
-	funcs map[string]l.LGFunction
+	p        *pool.ObjectPool
+	funcs    map[string]l.LGFunction
+	userData []func(*l.LState)
+}
+
+func (p *LuaPool) AddUserData(f func(*l.LState)) {
+	p.userData = append(p.userData, f)
 }
 
 var _pool *LuaPool
@@ -58,7 +64,9 @@ func (f *luaPoolFactory) Create() (pool.Object, error) {
 			o.state.PreloadModule(k, f)
 		}
 	}
-
+	for _,v:=range f.userData{
+		v(o.state)
+	}
 	er := o.state.DoFile(f.script)
 	if er != nil {
 		return nil, er
@@ -99,7 +107,7 @@ func (p *LuaPool) PreLoad(script string, size int) error {
 	if !exist(script) {
 		return errors.New(fmt.Sprintf("not find script :%s", script))
 	}
-	p.p.Register(script, &luaPoolFactory{script: script, funcs: p.funcs}, size)
+	p.p.Register(script, &luaPoolFactory{script: script, funcs: p.funcs,userData:p.userData}, size)
 	return nil
 }
 
@@ -135,8 +143,7 @@ func (p *LuaPool) Call(script string, input ...string) (result []string, er erro
 	st, err, values := L.Resume(co, fn, inputs[0:len(input)]...)
 	if st == l.ResumeError {
 		return nil, err
-	}
-
+	}   
 	for _, lv := range values {
 		result = append(result, lv.String())
 	}
