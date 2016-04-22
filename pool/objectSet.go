@@ -1,10 +1,11 @@
 package pool
 
 import (
-    "sync/atomic"
 	"container/list"
 	"errors"
+	"fmt"
 	"sync"
+	"sync/atomic"
 )
 
 type Object interface {
@@ -20,11 +21,11 @@ type ObjectFactory interface {
 
 //PoolSet
 type poolSet struct {
-	mutex     sync.Mutex
-	Size      int
-	list      *list.List
-	factory   ObjectFactory
-    usingCount int32
+	mutex      sync.Mutex
+	Size       int
+	list       *list.List
+	factory    ObjectFactory
+	usingCount int32
 }
 
 //New 创建对象池
@@ -35,6 +36,7 @@ func newPoolSet(size int, fac ObjectFactory) *poolSet {
 }
 
 func (p *poolSet) get() (Object, error) {
+	fmt.Println("get object from pool")
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	ele := p.list.Front()
@@ -43,17 +45,18 @@ func (p *poolSet) get() (Object, error) {
 	}
 	p.list.Remove(ele)
 	obj := ele.Value.(Object)
-	if obj != nil {	
-        atomic.AddInt32(&p.usingCount,1)
+	if obj != nil {
+		atomic.AddInt32(&p.usingCount, 1)
 		return obj, nil
 	}
 	return nil, errors.New("no object can create")
 }
 
 func (p *poolSet) back(obj Object) {
+	fmt.Println("back object from pool")
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
-     atomic.AddInt32(&p.usingCount,-1)
+	atomic.AddInt32(&p.usingCount, -1)
 	p.list.PushBack(obj)
 }
 
