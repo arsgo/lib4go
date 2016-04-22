@@ -5,12 +5,14 @@ package logger
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 )
@@ -165,6 +167,9 @@ func createLogger(name string, configName string) (*Logger, error) {
 }
 
 func (l *Logger) doWrite(level string, content string) {
+	if strings.EqualFold(content, "") {
+		return
+	}
 	if levelIndexs[l.Level] < levelIndexs[level] {
 		return
 	}
@@ -186,17 +191,23 @@ func getDefaultConfigLogger() []*LoggerConfig {
 	configs[0] = &LoggerConfig{}
 	configs[0].Name = "*"
 	configs[0].Appender = &LoggerAppender{Level: "All", Type: "FileAppender", Path: "./logs/%name/%level/def_%date.log"}
-	fmt.Println(len(configs))
-	fmt.Println(configs[0].Name)
 	return configs[:]
 }
 func createDefautConfig(config []*LoggerConfig) {
 	data, _ := json.Marshal(config)
 	ioutil.WriteFile("lib4go.logger.json", data, os.ModeAppend)
 }
+func exists(p string) bool {
+	_, err := os.Stat(p)
+	return err == nil || os.IsExist(err)
+}
 func readLoggerConfigFromFile() ([]*LoggerConfig, error) {
+	if !exists("./lib4go.logger.json") {
+		return nil, errors.New("lib4go.logger.json not exists,using default logger config and create it")
+	}
+
 	configs := []*LoggerConfig{}
-	bytes, err := ioutil.ReadFile("lib4go.logger.json")
+	bytes, err := ioutil.ReadFile("./lib4go.logger.json")
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +226,7 @@ func readLoggerConfig() (map[string]*LoggerConfig, error) {
 			sysDefaultConfig = make(map[string]*LoggerConfig)
 			configs, err := readLoggerConfigFromFile()
 			if err != nil {
-				fmt.Println(err)
+				//fmt.Println(err)
 				configs = getDefaultConfigLogger()
 				createDefautConfig(configs)
 			}
