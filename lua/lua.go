@@ -19,16 +19,18 @@ type luaPoolObject struct {
 	state *l.LState
 }
 type luaPoolFactory struct {
-	script string
-	count  int
-	funcs  map[string]l.LGFunction
+	script   string
+	count    int
+	funcs    map[string]l.LGFunction
 	userData []func(*l.LState)
+	modules  []Luafunc
 }
 
 //LuaPool  LUA对象池
 type LuaPool struct {
 	p        *pool.ObjectPool
 	funcs    map[string]l.LGFunction
+	modules  []Luafunc
 	userData []func(*l.LState)
 }
 
@@ -60,11 +62,11 @@ func (f *luaPoolFactory) Create() (pool.Object, error) {
 	o.state = l.NewState()
 	o.state.PreloadModule("sys", syslibLoader)
 	if f.funcs != nil {
-		for k, f := range f.funcs {
+		for k, f := range f.funcs {			
 			o.state.PreloadModule(k, f)
 		}
 	}
-	for _,v:=range f.userData{
+	for _, v := range f.userData {
 		v(o.state)
 	}
 	er := o.state.DoFile(f.script)
@@ -107,7 +109,8 @@ func (p *LuaPool) PreLoad(script string, size int) error {
 	if !exist(script) {
 		return errors.New(fmt.Sprintf("not find script :%s", script))
 	}
-	p.p.Register(script, &luaPoolFactory{script: script, funcs: p.funcs,userData:p.userData}, size)
+	p.p.Register(script, &luaPoolFactory{script: script, funcs: p.funcs, userData: p.userData,
+		modules: p.modules}, size)
 	return nil
 }
 
@@ -143,7 +146,7 @@ func (p *LuaPool) Call(script string, input ...string) (result []string, er erro
 	st, err, values := L.Resume(co, fn, inputs[0:len(input)]...)
 	if st == l.ResumeError {
 		return nil, err
-	}   
+	}
 	for _, lv := range values {
 		result = append(result, lv.String())
 	}

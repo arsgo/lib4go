@@ -3,7 +3,6 @@ package pool
 import (
 	"container/list"
 	"errors"
-	"fmt"
 	"sync"
 	"sync/atomic"
 )
@@ -36,7 +35,6 @@ func newPoolSet(size int, fac ObjectFactory) *poolSet {
 }
 
 func (p *poolSet) get() (Object, error) {
-	fmt.Println("get object from pool")
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	ele := p.list.Front()
@@ -53,7 +51,6 @@ func (p *poolSet) get() (Object, error) {
 }
 
 func (p *poolSet) back(obj Object) {
-	fmt.Println("back object from pool")
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	atomic.AddInt32(&p.usingCount, -1)
