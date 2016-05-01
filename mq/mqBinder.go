@@ -2,7 +2,7 @@ package mq
 
 import (
 	lp "github.com/colinyl/lib4go/lua"
-	"github.com/colinyl/stomp"
+	"github.com/colinyl/lib4go/mq/stomp"
 	"github.com/yuin/gopher-lua"
 )
 

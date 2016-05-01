@@ -5,8 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-
-	"github.com/colinyl/stomp"
+	"github.com/colinyl/lib4go/mq/stomp"
 )
 
 type StompService struct {
@@ -47,17 +46,4 @@ func (k *StompService) Consume(queue string, callback func(stomp.MsgHandler) boo
 
 func (k *StompService) Close() {
 	k.broker.Close()
-}
-func StaticSend(queue string, msg string) (err error) {
-	broker, err := stomp.NewStomp("192.168.101.161:61613")
-	if err != nil {
-		return
-	}
-	err = broker.Send(queue, msg)
-	if err != nil {
-		return
-	}
-	//	time.Sleep(time.Second)
-	broker.Close()
-	return
 }

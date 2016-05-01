@@ -45,7 +45,6 @@ func NewDataMaps(d map[string]interface{}) *DataMap {
 	for k, v := range d {
 		current[fmt.Sprintf("@%s", k)] = fmt.Sprint(v)
 	}
-	fmt.Println("map.len:",len(current))
 	return &DataMap{data: current}
 }
 
@@ -95,8 +94,7 @@ func (d *DataMap) Translate(format string) string {
 		return d.data[s[1:len(s)-1]]
 	})
 	word, _ := regexp.Compile(`@\w+`)	
-	result = word.ReplaceAllStringFunc(result, func(s string) string {
-		fmt.Println("utility.params:",s,d.data[s])
+	result = word.ReplaceAllStringFunc(result, func(s string) string {	
 		return d.data[s]
 	})
 	return result
