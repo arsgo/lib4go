@@ -40,14 +40,23 @@ type DataMap struct {
 func NewDataMap() *DataMap {
 	return &DataMap{data: make(map[string]string)}
 }
+func NewDataMaps(d map[string]interface{}) *DataMap {
+	current := make(map[string]string)
+	for k, v := range d {
+		current[fmt.Sprintf("@%s", k)] = fmt.Sprint(v)
+	}
+	fmt.Println("map.len:",len(current))
+	return &DataMap{data: current}
+}
+
 //Add 添加变量
 func (d *DataMap) Set(k string, v string) {
 	d.lk.Lock()
 	defer d.lk.Unlock()
 	d.data[fmt.Sprintf("@%s", k)] = v
 }
-func (d *DataMap) Get(k string)(string){
-   d.lk.Lock()
+func (d *DataMap) Get(k string) string {
+	d.lk.Lock()
 	defer d.lk.Unlock()
 	return d.data[fmt.Sprintf("@%s", k)]
 }
@@ -85,11 +94,9 @@ func (d *DataMap) Translate(format string) string {
 	result := brackets.ReplaceAllStringFunc(format, func(s string) string {
 		return d.data[s[1:len(s)-1]]
 	})
-	word, _ := regexp.Compile(`@\w+`)
-	if word == nil {
-		return format
-	}
+	word, _ := regexp.Compile(`@\w+`)	
 	result = word.ReplaceAllStringFunc(result, func(s string) string {
+		fmt.Println("utility.params:",s,d.data[s])
 		return d.data[s]
 	})
 	return result
