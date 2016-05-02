@@ -102,10 +102,9 @@ func (client *ZKCli) UpdateValue(path string, value string) error {
 func (client *ZKCli) Delete(path string) error {
 	return client.conn.Delete(path, -1)
 }
-func (client *ZKCli) Close(){
-    client.conn.Close()
+func (client *ZKCli) Close() {
+	client.conn.Close()
 }
-
 
 //WatchValue 监控指定节点的值是否发生变化，变化时返回变化后的值
 func (client *ZKCli) WatchValue(path string, data chan string) error {
@@ -177,10 +176,10 @@ func (client *ZKCli) create(path string, data string, flags int32) (string, erro
 func getPaths(path string) []string {
 	nodes := strings.Split(path, "/")
 	len := len(nodes)
-	var nlist [20]string
+	var nlist []string
 	for i := 1; i < len; i++ {
 		npath := "/" + strings.Join(nodes[1:i+1], "/")
-		nlist[i-1] = npath
+		nlist = append(nlist, npath)
 	}
-	return nlist[0 : len-1]
+	return nlist
 }
