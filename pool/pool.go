@@ -19,7 +19,7 @@ func New() *ObjectPool {
 	return pools
 }
 
-//Register 注册指定的对象组
+//Register 注册指定的对象
 func (p *ObjectPool) Register(name string, factory ObjectFactory, size int) int {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
@@ -34,7 +34,7 @@ func (p *ObjectPool) Register(name string, factory ObjectFactory, size int) int 
 	return p.pools[name].list.Len()
 }
 
-//UnRegister 取消注册指定的对象组
+//UnRegister 取消注册指定的对象
 func (p *ObjectPool) UnRegister(name string) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
@@ -71,7 +71,7 @@ func (p *ObjectPool) Recycle(name string, obj Object) {
 	}
 }
 
-//Close 关闭一个对象组
+//Close 关闭一个对象
 func (p *ObjectPool) Close(name string) bool {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
