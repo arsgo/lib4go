@@ -21,11 +21,12 @@ func New() *ObjectPool {
 
 //Register 注册指定的对象组
 func (p *ObjectPool) Register(groupName string, factory ObjectFactory, size int) int {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
 	if v, ok := p.pools[groupName]; ok {
 		return v.list.Len()
 	}
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
+
 	if v, ok := p.pools[groupName]; ok {
 		return v.list.Len()
 	}
