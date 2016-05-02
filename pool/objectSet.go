@@ -47,7 +47,7 @@ func (p *poolSet) get() (Object, error) {
 		atomic.AddInt32(&p.usingCount, 1)
 		return obj, nil
 	}
-	return nil, errors.New("no object can create")
+	return nil, errors.New("cant create object")
 }
 
 func (p *poolSet) back(obj Object) {
