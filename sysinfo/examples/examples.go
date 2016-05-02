@@ -4,23 +4,23 @@ import (
 	"fmt"
 
 	"github.com/colinyl/ars/cluster"
-	"github.com/colinyl/ars/influxdb"
-	"github.com/colinyl/ars/sysinfo"
+	"github.com/colinyl/lib4go/influxdb"
+	"github.com/colinyl/lib4go/sysinfo"
 )
 
 func main() {
-	fmt.Println(sys.GetMemory())
-	fmt.Println(sys.GetCPU())
-	fmt.Println(sys.GetDisk())
+	fmt.Println(sysinfo.GetMemory())
+	fmt.Println(sysinfo.GetCPU())
+	fmt.Println(sysinfo.GetDisk())
 	client := cluster.NewZKClient()
 
-	err := influxdb.SaveMapsToInfluxDB("db", "influxdb001", sys.GetMemoryMap(), client)	
+	err := influxdb.SaveMapsToInfluxDB("db", "influxdb001", sysinfo.GetMemory(), client)
 	fmt.Println(err)
-	
-	err = influxdb.SaveMapsToInfluxDB("db", "influxdb002_cpu", sys.GetCPUMap(), client)	
+
+	err = influxdb.SaveMapsToInfluxDB("db", "influxdb002_cpu", sysinfo.GetCPU(), client)
 	fmt.Println(err)
-	
-	err = influxdb.SaveMapsToInfluxDB("db", "influxdb003_disk", sys.GetDiskMap(), client)	
+
+	err = influxdb.SaveMapsToInfluxDB("db", "influxdb003_disk", sysinfo.GetDisk(), client)
 	fmt.Println(err)
 
 }

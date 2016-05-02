@@ -30,8 +30,6 @@ func Md5(s string) string {
 	return hex.EncodeToString(cipherStr)
 }
 
-var localIP string
-
 type DataMap struct {
 	data map[string]string
 	lk   sync.Mutex
@@ -65,12 +63,8 @@ func (d *DataMap) Merge(n DataMap) *DataMap {
 	d.lk.Lock()
 	defer d.lk.Unlock()
 	nmap := NewDataMap()
-	for k, v := range d.data {
-		nmap.data[k] = v
-	}
-	for k, v := range n.data {
-		nmap.data[k] = v
-	}
+	MergeStringMap(d.data, nmap.data)
+	MergeStringMap(n.data, nmap.data)
 	return nmap
 }
 
@@ -93,33 +87,53 @@ func (d *DataMap) Translate(format string) string {
 	result := brackets.ReplaceAllStringFunc(format, func(s string) string {
 		return d.data[s[1:len(s)-1]]
 	})
-	word, _ := regexp.Compile(`@\w+`)	
-	result = word.ReplaceAllStringFunc(result, func(s string) string {	
+	word, _ := regexp.Compile(`@\w+`)
+	result = word.ReplaceAllStringFunc(result, func(s string) string {
 		return d.data[s]
 	})
 	return result
 }
 
-//GetLocalIP 获取本机IP地址
-func GetLocalIP(mask string) string {
-	if localIP == "" {
-		localIP = getLocalIP(mask)
-	}
-	return localIP
-}
-
-//------------------------------------------内部函数-----------------------------------
-func getLocalIP(mask string) string {
+func GetLocalIPAddress(masks ...string) string {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return "127.0.0.1"
 	}
+	var ipLst []string
 	for _, addr := range addrs {
-		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil && strings.HasPrefix(ipnet.IP.String(), mask) {
-				return ipnet.IP.String()
+		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() && ipnet.IP.To4() != nil {
+			ipLst = append(ipLst, ipnet.IP.String())
+		}
+	}
+	if len(masks) == 0 && len(ipLst) > 0 {
+		return ipLst[0]
+	}
+	for _, ip := range ipLst {
+		for _, m := range masks {
+			if strings.HasPrefix(ip, m) {
+				return ip
 			}
 		}
 	}
 	return "127.0.0.1"
+}
+func MergeMaps(source map[string]interface{}, targets []map[string]interface{}) []map[string]interface{} {
+	for k, v := range source {
+		for _, target := range targets {
+			target[k] = v
+		}
+	}
+	return targets
+}
+func MergeMap(source map[string]interface{}, target map[string]interface{}) map[string]interface{} {
+	for k, v := range source {
+		target[k] = v
+	}
+	return target
+}
+func MergeStringMap(source map[string]string, target map[string]string) map[string]string {
+	for k, v := range source {
+		target[k] = v
+	}
+	return target
 }
