@@ -65,6 +65,19 @@ var configLocker sync.Mutex
 var levelMap []string
 var levelIndexs map[string]int
 
+type ILogger interface {
+	Info(content ...interface{})
+	Infof(format string, content ...interface{})
+	Debug(content ...interface{})
+	Debugf(format string, a ...interface{})
+	Warn(content ...interface{})
+	Warnf(format string, a ...interface{})
+	Error(content ...interface{})
+	Errorf(format string, a ...interface{})
+	Fatal(content ...interface{})
+	Fatalf(format string, a ...interface{})
+}
+
 type Logger struct {
 	Name       string
 	Level      string
@@ -96,33 +109,33 @@ func New(name string, openSysLog bool) (*Logger, error) {
 	return newLogger(name, name, openSysLog)
 }
 
-func (l *Logger) Info(content string) {
-	l.doWrite(SLevel_Info, content)
+func (l *Logger) Info(content ...interface{}) {
+	l.doWrite(SLevel_Info, fmt.Sprint(content...))
 }
-func (l *Logger) Infof(format string, a ...interface{}) {
-	l.Info(fmt.Sprintf(format, a...))
+func (l *Logger) Infof(format string, content ...interface{}) {
+	l.Info(fmt.Sprintf(format, content...))
 }
 
-func (l *Logger) Debug(content string) {
-	l.doWrite(SLevel_Debug, content)
+func (l *Logger) Debug(content ...interface{}) {
+	l.doWrite(SLevel_Debug, fmt.Sprint(content...))
 }
 func (l *Logger) Debugf(format string, a ...interface{}) {
 	l.Debug(fmt.Sprintf(format, a...))
 }
-func (l *Logger) Warn(content string) {
-	l.doWrite(SLevel_Warn, content)
+func (l *Logger) Warn(content ...interface{}) {
+	l.doWrite(SLevel_Warn, fmt.Sprint(content...))
 }
 func (l *Logger) Warnf(format string, a ...interface{}) {
 	l.Warn(fmt.Sprintf(format, a...))
 }
-func (l *Logger) Error(content interface{}) {
-	l.doWrite(SLevel_Error, fmt.Sprint(content))
+func (l *Logger) Error(content ...interface{}) {
+	l.doWrite(SLevel_Error, fmt.Sprint(content...))
 }
 func (l *Logger) Errorf(format string, a ...interface{}) {
 	l.Error(fmt.Sprintf(format, a...))
 }
-func (l *Logger) Fatal(content string) {
-	l.doWrite(SLevel_Fatal, content)
+func (l *Logger) Fatal(content ...interface{}) {
+	l.doWrite(SLevel_Fatal, fmt.Sprint(content...))
 }
 func (l *Logger) Fatalf(format string, a ...interface{}) {
 	l.Fatal(fmt.Sprintf(format, a...))

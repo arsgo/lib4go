@@ -2,7 +2,6 @@ package mq
 
 import (
 	lp "github.com/colinyl/lib4go/lua"
-	"github.com/colinyl/lib4go/mq/stomp"
 	"github.com/yuin/gopher-lua"
 )
 
@@ -54,23 +53,6 @@ func (c *MQBinder) BindMQService(L *lua.LState) {
 				if err != nil {
 					result = append(result, err.Error())
 				}
-				return result
-			},
-			"consume": func(L *lua.LState) (result []string) {
-				if L.GetTop() != 3 {
-					result = append(result, "input args error")
-					return
-				}
-				ud := L.CheckUserData(1)
-				if _, ok := ud.Value.(IMQService); !ok {
-					result = append(result, "MQConsumer expected")
-					return
-				}
-				p := ud.Value.(IMQService)
-				p.Consume(L.CheckString(2), func(msg stomp.MsgHandler) bool {
-					c.pool.Call(L.CheckString(3), msg.GetMessage())
-					return true
-				})
 				return result
 			},
 		}})

@@ -1,49 +1,65 @@
 package mq
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
-	"github.com/colinyl/lib4go/mq/stomp"
+	"net"
+
+	"github.com/gmallard/stompngo"
 )
 
-type StompService struct {
-	config *StompConfig
-	broker *stomp.Stomp
+//StompMQ manage stomp server
+type Stomp struct {
+	conn    *stompngo.Connection
+	address string
 }
 
-type StompConfig struct {
-	Address string `json:"address"`
-}
-
-func NewStompService(sconfig string) (ps IMQService, err error) {
-	p := &StompService{}
-	ps = p
-	err = json.Unmarshal([]byte(sconfig), &p.config)
+//NewStompMQ
+func NewStomp(address string) (mq *Stomp, err error) {
+	mq = &Stomp{address: address}
+	con, err := net.Dial("tcp", address)
 	if err != nil {
 		return
 	}
-	if strings.EqualFold(p.config.Address, "") {
-		err = errors.New("address is nil")
-		return
-	}
-	p.broker, err = stomp.NewStomp(p.config.Address)
-	if err != nil {
-		return
-	}
+	header := stompngo.Headers{"accept-version", "1.1"}
+	mq.conn, err = stompngo.Connect(con, header)
 	return
 }
-func (k *StompService) Send(queue string, msg string) (err error) {
-	fmt.Printf("send:%s-%s", queue, msg)
-	return k.broker.Send(queue, msg)
+
+//Send
+func (s *Stomp) Send(queue string, msg string) error {
+	header := stompngo.Headers{"destination", queue, "persistent", "true"}
+	return s.conn.Send(header, msg)
 }
 
-func (k *StompService) Consume(queue string, callback func(stomp.MsgHandler) bool) (err error) {
-	return nil
-	//return k.broker.Consume(queue, 10, callback)
+//Subscribe
+func (s *Stomp) Consume(queue string, call func(MsgHandler)) (err error) {
+	if !s.conn.Connected() {
+		err = errors.New("not connect to stomp server")
+		return
+	}
+	subscriberHeader := stompngo.Headers{"destination",
+		fmt.Sprintf("/queue/%s", queue), "ack", "client"}
+	msgChan, err := s.conn.Subscribe(subscriberHeader)
+	if err != nil {
+		return
+	}
+
+	for {
+		msg := <-msgChan
+		call(NewMessage(s, &msg.Message))
+	}
+}
+func (s *Stomp) UnConsume(queue string) {
+	subscriberHeader := stompngo.Headers{"destination",
+		fmt.Sprintf("/queue/%s", queue), "ack", "client"}
+	s.conn.Unsubscribe(subscriberHeader)
 }
 
-func (k *StompService) Close() {
-	k.broker.Close()
+//Close
+func (s *Stomp) Close() {
+	if !s.conn.Connected() {
+		return
+	}
+	s.conn.Disconnect(stompngo.Headers{})
 }

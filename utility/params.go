@@ -5,13 +5,12 @@ import (
 	"net/url"
 )
 
-//GetParams 输入参数为URL参数，转换为Json字符串
-func GetParams(urlQuery string) (res string, err error) {
+func GetParamsMap(urlQuery string) (result map[string]interface{}, err error) {
 	values, err := url.ParseQuery(urlQuery)
 	if err != nil {
 		return
 	}
-	result := make(map[string]interface{})
+	result = make(map[string]interface{})
 	for k, v := range values {
 		if len(v) == 1 {
 			result[k] = v[0]
@@ -19,7 +18,12 @@ func GetParams(urlQuery string) (res string, err error) {
 			result[k] = v
 		}
 	}
+	return
+}
 
+//GetParams 输入参数为URL参数，转换为Json字符串
+func GetParams(urlQuery string) (res string, err error) {
+	result, err := GetParamsMap(urlQuery)
 	buffer, err := json.Marshal(&result)
 	if err != nil {
 		return
