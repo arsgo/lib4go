@@ -1,0 +1,139 @@
+package script
+
+import (
+	"errors"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/colinyl/lib4go/pool"
+	"github.com/yuin/gopher-lua"
+)
+
+type luaPoolObject struct {
+	state *lua.LState
+}
+type luaPoolFactory struct {
+	script  string
+	binders *LuaBinder
+}
+type LuaBinder struct {
+	libs     map[string]interface{}
+	types    map[string]interface{}
+	modeules map[string]map[string]interface{}
+}
+
+//LuaPool  LUA对象池
+type LuaPool struct {
+	p       *pool.ObjectPool
+	binders *LuaBinder
+}
+
+var _pool *LuaPool
+
+//Close close a object
+func (p *luaPoolObject) Close() {
+	if p.state != nil {
+		p.state.Close()
+	}
+}
+
+func (l *luaPoolObject) Check() bool {
+	return true
+}
+
+func (l *luaPoolObject) Fatal() {
+
+}
+func addPack(path string, l *lua.LState) (err error) {
+	pk := `local p = [[` + path + `]]
+local m_package_path = package.path
+package.path = string.format('%s;%s/?.lua;%s/?.luac;%s/?.dll',
+	m_package_path, p,p,p)`
+	err = l.DoString(pk)
+	return
+}
+
+//Create create object
+func (f *luaPoolFactory) Create() (p pool.Object, err error) {
+	o := &luaPoolObject{}
+	o.state = lua.NewState()
+	p = o
+	bindLib(o.state, f.binders)
+	addPack(`E:\Project\golang\bin\scripts`, o.state)
+	addPack(`E:\Project\golang\bin\scripts\xlib`, o.state)
+	err = o.state.DoFile(f.script)
+	if err != nil {
+		return
+	}
+	return
+}
+
+//NewLuaPool 构建LUA对象池
+func NewLuaPool() *LuaPool {
+	return &LuaPool{p: pool.New(), binders: &LuaBinder{}}
+}
+func (p *LuaPool) RegisterLibs(libs map[string]interface{}) error {
+	p.binders.libs = libs
+	return nil
+}
+func (p *LuaPool) RegisterTypes(types map[string]interface{}) error {
+	p.binders.types = types
+	return nil
+}
+func (p *LuaPool) RegisterModules(modules map[string]map[string]interface{}) error {
+	p.binders.modeules = modules
+	return nil
+}
+
+//PreLoad 预加载脚本
+func (p *LuaPool) PreLoad(script string, size int) error {
+	if !exist(script) {
+		return errors.New(fmt.Sprintf("not find script :%s", script))
+	}
+	p.p.Register(script, &luaPoolFactory{script: script, binders: p.binders}, size)
+	return nil
+}
+
+//Call 执行脚本main函数
+func (p *LuaPool) Call(script string, input ...string) (result []string, er error) {
+	result = []string{}
+	if strings.EqualFold(script, "") {
+		return result, errors.New(fmt.Sprintf("script(%s) is nil", script))
+	}
+
+	if !p.p.Exists(script) {
+		er = p.PreLoad(script, 1)
+		if er != nil {
+			return
+		}
+	}
+	o, er := p.p.Get(script)
+	if er != nil {
+		return nil, er
+	}
+	defer p.p.Recycle(script, o)
+	L := o.(*luaPoolObject).state
+	co := L.NewThread()
+	main := L.GetGlobal("main")
+	if main == lua.LNil {
+		panic(errors.New("cant find main func"))
+	}
+	fn := main.(*lua.LFunction)
+	var inputs []lua.LValue
+	for _, v := range input {
+		inputs = append(inputs, lua.LString(v))
+	}
+	st, err, values := L.Resume(co, fn, inputs[0:len(input)]...)
+	if st == lua.ResumeError {
+		return nil, err
+	}
+	for _, lv := range values {
+		result = append(result, lv.String())
+	}
+	return
+}
+func exist(filename string) bool {
+	_, err := os.Stat(filename)
+	return err == nil || os.IsExist(err)
+}
