@@ -12,13 +12,23 @@ type ElasticSearch struct {
 	host []string
 	conn *elastigo.Conn
 }
+type elasticConfig struct {
+	Host []string `json:"hosts"`
+}
 
-func New(hosts []string) (host *ElasticSearch) {
+func New(config string) (host *ElasticSearch, err error) {
+
+	var elasticonfig elasticConfig
+	err = json.Unmarshal([]byte(config), &elasticonfig)
+	if err != nil {
+		return
+	}
+
 	host = &ElasticSearch{}
 	host.conn = elastigo.NewConn()
-	host.host = hosts
-	host.conn.SetHosts(hosts)
-	return host
+	host.host = elasticonfig.Host
+	host.conn.SetHosts(elasticonfig.Host)
+	return
 }
 
 func (host *ElasticSearch) Create(name string, typeName string, jsonData string) (id string, err error) {
