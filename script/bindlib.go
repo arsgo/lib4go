@@ -3,23 +3,41 @@ package script
 import (
 	"fmt"
 
+	"github.com/colinyl/lib4go/des"
 	"github.com/colinyl/lib4go/utility"
 	"github.com/yuin/gopher-lua"
 )
 
-func myfunc() lua.LValue {
-	return lua.LString("value")
+func addPackages(l *lua.LState, paths ...string) (err error) {
+	for _, v := range paths {
+		pk := `local p = [[` + v + `]]
+local m_package_path = package.path
+package.path = string.format('%s;%s/?.lua;%s/?.luac;%s/?.dll',
+	m_package_path, p,p,p)`
+		err = l.DoString(pk)
+	}
+
+	return
 }
-func bindLib(l *lua.LState, binder *LuaBinder) {
+func bindLib(l *lua.LState, binder *LuaBinder) (err error) {
 	l.SetGlobal("md5", New(l, utility.Md5))
 	l.SetGlobal("print", New(l, fmt.Println))
-	/*if binder.modeules != nil {
-		for k, v := range binder.modeules {
-			l.PreloadModule(k, func(l *lua.LState) int {
-				return NewModule(l, v)
-			})
+	l.SetGlobal("des_encrypt", New(l, des.Encrypt))
+	l.SetGlobal("des_decrypt", New(l, des.Decrypt))
+	l.PreloadModule("des", NewLuaModule(getDesModule()).Loader)
+	l.PreloadModule("http", NewLuaModule(getHttpModule()).Loader)
+
+	if binder.packages != nil {
+		err = addPackages(l, binder.packages...)
+		if err != nil {
+			return
 		}
-	}*/
+	}
+	if binder.modeules != nil {
+		for k, v := range binder.modeules {
+			l.PreloadModule(k, NewLuaModule(v).Loader)
+		}
+	}
 	if binder.libs != nil {
 		for k, v := range binder.libs {
 			l.SetGlobal(k, New(l, v))
@@ -30,5 +48,5 @@ func bindLib(l *lua.LState, binder *LuaBinder) {
 			l.SetGlobal(k, NewType(l, v))
 		}
 	}
-
+	return
 }

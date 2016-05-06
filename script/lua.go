@@ -18,9 +18,10 @@ type luaPoolFactory struct {
 	binders *LuaBinder
 }
 type LuaBinder struct {
+	packages []string
 	libs     map[string]interface{}
 	types    map[string]interface{}
-	modeules map[string]map[string]interface{}
+	modeules map[string]map[string]lua.LGFunction
 }
 
 //LuaPool  LUA对象池
@@ -45,33 +46,26 @@ func (l *luaPoolObject) Check() bool {
 func (l *luaPoolObject) Fatal() {
 
 }
-func addPack(path string, l *lua.LState) (err error) {
-	pk := `local p = [[` + path + `]]
-local m_package_path = package.path
-package.path = string.format('%s;%s/?.lua;%s/?.luac;%s/?.dll',
-	m_package_path, p,p,p)`
-	err = l.DoString(pk)
-	return
-}
 
 //Create create object
 func (f *luaPoolFactory) Create() (p pool.Object, err error) {
 	o := &luaPoolObject{}
 	o.state = lua.NewState()
 	p = o
-	bindLib(o.state, f.binders)
-	addPack(`E:\Project\golang\bin\scripts`, o.state)
-	addPack(`E:\Project\golang\bin\scripts\xlib`, o.state)
-	err = o.state.DoFile(f.script)
+	err = bindLib(o.state, f.binders)
 	if err != nil {
 		return
 	}
+	err = o.state.DoFile(f.script)
 	return
 }
 
 //NewLuaPool 构建LUA对象池
 func NewLuaPool() *LuaPool {
 	return &LuaPool{p: pool.New(), binders: &LuaBinder{}}
+}
+func (p *LuaPool) SetPackages(paths ...string) {
+	p.binders.packages = append(p.binders.packages, paths...)
 }
 func (p *LuaPool) RegisterLibs(libs map[string]interface{}) error {
 	p.binders.libs = libs
@@ -81,7 +75,7 @@ func (p *LuaPool) RegisterTypes(types map[string]interface{}) error {
 	p.binders.types = types
 	return nil
 }
-func (p *LuaPool) RegisterModules(modules map[string]map[string]interface{}) error {
+func (p *LuaPool) RegisterModules(modules map[string]map[string]lua.LGFunction) error {
 	p.binders.modeules = modules
 	return nil
 }

@@ -28,55 +28,60 @@ type poolSet struct {
 }
 
 //New 创建对象池
-func newPoolSet(size int, fac ObjectFactory) *poolSet {
-	pool := &poolSet{Size: size, factory: fac, list: list.New()}
-	pool.init()
-	return pool
+func newPoolSet(size int, fac ObjectFactory) (pool *poolSet, err error) {
+	pool = &poolSet{Size: size, factory: fac, list: list.New()}
+	go pool.init()
+	return
 }
 
-func (p *poolSet) get() (Object, error) {
+func (p *poolSet) get() (obj Object, err error) {
 	p.mutex.Lock()
-	defer p.mutex.Unlock()
 	ele := p.list.Front()
-	if ele == nil {
-		return nil, errors.New("cant get object")
+	if ele != nil {
+		p.list.Remove(ele)
+		p.mutex.Unlock()
+		obj = ele.Value.(Object)
+		if obj != nil {
+			atomic.AddInt32(&p.usingCount, 1)
+			return
+		}
+	} else {
+		p.mutex.Unlock()
 	}
-	p.list.Remove(ele)
-	obj := ele.Value.(Object)
-	if obj != nil {
-		atomic.AddInt32(&p.usingCount, 1)
-		return obj, nil
-	}
-	return nil, errors.New("cant create object")
+	err = errors.New("cant get object from pool")
+	return
 }
 
 func (p *poolSet) back(obj Object) {
 	p.mutex.Lock()
-	defer p.mutex.Unlock()
-	atomic.AddInt32(&p.usingCount, -1)
 	p.list.PushBack(obj)
+	p.mutex.Unlock()
+	atomic.AddInt32(&p.usingCount, -1)
 }
 
 func (p *poolSet) close() {
 	p.mutex.Lock()
-	defer p.mutex.Unlock()
+	var ele *list.Element
 	for p.list.Len() > 0 {
-		ele := p.list.Front()
-		if ele == nil {
-			break
-		}
+		ele = p.list.Front()
+	}
+	p.mutex.Unlock()
+	if ele != nil {
 		ele.Value.(Object).Close()
 		p.list.Remove(ele)
 	}
+
 }
 
 func (p *poolSet) init() error {
 	for i := 0; i < p.Size; i++ {
 		obj, err := p.factory.Create()
 		if err != nil {
-			panic(err)
+			return err
 		}
+		p.mutex.Lock()
 		p.list.PushBack(obj)
+		p.mutex.Unlock()
 	}
 	return nil
 }
