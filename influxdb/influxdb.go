@@ -17,24 +17,40 @@ type influxDbConfig struct {
 	Password  string `json:"password"`
 	RowFormat string `json:"row"`
 }
+type InfluxDB struct {
+	config *influxDbConfig
+}
 
-func Save(f string, rows []map[string]interface{}) (err error) {
-	config := &influxDbConfig{}
-	err = json.Unmarshal([]byte(f), &config)
+func New(config string) (i *InfluxDB, err error) {
+	i = &InfluxDB{}
+	i.config = &influxDbConfig{}
+	err = json.Unmarshal([]byte(config), &config)
 	if err != nil {
 		return
 	}
-	if strings.EqualFold(config.Address, "") ||
-		strings.EqualFold(config.DbName, "") ||
-		strings.EqualFold(config.RowFormat, "") {
+	if strings.EqualFold(i.config.Address, "") ||
+		strings.EqualFold(i.config.DbName, "") ||
+		strings.EqualFold(i.config.RowFormat, "") {
 		err = errors.New("influxDbConfig必须参数不能为空")
 		return
 	}
-	url := fmt.Sprintf("%s/write?db=%s", config.Address, config.DbName)
+	return
+}
+func (db *InfluxDB) Save(rows string) (err error) {
+	var data []map[string]interface{}
+	err = json.Unmarshal([]byte(rows), &data)
+	if err != nil {
+		return
+	}
+	return db.SaveMaps(data)
+}
+
+func (db *InfluxDB) SaveMaps(rows []map[string]interface{}) (err error) {
+	url := fmt.Sprintf("%s/write?db=%s", db.config.Address, db.config.DbName)
 	var datas []string
 	for i := 0; i < len(rows); i++ {
 		d := utility.NewDataMaps(rows[i])
-		datas = append(datas, d.Translate(config.RowFormat))
+		datas = append(datas, d.Translate(db.config.RowFormat))
 	}
 	data := strings.Join(datas, "\n")
 	resp, err := http.Post(url, "application/x-www-form-urlencoded", strings.NewReader(data))

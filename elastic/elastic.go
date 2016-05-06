@@ -13,7 +13,7 @@ type ElasticSearch struct {
 	conn *elastigo.Conn
 }
 
-func NewElastic(hosts []string) (host *ElasticSearch) {
+func New(hosts []string) (host *ElasticSearch) {
 	host = &ElasticSearch{}
 	host.conn = elastigo.NewConn()
 	host.host = hosts
@@ -21,12 +21,12 @@ func NewElastic(hosts []string) (host *ElasticSearch) {
 	return host
 }
 
-func (host *ElasticSearch) Create(name string, typeName string, jsonData string) (id string,err error) {
+func (host *ElasticSearch) Create(name string, typeName string, jsonData string) (id string, err error) {
 	response, err := host.conn.Index(name, typeName, "", nil, jsonData)
 	if err != nil {
 		return
 	}
-	id=response.Id
+	id = response.Id
 	host.conn.Flush()
 	if response.Created {
 		return
