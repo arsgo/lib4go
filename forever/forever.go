@@ -78,6 +78,7 @@ func (f *forever) run() (string, error) {
 		select {
 		case <-interrupt:
 			f.svs.Stop()
+			f.dm.Start()
 			return fmt.Sprintf("%s was killed", f.name), nil
 		}
 	}
