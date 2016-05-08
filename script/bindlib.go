@@ -27,7 +27,7 @@ func bindLib(l *lua.LState, binder *LuaBinder) (err error) {
 	l.PreloadModule("des", NewLuaModule(getDesModule()).Loader)
 	l.PreloadModule("http", NewLuaModule(getHttpModule()).Loader)
 
-	if binder.packages != nil {
+	if binder.packages != nil && len(binder.packages) > 0 {
 		err = addPackages(l, binder.packages...)
 		if err != nil {
 			return

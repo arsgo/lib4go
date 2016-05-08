@@ -26,13 +26,16 @@ func (p *ObjectPool) Register(name string, factory ObjectFactory, size int) (err
 		return
 	}
 	p.lock.Lock()
-	if _, ok := p.pools[name]; !ok {
+	_, ok := p.pools[name]
+	p.lock.Unlock()
+	if !ok {
 		ps, err := newPoolSet(size, factory)
 		if err == nil {
+			p.lock.Lock()
 			p.pools[name] = ps
+			p.lock.Unlock()
 		}
 	}
-	p.lock.Unlock()
 	return
 
 }

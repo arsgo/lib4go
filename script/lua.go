@@ -54,9 +54,13 @@ func (f *luaPoolFactory) Create() (p pool.Object, err error) {
 	p = o
 	err = bindLib(o.state, f.binders)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	err = o.state.DoFile(f.script)
+	if err != nil {
+		fmt.Println(err)
+	}
 	return
 }
 
