@@ -4,7 +4,7 @@ import "fmt"
 
 type TaskDetail struct {
 	obj interface{}
-	fun func(name interface{})
+	fun func(obj interface{})
 }
 
 func NewTask(obj interface{}, fun func(obj interface{})) *TaskDetail {

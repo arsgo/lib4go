@@ -46,6 +46,9 @@ func (l *luaPoolObject) Check() bool {
 func (l *luaPoolObject) Fatal() {
 
 }
+func (f *luaPoolFactory) Close() {
+
+}
 
 //Create create object
 func (f *luaPoolFactory) Create() (p pool.Object, err error) {
