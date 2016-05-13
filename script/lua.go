@@ -88,11 +88,11 @@ func (p *LuaPool) RegisterModules(modules map[string]map[string]lua.LGFunction) 
 }
 
 //PreLoad 预加载脚本
-func (p *LuaPool) PreLoad(script string, size int) error {
+func (p *LuaPool) PreLoad(script string, minSize int, maxSize int) error {
 	if !exist(script) {
 		return errors.New(fmt.Sprintf("not find script :%s", script))
 	}
-	p.p.Register(script, &luaPoolFactory{script: script, binders: p.binders}, size)
+	p.p.Register(script, &luaPoolFactory{script: script, binders: p.binders}, minSize, maxSize)
 	return nil
 }
 
@@ -104,7 +104,7 @@ func (p *LuaPool) Call(script string, input ...string) (result []string, er erro
 	}
 
 	if !p.p.Exists(script) {
-		er = p.PreLoad(script, 1)
+		er = p.PreLoad(script, 1, 10)
 		if er != nil {
 			return
 		}

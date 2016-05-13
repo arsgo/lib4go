@@ -20,12 +20,12 @@ func New() *ObjectPool {
 }
 
 //Register 注册指定的对象
-func (p *ObjectPool) Register(name string, factory ObjectFactory, size int) (err error) {
+func (p *ObjectPool) Register(name string, factory ObjectFactory, minSize int, maxSize int) (err error) {
 	value := p.pools.Get(name)
 	if value != nil {
 		return
 	}
-	ps, err := newPoolSet(size, factory)
+	ps, err := newPoolSet(minSize, maxSize, factory)
 	if err != nil {
 		return
 	}
@@ -44,7 +44,7 @@ func (p *ObjectPool) UnRegister(name string) {
 	fmt.Println("pool.delete:", name)
 	p.pools.Delete(name)
 	fmt.Println("pool.close:", name)
-	obj.(*poolSet).close()
+	obj.(*poolSet).Close()
 	fmt.Println("pool.unRegister success:", name)
 }
 
@@ -92,7 +92,7 @@ func (p *ObjectPool) close(name string) bool {
 		return false
 	}
 	ps := v.(*poolSet)
-	ps.close()
+	ps.Close()
 	p.pools.Delete(name)
 	return true
 
