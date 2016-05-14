@@ -35,17 +35,12 @@ func (p *ObjectPool) Register(name string, factory ObjectFactory, minSize int, m
 
 }
 func (p *ObjectPool) UnRegister(name string) {
-	fmt.Println("pool.unRegister:", name)
 	obj := p.pools.Get(name)
 	if obj == nil {
-		fmt.Println("not find:", name)
 		return
 	}
-	fmt.Println("pool.delete:", name)
 	p.pools.Delete(name)
-	fmt.Println("pool.close:", name)
 	obj.(*poolSet).Close()
-	fmt.Println("pool.unRegister success:", name)
 }
 
 func (p *ObjectPool) Exists(name string) bool {
@@ -59,9 +54,9 @@ func (p *ObjectPool) Get(name string) (obj Object, err error) {
 		err = errors.New(fmt.Sprint("not find pool: ", name))
 		return
 	}
-	obj, err = v.(*poolSet).get()
+	obj, err = v.(*poolSet).Get()
 	if err != nil {
-		err = errors.New(fmt.Sprint("not find object from : ", name))
+		err = fmt.Errorf("not find object from : %s,%s", name, err)
 	}
 	return
 

@@ -195,6 +195,7 @@ func (l *Logger) doWrite(level string, content string) {
 		Path: l.Config.Appender.Path}
 	l.DataChan <- event
 	if l.OpenSysLog {
+		log.SetFlags(log.Ldate | log.Lmicroseconds)
 		log.Println(content)
 	}
 }
