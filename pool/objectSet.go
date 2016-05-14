@@ -33,6 +33,12 @@ type poolSet struct {
 
 //New 创建对象池
 func newPoolSet(minSize int, maxSize int, fac ObjectFactory) (pool *poolSet, err error) {
+	if maxSize == 0 {
+		maxSize = 10
+	}
+	if minSize == 0 {
+		minSize = 1
+	}
 	pool = &poolSet{minSize: minSize, maxSize: maxSize, factory: fac, queue: make(chan Object, maxSize),
 		notity: make(chan int, maxSize)}
 	go pool.init()
@@ -92,8 +98,7 @@ func (p *poolSet) Close() {
 
 //createNew 创建新的连接
 func (p *poolSet) createNew() {
-	if atomic.LoadInt32(&p.current) < int32(p.maxSize) || p.maxSize == 0 {
-		atomic.AddInt32(&p.current, 1)
+	if atomic.LoadInt32(&p.current) < int32(p.maxSize) {
 		p.notity <- 1
 	}
 }
@@ -101,11 +106,7 @@ func (p *poolSet) createNew() {
 //init 异步创建对象，factory.create要求返回正确可使用的对象，当对象不能创建成功时
 // 该函数将持续堵塞，直到创建成功或收到关闭指定
 func (p *poolSet) init() {
-	var min int
-	if p.minSize > 0 {
-		min = p.minSize
-	}
-	for i := 0; i < min; i++ {
+	for i := 0; i < p.minSize; i++ {
 		p.createNew()
 	}
 	pk := time.NewTicker(time.Millisecond * 5)
