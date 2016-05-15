@@ -204,7 +204,7 @@ func getDefaultConfigLogger() []*LoggerConfig {
 	configs := &[1]*LoggerConfig{}
 	configs[0] = &LoggerConfig{}
 	configs[0].Name = "*"
-	configs[0].Appender = &LoggerAppender{Level: "All", Type: "FileAppender", Path: "./logs/%name/%level/def_%date.log"}
+	configs[0].Appender = &LoggerAppender{Level: "All", Type: "FileAppender", Path: "./logs/%level/%name/%pid_%date.log"}
 	return configs[:]
 }
 func createDefautConfig(config []*LoggerConfig) {
@@ -310,6 +310,7 @@ func transferPath(event *LoggerEvent) string {
 	formater["ss"] = time.Now().Format("05")
 	formater["level"] = event.Level
 	formater["name"] = event.Name
+	formater["pid"] = fmt.Sprintf("%d", os.Getpid())
 	for i, v := range formater {
 		match, _ := regexp.Compile("%" + i)
 		resultString = match.ReplaceAllString(resultString, v)
