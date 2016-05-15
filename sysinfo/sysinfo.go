@@ -2,8 +2,10 @@ package sysinfo
 
 import (
 	"encoding/json"
+	"runtime"
 
 	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 )
 
@@ -25,7 +27,7 @@ func GetCPU() []map[string]interface{} {
 	return data
 }
 func GetDisk() []map[string]interface{} {
-	/*var stats []*disk.UsageStat
+	var stats []*disk.UsageStat
 	if runtime.GOOS == "windows" {
 		v, _ := disk.Partitions(true)
 		for _, p := range v {
@@ -40,7 +42,5 @@ func GetDisk() []map[string]interface{} {
 	buffer, _ := json.Marshal(&stats)
 	var data []map[string]interface{}
 	json.Unmarshal(buffer, &data)
-	return data*/
-	return nil
-
+	return data
 }

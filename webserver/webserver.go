@@ -7,6 +7,7 @@ import (
 //WebHandler Web处理程序
 type WebHandler struct {
 	Path    string
+	Script string
 	Method  string
 	Handler interface{}
 }
