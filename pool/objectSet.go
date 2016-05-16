@@ -71,9 +71,6 @@ func (p *poolSet) getSingle(create bool) (obj Object, err error) {
 }
 
 func (p *poolSet) back(obj Object) {
-	defer func() {
-		//	fmt.Println("pool size:", atomic.LoadInt32(&p.canUse))
-	}()
 	if p.isClose {
 		obj.Close()
 		return
