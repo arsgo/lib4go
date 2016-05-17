@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 )
@@ -180,20 +179,20 @@ func createLogger(name string, configName string) (*Logger, error) {
 }
 
 func (l *Logger) doWrite(level string, content string) {
-	if strings.EqualFold(content, "") {
-		return
-	}
-	if levelIndexs[l.Level] < levelIndexs[level] {
-		return
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("write log exception ", r)
+	/*	if strings.EqualFold(content, "") {
+			return
 		}
-	}()
-	event := &LoggerEvent{Level: level, Name: l.Name, Now: time.Now(), Content: content,
-		Path: l.Config.Appender.Path}
-	l.DataChan <- event
+		if levelIndexs[l.Level] < levelIndexs[level] {
+			return
+		}
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("write log exception ", r)
+			}
+		}()
+		event := &LoggerEvent{Level: level, Name: l.Name, Now: time.Now(), Content: content,
+			Path: l.Config.Appender.Path}
+		l.DataChan <- event*/
 	if l.OpenSysLog {
 		log.SetFlags(log.Ldate | log.Lmicroseconds)
 		log.Println(content)
