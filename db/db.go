@@ -4,14 +4,18 @@ import (
 	"database/sql"
 	"os"
 	"strings"
-	//_ "github.com/mattn/go-oci8"
-	_ "github.com/mattn/go-sqlite3"
+
+	orcl "github.com/colinyl/go-oci8" //http://blog.sina.com.cn/s/blog_48c95a190102w2ln.html
+	sqlite "github.com/colinyl/go-sqlite3"
 )
 
 const (
 	//SQLITE3 Sqlite3数据库
 	SQLITE3 = "sqlite3"
+	//OCI8 oralce数据库
+	OCI8 = "oci8"
 )
+
 
 //DB 数据库实体
 type DB struct {
@@ -26,7 +30,14 @@ type DB struct {
 //NewDB 创建DB实例
 func NewDB(provider string, connString string) (obj *DB, err error) {
 	obj = &DB{provider: provider, connString: connString, maxIdle: 3, maxOpen: 10, lang: "AMERICAN_AMERICA.AL32UTF8"}
-	obj.db, err = sql.Open(provider, connString)
+	switch strings.ToLower(provider) {
+	case "oracle":
+		orcl.Load()
+		obj.db, err = sql.Open(OCI8, connString)
+	case "sqlite":
+		sqlite.Load()
+		obj.db, err = sql.Open(SQLITE3, connString)
+	}
 	return
 }
 
@@ -36,13 +47,17 @@ func (db *DB) SetPoolSize(maxIdle int, maxOpen int) {
 	db.db.SetMaxOpenConns(maxOpen)
 }
 
+//SetLang 设置语言
+func (db *DB) SetLang(lang string) {
+	db.lang = lang
+	db.setEnv("NLS_LANG", lang)
+}
+
 //QuerySchema 根据包含@名称占位符的查询语句执行查询语句
 func (db *DB) QuerySchema(query string, data map[string]interface{}) (dataRows []map[string]interface{}, err error) {
 	query, args := GetSchema(db.provider, query, data)
 	return db.Query(query, args...)
 }
-
-
 
 //Query 执行SQL查询语句
 func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]interface{}, err error) {
@@ -83,15 +98,15 @@ func (db *DB) Execute(query string, args ...interface{}) (affectedRow int64, err
 	if err != nil {
 		return
 	}
-	
+
 	affectedRow, err = result.RowsAffected()
 	return
 }
 
-//SetLang 设置语言环境变量
-func (db *DB) SetLang() {
-	nlsLang := os.Getenv("NLS_LANG")
-	if strings.EqualFold(nlsLang, db.lang) {
-		os.Setenv("NLS_LANG", db.lang)
+//setEnv 设置环境变量
+func (db *DB) setEnv(name string, value string) {
+	nlsLang := os.Getenv(name)
+	if !strings.EqualFold(nlsLang, value) {
+		os.Setenv(name, value)
 	}
 }
