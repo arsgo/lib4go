@@ -5,9 +5,15 @@ import (
 	"os"
 	"strings"
 
-	orcl "github.com/colinyl/go-oci8" //http://blog.sina.com.cn/s/blog_48c95a190102w2ln.html
+	orcl "github.com/colinyl/go-oci8"
 	sqlite "github.com/colinyl/go-sqlite3"
 )
+
+/*
+http://www.simonzhang.net/?p=2890
+http://blog.sina.com.cn/s/blog_48c95a190102w2ln.html
+http://www.tudou.com/programs/view/yet9OngrV_4/
+*/
 
 const (
 	//SQLITE3 Sqlite3数据库
@@ -15,7 +21,6 @@ const (
 	//OCI8 oralce数据库
 	OCI8 = "oci8"
 )
-
 
 //DB 数据库实体
 type DB struct {
