@@ -14,12 +14,12 @@ type DataMap struct {
 func NewDataMap() DataMap {
 	return DataMap{data: make(map[string]string)}
 }
-func NewDataMaps(d map[string]interface{}) *DataMap {
+func NewDataMaps(d map[string]interface{}) DataMap {
 	current := make(map[string]string)
 	for k, v := range d {
 		current[fmt.Sprintf("@%s", k)] = fmt.Sprint(v)
 	}
-	return &DataMap{data: current}
+	return DataMap{data: current}
 }
 
 //Add 添加变量
