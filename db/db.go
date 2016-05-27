@@ -2,17 +2,21 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 	"strings"
 
-	orcl "github.com/colinyl/go-oci8"
-	sqlite "github.com/colinyl/go-sqlite3"
+	_ "github.com/mattn/go-oci8"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 /*
+github.com/mattn/go-oci8
+
 http://www.simonzhang.net/?p=2890
 http://blog.sina.com.cn/s/blog_48c95a190102w2ln.html
 http://www.tudou.com/programs/view/yet9OngrV_4/
+https://github.com/wendal/go-oci8/downloads
 */
 
 const (
@@ -37,10 +41,10 @@ func NewDB(provider string, connString string) (obj *DB, err error) {
 	obj = &DB{provider: provider, connString: connString, maxIdle: 3, maxOpen: 10, lang: "AMERICAN_AMERICA.AL32UTF8"}
 	switch strings.ToLower(provider) {
 	case "oracle":
-		orcl.Load()
+		//orcl.Load()
 		obj.db, err = sql.Open(OCI8, connString)
 	case "sqlite":
-		sqlite.Load()
+		//	sqlite.Load()
 		obj.db, err = sql.Open(SQLITE3, connString)
 	}
 	return
@@ -78,14 +82,19 @@ func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]in
 	for rows.Next() {
 		row := make(map[string]interface{})
 		dataRows = append(dataRows, row)
+		var buffer []interface{}
 		for index := 0; index < len(columns); index++ {
-			var value interface{}
-			err = rows.Scan(&value)
-			if err != nil {
-				return
-			}
+			var va interface{}
+			buffer = append(buffer, &va)
+		}
+		err = rows.Scan(buffer...)
+		if err != nil {
+			return
+		}
+		for index := 0; index < len(columns); index++ {
 			key := columns[index]
-			row[key] = value
+			value := buffer[index]
+			row[key] = strings.TrimPrefix(fmt.Sprintf("%s", value), "&")
 		}
 	}
 	return
