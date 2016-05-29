@@ -19,29 +19,41 @@ type requestKeyValue struct {
 type ConcurrentMap struct {
 	data    map[string]interface{}
 	request chan requestKeyValue
+	isClose bool
 }
 
 //NewConcurrentMap 创建线程安全MAP
 func NewConcurrentMap() (m ConcurrentMap) {
 	m = ConcurrentMap{}
 	m.data = make(map[string]interface{})
-	m.request = make(chan requestKeyValue, 10000)
+	m.request = make(chan requestKeyValue, 1000000)
 	go m.do()
 	return
 }
 
 //Set 添加或修改指定KEY对应的值
 func (c ConcurrentMap) Set(key string, value interface{}) {
+	if c.isClose {
+		return
+	}
 	c.request <- requestKeyValue{key: key, value: value, method: SET, result: make(chan interface{}, 1)}
+
 }
 
 //Delete 删除指定KEY的数据
 func (c ConcurrentMap) Delete(key string) {
+	if c.isClose {
+		return
+	}
 	c.request <- requestKeyValue{key: key, method: DEL}
+
 }
 
 //Get 获取指定KEY对应的数据
 func (c ConcurrentMap) Get(key string) interface{} {
+	if c.isClose {
+		return nil
+	}
 	ch := make(chan interface{}, 1)
 	c.request <- requestKeyValue{key: key, method: GET, result: ch}
 	value := <-ch
@@ -51,6 +63,9 @@ func (c ConcurrentMap) Get(key string) interface{} {
 
 //GetAll 获取所有所有元素的拷贝
 func (c ConcurrentMap) GetAll() map[string]interface{} {
+	if c.isClose {
+		return make(map[string]interface{})
+	}
 	ch := make(chan interface{}, 1)
 	c.request <- requestKeyValue{method: ALL, result: ch}
 	data := <-ch
@@ -62,12 +77,14 @@ func (c ConcurrentMap) GetAll() map[string]interface{} {
 
 //Close 关闭当前线程安全MAP
 func (c ConcurrentMap) Close() {
+	if c.isClose {
+		return
+	}
 	c.request <- requestKeyValue{method: CLOSE}
 }
 
 //do 单线程处理外部所有操作
 func (c ConcurrentMap) do() {
-LOOP:
 	for {
 		select {
 		case data := <-c.request:
@@ -94,7 +111,7 @@ LOOP:
 						c.data[data.key] = data.value
 					}
 				case CLOSE:
-					break LOOP
+					c.isClose = true
 				}
 			}
 

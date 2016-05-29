@@ -24,7 +24,7 @@ func (n *NetworkFactory) Create() Object {
 
 func Test_poolset(t *testing.T) {
 	var count int = 10
-	set := newPoolSet(count, &NetworkFactory{})
+	set := newPoolSet(count, count, &NetworkFactory{})
 	if set.list.Len() != count {
 		t.Error(fmt.Sprintf("初始化失败:%d", set.list.Len()))
 	}
