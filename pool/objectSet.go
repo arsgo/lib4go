@@ -26,8 +26,9 @@ type poolSet struct {
 	queue   chan Object
 	factory ObjectFactory
 	current int32
-	notity  chan int
 	canUse  int32
+	added   int32
+	notity  chan int
 	isClose bool
 }
 
@@ -53,18 +54,19 @@ func (p *poolSet) Get() (obj Object, err error) {
 }
 
 func (p *poolSet) getSingle(create bool) (obj Object, err error) {
-	ticker := time.NewTicker(time.Millisecond * 50)
-	for i := 0; i < 3; i++ {
-		select {
-		case ps := <-p.queue:
-			obj = ps
-			atomic.AddInt32(&p.canUse, -1)
-			return
-		case <-ticker.C:
-			if i == 0 && create {
-				p.createNew()
-			}
+	defer func() {
+		if atomic.LoadInt32(&p.canUse) == 0 && atomic.LoadInt32(&p.current) > 0 {
+			p.createNew()
 		}
+	}()
+	ticker := time.NewTicker(time.Millisecond * 50)
+	select {
+	case ps := <-p.queue:
+		obj = ps
+		atomic.AddInt32(&p.canUse, -1)
+		return
+	case <-ticker.C:
+		break
 	}
 	err = fmt.Errorf("cant get object from pool:%d/%d/%d", atomic.LoadInt32(&p.current), p.minSize, p.maxSize)
 	return
@@ -77,6 +79,10 @@ func (p *poolSet) back(obj Object) {
 	}
 	p.queue <- obj
 	atomic.AddInt32(&p.canUse, 1)
+}
+func (p *poolSet) reCreate() {
+	atomic.AddInt32(&p.current, -1)
+	p.createNew()
 }
 
 func (p *poolSet) Close() {
@@ -95,8 +101,11 @@ func (p *poolSet) Close() {
 
 //createNew 创建新的连接
 func (p *poolSet) createNew() {
-	if atomic.LoadInt32(&p.current) < int32(p.maxSize) {
-		p.notity <- 1
+	if atomic.LoadInt32(&p.added) < int32(p.maxSize) {
+		v := atomic.AddInt32(&p.added, 1)
+		if v < int32(p.maxSize) {
+			p.notity <- 1
+		}
 	}
 }
 
@@ -119,6 +128,7 @@ func (p *poolSet) init() {
 				time.Sleep(time.Second * 5)
 				p.createNew()
 			} else {
+				atomic.AddInt32(&p.current, 1)
 				p.back(obj)
 			}
 		case <-pk.C:

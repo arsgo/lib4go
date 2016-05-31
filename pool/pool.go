@@ -77,7 +77,7 @@ func (p *ObjectPool) Unusable(name string, obj Object) {
 	if v == nil {
 		return
 	}
-	v.(*poolSet).createNew()
+	v.(*poolSet).reCreate()
 }
 
 //Close 关闭一个对象

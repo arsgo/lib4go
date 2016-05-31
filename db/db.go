@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
 	_ "github.com/mattn/go-oci8"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -84,7 +83,7 @@ func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]in
 		dataRows = append(dataRows, row)
 		var buffer []interface{}
 		for index := 0; index < len(columns); index++ {
-			var va interface{}
+			var va []byte
 			buffer = append(buffer, &va)
 		}
 		err = rows.Scan(buffer...)
