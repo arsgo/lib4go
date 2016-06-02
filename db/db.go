@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
 	_ "github.com/mattn/go-oci8"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -40,10 +41,8 @@ func NewDB(provider string, connString string) (obj *DB, err error) {
 	obj = &DB{provider: provider, connString: connString, maxIdle: 3, maxOpen: 10, lang: "AMERICAN_AMERICA.AL32UTF8"}
 	switch strings.ToLower(provider) {
 	case "oracle":
-		//orcl.Load()
 		obj.db, err = sql.Open(OCI8, connString)
 	case "sqlite":
-		//	sqlite.Load()
 		obj.db, err = sql.Open(SQLITE3, connString)
 	}
 	return
@@ -61,12 +60,6 @@ func (db *DB) SetLang(lang string) {
 	db.setEnv("NLS_LANG", lang)
 }
 
-//QuerySchema 根据包含@名称占位符的查询语句执行查询语句
-func (db *DB) QuerySchema(query string, data map[string]interface{}) (dataRows []map[string]interface{}, err error) {
-	query, args := GetSchema(db.provider, query, data)
-	return db.Query(query, args...)
-}
-
 //Query 执行SQL查询语句
 func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]interface{}, err error) {
 	rows, err := db.db.Query(query, args...)
@@ -74,6 +67,10 @@ func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]in
 		return
 	}
 	defer rows.Close()
+	return queryResolve(rows)
+
+}
+func queryResolve(rows *sql.Rows) (dataRows []map[string]interface{}, err error) {
 	columns, err := rows.Columns()
 	if err != nil {
 		return
@@ -99,19 +96,12 @@ func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]in
 	return
 }
 
-//ExecuteSchema 根据包含@名称占位符的语句执行查询语句
-func (db *DB) ExecuteSchema(query string, data map[string]interface{}) (affectedRow int64, err error) {
-	query, args := GetSchema(db.provider, query, data)
-	return db.Execute(query, args...)
-}
-
 //Execute 执行SQL操作语句
 func (db *DB) Execute(query string, args ...interface{}) (affectedRow int64, err error) {
 	result, err := db.db.Exec(query, args...)
 	if err != nil {
 		return
 	}
-
 	affectedRow, err = result.RowsAffected()
 	return
 }
