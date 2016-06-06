@@ -1,5 +1,5 @@
 package mq
-
+/*
 import (
 	"errors"
 	"fmt"
@@ -62,3 +62,4 @@ func (k *Kafka) UnConsume(queue string) {
 func (k *Kafka) Close() {
 	k.quitChan <- struct{}{}
 }
+*/

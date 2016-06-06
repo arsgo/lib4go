@@ -37,8 +37,8 @@ func NewMQService(config string) (svs IMQService, err error) {
 	switch strings.ToLower(p.Type) {
 	case stompMQ:
 		svs, err = NewStompService(config)
-	case kafkaMQ:
-		svs, err = NewKafkaService(config)
+	//case kafkaMQ:
+	//	svs, err = NewKafkaService(config)
 	default:
 		err = errors.New("not support mq type")
 	}

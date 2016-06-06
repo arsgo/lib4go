@@ -1,5 +1,5 @@
 package mq
-
+/*
 import "github.com/jdamick/kafka"
 
 type KafkaMessage struct {
@@ -24,3 +24,4 @@ func NewKafkaMessage(msg *kafka.Message) *KafkaMessage {
 	//return &StompMessage{s: s, msg: msg, Message: string(msg.Body)}
 	return &KafkaMessage{msg: msg, Message: msg.PayloadString()}
 }
+*/

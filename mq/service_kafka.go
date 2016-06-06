@@ -1,5 +1,5 @@
 package mq
-
+/*
 import (
 	"encoding/json"
 	"errors"
@@ -53,3 +53,4 @@ func (k *KafkaService) UnConsume(queue string) {
 func (k *KafkaService) Close() {
 	k.broker.Close()
 }
+*/
