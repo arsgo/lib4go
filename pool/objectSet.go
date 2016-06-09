@@ -34,12 +34,6 @@ type poolSet struct {
 
 //New 创建对象池
 func newPoolSet(minSize int, maxSize int, fac ObjectFactory) (pool *poolSet, err error) {
-	if maxSize == 0 {
-		maxSize = 10
-	}
-	if minSize == 0 {
-		minSize = 1
-	}
 	pool = &poolSet{minSize: minSize, maxSize: maxSize, factory: fac, queue: make(chan Object, maxSize),
 		notity: make(chan int, maxSize)}
 	go pool.init()
