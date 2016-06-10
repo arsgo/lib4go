@@ -125,6 +125,7 @@ func (p *LuaPool) Call(script string, input ...string) (result []string, er erro
 	for _, v := range input {
 		inputs = append(inputs, lua.LString(v))
 	}
+	defer L.DoString("collectgarbage('collect')")
 	st, err, values := L.Resume(co, fn, inputs[0:len(input)]...)
 	if st == lua.ResumeError {
 		return nil, err
