@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -156,9 +158,22 @@ func (l *Logger) Debug(content ...interface{}) {
 func (l *Logger) Debugf(format string, a ...interface{}) {
 	l.Debug(fmt.Sprintf(format, a...))
 }
+func (l *Logger) IFError(i bool, content ...interface{}) {
+	if !i {
+		return
+	}
+	l.Error(content...)
+}
 func (l *Logger) Error(content ...interface{}) {
 	l.print(SLevel_Error, fmt.Sprint(content...))
 }
+func (l *Logger) IFErrorf(i bool, format string, a ...interface{}) {
+	if !i {
+		return
+	}
+	l.Errorf(format, a...)
+}
+
 func (l *Logger) Errorf(format string, a ...interface{}) {
 	l.Error(fmt.Sprintf(format, a...))
 }
@@ -185,10 +200,21 @@ func (l *Logger) print(level string, content string) {
 
 	if l.OpenSysLog {
 		log.SetFlags(log.Ldate | log.Lmicroseconds)
-		log.Println(content)
+		if level == SLevel_Error {
+			log.Println(content, "\n", l.getCaller(3), l.getCaller(4),l.getCaller(5), l.getCaller(6))
+		} else {
+			log.Println(content)
+		}
+
 	}
 
 }
+
+func (l *Logger) getCaller(index int) string {
+	_, file, line, _ := runtime.Caller(index)
+	return fmt.Sprintf("%s %d", filepath.Base(file), line)
+}
+
 func (l *Logger) getEvents(level string, content string) (events map[string]*LoggerEvent) {
 	events = make(map[string]*LoggerEvent)
 	currentLevel := levelMap[level]

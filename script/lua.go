@@ -28,6 +28,8 @@ type LuaBinder struct {
 type LuaPool struct {
 	p       *pool.ObjectPool
 	binders *LuaBinder
+	minSize int
+	maxSize int
 }
 
 var _pool *LuaPool
@@ -69,7 +71,7 @@ func (f *luaPoolFactory) Create() (p pool.Object, err error) {
 
 //NewLuaPool 构建LUA对象池
 func NewLuaPool() *LuaPool {
-	return &LuaPool{p: pool.New(), binders: &LuaBinder{}}
+	return &LuaPool{p: pool.New(), binders: &LuaBinder{}, minSize: 1, maxSize: 10}
 }
 func (p *LuaPool) SetPackages(paths ...string) {
 	p.binders.packages = append(p.binders.packages, paths...)
@@ -87,6 +89,12 @@ func (p *LuaPool) RegisterModules(modules map[string]map[string]lua.LGFunction) 
 	return nil
 }
 
+//SetPoolSize 设置连接池大小
+func (p *LuaPool) SetPoolSize(minSize int, maxSize int) {
+	p.minSize = minSize
+	p.maxSize = maxSize
+}
+
 //PreLoad 预加载脚本
 func (p *LuaPool) PreLoad(script string, minSize int, maxSize int) error {
 	if !exist(script) {
@@ -102,9 +110,8 @@ func (p *LuaPool) Call(script string, input ...string) (result []string, er erro
 	if strings.EqualFold(script, "") {
 		return result, errors.New(fmt.Sprintf("script(%s) is nil", script))
 	}
-
 	if !p.p.Exists(script) {
-		er = p.PreLoad(script, 1, 10)
+		er = p.PreLoad(script, p.minSize, p.maxSize)
 		if er != nil {
 			return
 		}
@@ -118,17 +125,17 @@ func (p *LuaPool) Call(script string, input ...string) (result []string, er erro
 	co := L.NewThread()
 	main := L.GetGlobal("main")
 	if main == lua.LNil {
-		panic(errors.New("cant find main func"))
+		return nil, errors.New("cant find main func")
 	}
 	fn := main.(*lua.LFunction)
 	var inputs []lua.LValue
 	for _, v := range input {
 		inputs = append(inputs, lua.LString(v))
 	}
-	defer L.DoString("collectgarbage('collect')")
 	st, err, values := L.Resume(co, fn, inputs[0:len(input)]...)
+	co.Close()
 	if st == lua.ResumeError {
-		return nil, err
+		return nil, fmt.Errorf("resume error:%s", err)
 	}
 	for _, lv := range values {
 		result = append(result, lv.String())

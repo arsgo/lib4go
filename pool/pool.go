@@ -19,12 +19,45 @@ func New() *ObjectPool {
 	return pools
 }
 
-//Register 注册指定的对象
-func (p *ObjectPool) Register(name string, factory ObjectFactory, minSize int, maxSize int) (err error) {
-	value := p.pools.Get(name)
-	if value != nil {
+//ResetAllPoolSize 重置所有链接池大小
+func (p *ObjectPool) ResetAllPoolSize(minSize int, maxSize int) {
+	if minSize == 0 || maxSize == 0 {
+		err := fmt.Errorf("minSize:%d 或 maxSize:%d 不能为0", minSize, maxSize)
+		fmt.Println(err)
 		return
 	}
+	all := p.pools.GetAll()
+	for _, value := range all {
+		value.(*poolSet).SetSize(minSize, maxSize)
+	}
+}
+
+//ResetPoolSize 重置链接池大小
+func (p *ObjectPool) ResetPoolSize(name string, minSize int, maxSize int) {
+	if minSize == 0 || maxSize == 0 {
+		err := fmt.Errorf("%s minSize:%d 或 maxSize:%d 不能为0", name, minSize, maxSize)
+		fmt.Println(err)
+		return
+	}
+	value := p.pools.Get(name)
+	if value != nil {
+		value.(*poolSet).SetSize(minSize, maxSize)
+	}
+}
+
+//Register 注册指定的对象
+func (p *ObjectPool) Register(name string, factory ObjectFactory, minSize int, maxSize int) (err error) {
+	if minSize == 0 || maxSize == 0 {
+		err = fmt.Errorf("%s minSize:%d 或 maxSize:%d 不能为0", name, minSize, maxSize)
+		fmt.Println(err)
+		return
+	}
+	value := p.pools.Get(name)
+	if value != nil {
+		value.(*poolSet).SetSize(minSize, maxSize)
+		return
+	}
+
 	ps, err := newPoolSet(minSize, maxSize, factory)
 	if err != nil {
 		return
@@ -78,6 +111,7 @@ func (p *ObjectPool) Unusable(name string, obj Object) {
 		return
 	}
 	v.(*poolSet).reCreate()
+	obj.Close()
 }
 
 //Close 关闭一个对象
@@ -91,4 +125,12 @@ func (p *ObjectPool) close(name string) bool {
 	p.pools.Delete(name)
 	return true
 
+}
+
+//Close 关闭所有连接池
+func (p *ObjectPool) Close() {
+	all := p.pools.GetAll()
+	for name := range all {
+		p.close(name)
+	}
 }

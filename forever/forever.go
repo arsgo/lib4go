@@ -31,10 +31,9 @@ func NewForever(svs service, log *logger.Logger, name string, desc string) *fore
 	return &forever{dm: dm, name: name, desc: desc, svs: svs, log: log}
 }
 func (f *forever) Start() {
-	defer func(){
-		if r:=recover();r!=nil{
+	defer func() {
+		if r := recover(); r != nil {
 			f.log.Error(r)
-			fmt.Println("error happend is write to file")
 		}
 	}()
 	result, err := f.run()

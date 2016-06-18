@@ -9,12 +9,17 @@ import (
 )
 
 func addPackages(l *lua.LState, paths ...string) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("addPackages:", r)
+		}
+	}()
 	for _, v := range paths {
 		pk := `local p = [[` + v + `]]
 local m_package_path = package.path
 package.path = string.format('%s;%s/?.lua;%s/?.luac;%s/?.dll',
 	m_package_path, p,p,p)`
-	//	fmt.Println("pk.path:", pk)
+		//	fmt.Println("pk.path:", pk)
 
 		err = l.DoString(pk)
 		if err != nil {

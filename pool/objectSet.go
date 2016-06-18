@@ -21,8 +21,8 @@ type ObjectFactory interface {
 //PoolSet
 type poolSet struct {
 	mutex   sync.Mutex
-	minSize int
-	maxSize int
+	minSize int32
+	maxSize int32
 	queue   chan Object
 	factory ObjectFactory
 	current int32
@@ -34,10 +34,24 @@ type poolSet struct {
 
 //New 创建对象池
 func newPoolSet(minSize int, maxSize int, fac ObjectFactory) (pool *poolSet, err error) {
-	pool = &poolSet{minSize: minSize, maxSize: maxSize, factory: fac, queue: make(chan Object, maxSize),
-		notity: make(chan int, maxSize)}
+	pool = &poolSet{minSize: int32(minSize), maxSize: int32(maxSize), factory: fac, queue: make(chan Object, maxSize*10),
+		notity: make(chan int, maxSize*10)}
 	go pool.init()
 	return
+}
+func (p *poolSet) SetSize(min int, max int) {
+	p.resetMinMaxSize(min, max)
+}
+func (p *poolSet) resetMinMaxSize(min int, max int) {
+	atomic.SwapInt32(&p.maxSize, int32(max))
+	minValue := atomic.SwapInt32(&p.minSize, int32(min))
+	remain := int(atomic.LoadInt32(&p.minSize) - minValue)
+	if remain > 0 {
+		fmt.Printf("reset pool set min:%d,max:%d\r\n", min, max)
+	}
+	for i := 0; i < remain; i++ {
+		p.createNew()
+	}
 }
 func (p *poolSet) Get() (obj Object, err error) {
 	if p.isClose {
@@ -106,9 +120,10 @@ func (p *poolSet) createNew() {
 //init 异步创建对象，factory.create要求返回正确可使用的对象，当对象不能创建成功时
 // 该函数将持续堵塞，直到创建成功或收到关闭指定
 func (p *poolSet) init() {
-	for i := 0; i < p.minSize; i++ {
+	for i := 0; i < int(atomic.LoadInt32(&p.minSize)); i++ {
 		p.createNew()
 	}
+
 	pk := time.NewTicker(time.Millisecond * 5)
 	for {
 		select {
