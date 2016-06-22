@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"time"
 
 	"github.com/colinyl/lib4go/concurrent"
@@ -190,18 +189,18 @@ func (l *Logger) Printf(format string, a ...interface{}) {
 	l.Fatal(fmt.Sprintf(format, a...))
 }
 func (l *Logger) print(level string, content string) {
-	if strings.EqualFold(content, "") {
-		return
-	}
-	events := l.getEvents(level, content)
-	for _, event := range events {
-		l.DataChan <- event
-	}
-
+	/*	if strings.EqualFold(content, "") {
+			return
+		}
+		events := l.getEvents(level, content)
+		for _, event := range events {
+			l.DataChan <- event
+		}
+	*/
 	if l.OpenSysLog {
 		log.SetFlags(log.Ldate | log.Lmicroseconds)
 		if level == SLevel_Error {
-			log.Println(content, "\n", l.getCaller(3), l.getCaller(4),l.getCaller(5), l.getCaller(6))
+			log.Println(content, "\n", l.getCaller(3), l.getCaller(4), l.getCaller(5), l.getCaller(6))
 		} else {
 			log.Println(content)
 		}

@@ -30,7 +30,7 @@ package.path = string.format('%s;%s/?.lua;%s/?.luac;%s/?.dll',
 	return
 }
 func bindLib(l *lua.LState, binder *LuaBinder) (err error) {
-	l.SetGlobal("md5", New(l, utility.Md5))
+	l.SetGlobal("sys_md5", New(l, utility.Md5))
 	l.SetGlobal("print", New(l, fmt.Println))
 	l.SetGlobal("des_encrypt", New(l, des.Encrypt))
 	l.SetGlobal("des_decrypt", New(l, des.Decrypt))

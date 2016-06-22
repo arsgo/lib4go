@@ -1,22 +1,54 @@
 package db
 
+import (
+	"encoding/json"
+	"strings"
+)
+
 //DBMAP
 type DBMap struct {
 	db *DB
 }
+type DBMapConfig struct {
+	Provider   string `json:"provider"`
+	ConnString string `json:"connString"`
+	Min        int    `json:"min"`
+	Max        int    `json:"max"`
+	Lang       string `json:"lang"`
+}
 
 //DBQueryResult
 type DBQueryResult struct {
-	SQL    string
-	Args   []interface{}
-	Result []map[string]interface{}
+	SQL    string                   `json:"sql"`
+	Args   []interface{}            `json:"args "`
+	Result []map[string]interface{} `json:"data"`
 }
 
 //DBExecuteResult
 type DBExecuteResult struct {
-	SQL    string
-	Args   []interface{}
-	Result int64
+	SQL    string        `json:"sql"`
+	Args   []interface{} `json:"args "`
+	Result int64         `json:"result"`
+}
+
+//NewDBMapByConfig 根据json配置文件创建DBMAP
+func NewDBMapByConfig(config string) (obj *DBMap, err error) {
+	var dbConfig DBMapConfig
+	err = json.Unmarshal([]byte(config), &dbConfig)
+	if err != nil {
+		return
+	}
+	obj, err = NewDBMap(dbConfig.Provider, dbConfig.ConnString)
+	if err != nil {
+		return
+	}
+	if dbConfig.Min > 0 && dbConfig.Max > 0 {
+		obj.SetPoolSize(dbConfig.Min, dbConfig.Max)
+	}
+	if !strings.EqualFold(dbConfig.Lang, "") {
+		obj.SetLang(dbConfig.Lang)
+	}
+	return
 }
 
 //NewDBMap 构建DBMAP

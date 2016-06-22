@@ -57,7 +57,7 @@ func (db *DB) SetPoolSize(maxIdle int, maxOpen int) {
 //SetLang 设置语言
 func (db *DB) SetLang(lang string) {
 	db.lang = lang
-	db.setEnv("NLS_LANG", lang)
+	db.setEnv("NLS_LANG", lang) //AMERICAN_AMERICA.AL32UTF8
 }
 
 //Query 执行SQL查询语句
@@ -70,6 +70,7 @@ func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]in
 	return queryResolve(rows)
 
 }
+
 func queryResolve(rows *sql.Rows) (dataRows []map[string]interface{}, err error) {
 	columns, err := rows.Columns()
 	if err != nil {
@@ -90,7 +91,7 @@ func queryResolve(rows *sql.Rows) (dataRows []map[string]interface{}, err error)
 		for index := 0; index < len(columns); index++ {
 			key := columns[index]
 			value := buffer[index]
-			row[key] = strings.TrimPrefix(fmt.Sprintf("%s", value), "&")
+			row[strings.ToLower(key)] = strings.TrimPrefix(fmt.Sprintf("%s", value), "&")
 		}
 	}
 	return

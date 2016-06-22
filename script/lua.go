@@ -138,7 +138,11 @@ func (p *LuaPool) Call(script string, input ...string) (result []string, er erro
 		return nil, fmt.Errorf("resume error:%s", err)
 	}
 	for _, lv := range values {
-		result = append(result, lv.String())
+		if strings.EqualFold(lv.Type().String(), "table") {
+			result = append(result, lv.String())
+		} else {
+			result = append(result, lv.String())
+		}
 	}
 	return
 }

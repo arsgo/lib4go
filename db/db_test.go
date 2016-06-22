@@ -1,10 +1,8 @@
 package db
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
+/*
 func TestBaseQuerySelect(t *testing.T) {
 	orcl, err := NewDB("oracle", "grs_delivery/123456@ORCL136")
 	if err != nil {
@@ -26,7 +24,30 @@ func TestBaseQuerySelect(t *testing.T) {
 		t.Error("返回结果有误:", len(data), name)
 	}
 }
+*/
+func TestSales(t *testing.T) {
+	t.Log("sales")
+	orcl, err := NewDBMapByConfig(`{
+    "provider":"oracle",
+    "connString":"CY_ESALES/123456@ORCL136"
+}`)
+	if err != nil {
+		t.Error(err)
+	}
+	data, err := orcl.Query("select t.product_name from cy_product_info t", make(map[string]interface{}))
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(len(data.Result))
+	if len(data.Result) != 1 {
+		t.Error("查询返回数据条数有误")
+	}
+	for i, v := range data.Result {
+		t.Log(i, "[", v, "]")
+	}
+}
 
+/*
 func TestFromDb(t *testing.T) {
 	orcl, err := NewDB("oracle", "grs_delivery/123456@ORCL136")
 	if err != nil {
@@ -132,3 +153,4 @@ func TestSchemaExecute(t *testing.T) {
 	}
 	tr.Commit()
 }
+*/
