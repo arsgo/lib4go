@@ -7,6 +7,7 @@ import (
 )
 
 func getSchema(format string, data map[string]interface{}, prefix func() string) (query string, args []interface{}) {
+	args = make([]interface{}, 0)
 	word, _ := regexp.Compile(`@\w+`)
 	query = word.ReplaceAllStringFunc(format, func(s string) string {
 		args = append(args, data[s[1:]])
@@ -61,7 +62,7 @@ func GetSchema(provider string, format string, data map[string]interface{}) (que
 }
 
 //GetSpSchema 获取存储过程结构
-func GetSpSchema(provider string,format string, data map[string]interface{}) (query string, args []interface{}) {
+func GetSpSchema(provider string, format string, data map[string]interface{}) (query string, args []interface{}) {
 	p := strings.ToLower(provider)
 	switch p {
 	case "oracle":

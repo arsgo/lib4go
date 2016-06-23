@@ -1,6 +1,9 @@
 package db
 
-import "database/sql"
+import (
+	"database/sql"
+	"strings"
+)
 
 //DBTransaction 事务
 type DBTransaction struct {
@@ -8,9 +11,9 @@ type DBTransaction struct {
 }
 
 //Begin 创建一个事务请求
-func (db *DB) Begin() (t *DBTransaction,err error) {
+func (db *DB) Begin() (t *DBTransaction, err error) {
 	t = &DBTransaction{}
-	t.tx,err = db.db.Begin()
+	t.tx, err = db.db.Begin()
 	return
 }
 
@@ -21,7 +24,24 @@ func (t *DBTransaction) Query(query string, args ...interface{}) (dataRows []map
 		return
 	}
 	defer rows.Close()
-	return queryResolve(rows)
+	dataRows, _, err = queryResolve(rows, 0)
+	return
+}
+
+//Scalar 执行SQL查询语句
+func (t *DBTransaction) Scalar(query string, args ...interface{}) (value interface{}, err error) {
+	rows, err := t.tx.Query(query, args...)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+	dataRows, columns, err := queryResolve(rows, 1)
+	if len(dataRows) > 0 && len(columns) > 0 {
+		value = dataRows[0][strings.ToLower(columns[0])]
+	}
+
+	return
+
 }
 
 //Execute 执行SQL操作语句

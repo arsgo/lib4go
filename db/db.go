@@ -17,6 +17,7 @@ http://www.simonzhang.net/?p=2890
 http://blog.sina.com.cn/s/blog_48c95a190102w2ln.html
 http://www.tudou.com/programs/view/yet9OngrV_4/
 https://github.com/wendal/go-oci8/downloads
+https://github.com/wendal/go-oci8
 */
 
 const (
@@ -67,12 +68,28 @@ func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]in
 		return
 	}
 	defer rows.Close()
-	return queryResolve(rows)
+	dataRows, _, err = queryResolve(rows, 0)
+	return
 
 }
 
-func queryResolve(rows *sql.Rows) (dataRows []map[string]interface{}, err error) {
-	columns, err := rows.Columns()
+//Scalar 执行SQL查询语句
+func (db *DB) Scalar(query string, args ...interface{}) (value interface{}, err error) {
+	rows, err := db.db.Query(query, args...)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+	dataRows, columns, err := queryResolve(rows, 1)
+	if len(dataRows) > 0 && len(columns) > 0 {
+		value = dataRows[0][strings.ToLower(columns[0])]
+	}
+	return
+}
+
+func queryResolve(rows *sql.Rows, col int) (dataRows []map[string]interface{}, columns []string, err error) {
+	dataRows = make([]map[string]interface{}, 0)
+	columns, err = rows.Columns()
 	if err != nil {
 		return
 	}
@@ -88,10 +105,14 @@ func queryResolve(rows *sql.Rows) (dataRows []map[string]interface{}, err error)
 		if err != nil {
 			return
 		}
-		for index := 0; index < len(columns); index++ {
+		for index := 0; index < len(columns) && (index < col || col == 0); index++ {
 			key := columns[index]
 			value := buffer[index]
-			row[strings.ToLower(key)] = strings.TrimPrefix(fmt.Sprintf("%s", value), "&")
+			if value == nil {
+				continue
+			} else {
+				row[strings.ToLower(key)] = strings.TrimPrefix(fmt.Sprintf("%s", value), "&")
+			}
 		}
 	}
 	return

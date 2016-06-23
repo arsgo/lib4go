@@ -24,6 +24,13 @@ type DBQueryResult struct {
 	Result []map[string]interface{} `json:"data"`
 }
 
+//DBQueryResult
+type DBScalarResult struct {
+	SQL    string        `json:"sql"`
+	Args   []interface{} `json:"args "`
+	Result interface{}   `json:"data"`
+}
+
 //DBExecuteResult
 type DBExecuteResult struct {
 	SQL    string        `json:"sql"`
@@ -72,6 +79,13 @@ func (db *DBMap) SetLang(lang string) {
 func (db *DBMap) Query(query string, data map[string]interface{}) (r DBQueryResult, err error) {
 	r.SQL, r.Args = GetSchema(db.db.provider, query, data)
 	r.Result, err = db.db.Query(r.SQL, r.Args...)
+	return
+}
+
+//Scalar 根据包含@名称占位符的查询语句执行查询语句
+func (db *DBMap) Scalar(query string, data map[string]interface{}) (r DBScalarResult, err error) {
+	r.SQL, r.Args = GetSchema(db.db.provider, query, data)
+	r.Result, err = db.db.Scalar(r.SQL, r.Args...)
 	return
 }
 

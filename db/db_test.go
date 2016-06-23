@@ -2,6 +2,24 @@ package db
 
 import "testing"
 
+func TestScalar(t *testing.T) {
+	t.Log("sales")
+	orcl, err := NewDBMapByConfig(`{
+    "provider":"oracle",
+    "connString":"CY_ESALES/123456@ORCL136"
+}`)
+	if err != nil {
+		t.Error(err)
+	}
+	data, err := orcl.Query(`select t.product_name,t.product_id
+	from 
+	cy_product_info t`, make(map[string]interface{}))
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(data.Result)
+}
+
 /*
 func TestBaseQuerySelect(t *testing.T) {
 	orcl, err := NewDB("oracle", "grs_delivery/123456@ORCL136")
@@ -24,7 +42,8 @@ func TestBaseQuerySelect(t *testing.T) {
 		t.Error("返回结果有误:", len(data), name)
 	}
 }
-*/
+
+
 func TestSales(t *testing.T) {
 	t.Log("sales")
 	orcl, err := NewDBMapByConfig(`{
@@ -34,11 +53,15 @@ func TestSales(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	data, err := orcl.Query("select t.product_name from cy_product_info t", make(map[string]interface{}))
+	data, err := orcl.Query(`select t.product_name
+	from
+	cy_product_info t`, make(map[string]interface{}))
 	if err != nil {
 		t.Error(err)
 	}
-	t.Log(len(data.Result))
+	t.Log(data.Result)
+	buffer, err := json.Marshal(&data)
+	t.Log(string(buffer), err)
 	if len(data.Result) != 1 {
 		t.Error("查询返回数据条数有误")
 	}
@@ -47,7 +70,6 @@ func TestSales(t *testing.T) {
 	}
 }
 
-/*
 func TestFromDb(t *testing.T) {
 	orcl, err := NewDB("oracle", "grs_delivery/123456@ORCL136")
 	if err != nil {
@@ -70,20 +92,13 @@ func TestProcedure(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	orcl.SetPoolSize(5, 10)
-	row, err := orcl.Execute("begin gr_p_notify_add_t(:1); end;", "27277522")
-	if err != nil {
-		t.Error(err)
-	}
-	if row != 1 {
-		t.Error("返回条数或结果不正确")
-	}
 	tr, err := orcl.Begin()
 	if err != nil {
 		t.Error(err)
 	}
 	row, err = tr.Execute("update gr_order_notify t set t.notify_now=:1 where t.notify_id=:2", 9, 27277522)
 	if err != nil {
+		tr.Rollback()
 		t.Error(err)
 	}
 	if row != 1 {

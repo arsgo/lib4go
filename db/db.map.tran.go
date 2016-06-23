@@ -20,6 +20,12 @@ func (db *DBMapTrans) Query(query string, data map[string]interface{}) (r DBQuer
 	r.Result, err = db.db.Query(r.SQL, r.Args...)
 	return
 }
+//Scalar 根据包含@名称占位符的查询语句执行查询语句
+func (db *DBMapTrans) Scalar(query string, data map[string]interface{}) (r DBScalarResult, err error) {
+	r.SQL, r.Args = GetSchema(db.provider, query, data)
+	r.Result, err = db.db.Scalar(r.SQL, r.Args...)
+	return
+}
 
 //Execute 根据包含@名称占位符的语句执行查询语句
 func (db *DBMapTrans) Execute(query string, data map[string]interface{}) (r DBExecuteResult, err error) {

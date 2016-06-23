@@ -105,7 +105,7 @@ func (p *LuaPool) PreLoad(script string, minSize int, maxSize int) error {
 }
 
 //Call 执行脚本main函数
-func (p *LuaPool) Call(script string, input ...string) (result []string, er error) {
+func (p *LuaPool) Call(script string, input string) (result []string, er error) {
 	result = []string{}
 	if strings.EqualFold(script, "") {
 		return result, errors.New(fmt.Sprintf("script(%s) is nil", script))
@@ -128,11 +128,19 @@ func (p *LuaPool) Call(script string, input ...string) (result []string, er erro
 		return nil, errors.New("cant find main func")
 	}
 	fn := main.(*lua.LFunction)
-	var inputs []lua.LValue
-	for _, v := range input {
-		inputs = append(inputs, lua.LString(v))
+	var inputValue lua.LValue
+	block := lua.P{
+		Fn:      L.GetField(L.GetGlobal("xtable"), "parse"),
+		NRet:    1,
+		Protect: true,
 	}
-	st, err, values := L.Resume(co, fn, inputs[0:len(input)]...)
+	er = L.CallByParam(block, lua.LString(input))
+	if er != nil {
+		inputValue = lua.LString(input)
+	} else {
+		inputValue = L.Get(-1)
+	}
+	st, err, values := L.Resume(co, fn, inputValue)
 	co.Close()
 	if st == lua.ResumeError {
 		return nil, fmt.Errorf("resume error:%s", err)

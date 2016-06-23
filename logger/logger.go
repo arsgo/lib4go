@@ -197,7 +197,7 @@ func (l *Logger) print(level string, content string) {
 			l.DataChan <- event
 		}
 	*/
-	if l.OpenSysLog {
+	//if l.OpenSysLog {
 		log.SetFlags(log.Ldate | log.Lmicroseconds)
 		if level == SLevel_Error {
 			log.Println(content, "\n", l.getCaller(3), l.getCaller(4), l.getCaller(5), l.getCaller(6))
@@ -205,7 +205,7 @@ func (l *Logger) print(level string, content string) {
 			log.Println(content)
 		}
 
-	}
+	//}
 
 }
 
