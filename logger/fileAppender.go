@@ -93,8 +93,14 @@ LOOP:
 		select {
 		case <-ticker.C:
 			{
+
 				currentTime := time.Now().Unix()
 				if (currentTime - entity.LastUse) >= 60 {
+					defer func() {
+						if r := recover(); r != nil {
+							fmt.Println("close log exception ", r)
+						}
+					}()
 					fileAppenders.Delete(entity.Path)
 					entity.FileEntity.Close()
 					break LOOP
@@ -134,6 +140,11 @@ func (entity *FileAppenderWriterEntity) writelog2file(logEvent *LoggerEvent) {
 
 }
 func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("create log exception ", r)
+		}
+	}()
 	dir := filepath.Dir(path)
 	er := os.MkdirAll(dir, 0777)
 	if er != nil {
