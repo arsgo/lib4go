@@ -128,26 +128,14 @@ func (p *LuaPool) Call(script string, input string) (result []string, er error) 
 		return nil, errors.New("cant find main func")
 	}
 	fn := main.(*lua.LFunction)
-	var inputValue lua.LValue
-	block := lua.P{
-		Fn:      L.GetField(L.GetGlobal("xtable"), "parse"),
-		NRet:    1,
-		Protect: true,
-	}
-	er = L.CallByParam(block, lua.LString(input))
-	if er != nil {
-		inputValue = lua.LString(input)
-	} else {
-		inputValue = L.Get(-1)
-	}
-	st, err, values := L.Resume(co, fn, inputValue)
+	st, err, values := L.Resume(co, fn, json2LuaTable(L, input))
 	co.Close()
 	if st == lua.ResumeError {
 		return nil, fmt.Errorf("resume error:%s", err)
 	}
 	for _, lv := range values {
 		if strings.EqualFold(lv.Type().String(), "table") {
-			result = append(result, lv.String())
+			result = append(result, luaTable2Json(L, lv))
 		} else {
 			result = append(result, lv.String())
 		}
@@ -157,4 +145,34 @@ func (p *LuaPool) Call(script string, input string) (result []string, er error) 
 func exist(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil || os.IsExist(err)
+}
+
+func json2LuaTable(L *lua.LState, json string) (inputValue lua.LValue) {
+	block := lua.P{
+		Fn:      L.GetField(L.GetGlobal("xjson"), "decode"),
+		NRet:    1,
+		Protect: true,
+	}
+	er := L.CallByParam(block, lua.LString(json))
+	if er != nil {
+		inputValue = lua.LString(json)
+	} else {
+		inputValue = L.Get(-1)
+	}
+	return
+}
+
+func luaTable2Json(L *lua.LState, inputValue lua.LValue) (json string) {
+	block := lua.P{
+		Fn:      L.GetField(L.GetGlobal("xjson"), "encode"),
+		NRet:    1,
+		Protect: true,
+	}
+	er := L.CallByParam(block, inputValue)
+	if er != nil {
+		json = inputValue.String()
+	} else {
+		json = L.Get(-1).String()
+	}
+	return
 }

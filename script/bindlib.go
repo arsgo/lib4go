@@ -34,8 +34,8 @@ func bindLib(l *lua.LState, binder *LuaBinder) (err error) {
 	l.SetGlobal("print", New(l, fmt.Println))
 	l.SetGlobal("des_encrypt", New(l, des.Encrypt))
 	l.SetGlobal("des_decrypt", New(l, des.Decrypt))
-	l.PreloadModule("des", NewLuaModule(getDesModule()).Loader)
-	l.PreloadModule("http", NewLuaModule(getHttpModule()).Loader)
+	//	l.PreloadModule("des", NewLuaModule(getDesModule()).Loader)
+	//	l.PreloadModule("http", NewLuaModule(getHttpModule()).Loader)
 
 	if binder.packages != nil && len(binder.packages) > 0 {
 		err = addPackages(l, binder.packages...)
