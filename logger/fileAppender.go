@@ -51,6 +51,11 @@ func getFileAppender(data *LoggerEvent) (f *FileAppenderWriterEntity, err error)
 //如果存在则调用该对象并输出，不存在则创建, 并输出
 //超时后检查所有缓存对象，超过1分钟未使用的请除出缓存，并继续循环
 func FileAppenderWrite(dataChan chan *LoggerEvent) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("File appender writing exception ", r)
+		}
+	}()
 	for {
 		select {
 		case data, b := <-dataChan:
@@ -87,6 +92,11 @@ func getAppendPath(event *LoggerEvent) string {
 	return path
 }
 func (entity *FileAppenderWriterEntity) checkAppender() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("check appender exception ", r)
+		}
+	}()
 	ticker := time.NewTicker(time.Minute)
 LOOP:
 	for {
@@ -110,6 +120,11 @@ LOOP:
 	}
 }
 func (entity *FileAppenderWriterEntity) writeLoop() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("write writeLoop exception ", r)
+		}
+	}()
 LOOP:
 	for {
 		select {
