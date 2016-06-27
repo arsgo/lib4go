@@ -3,8 +3,7 @@ package script
 import (
 	"fmt"
 
-	"github.com/colinyl/lib4go/des"
-	"github.com/colinyl/lib4go/utility"
+	"github.com/colinyl/lib4go/security/md5"
 	"github.com/yuin/gopher-lua"
 )
 
@@ -30,12 +29,8 @@ package.path = string.format('%s;%s/?.lua;%s/?.luac;%s/?.dll',
 	return
 }
 func bindLib(l *lua.LState, binder *LuaBinder) (err error) {
-	l.SetGlobal("sys_md5", New(l, utility.Md5))
+	l.SetGlobal("sys_md5", New(l, md5.Encrypt))
 	l.SetGlobal("print", New(l, fmt.Println))
-	l.SetGlobal("des_encrypt", New(l, des.Encrypt))
-	l.SetGlobal("des_decrypt", New(l, des.Decrypt))
-	//	l.PreloadModule("des", NewLuaModule(getDesModule()).Loader)
-	//	l.PreloadModule("http", NewLuaModule(getHttpModule()).Loader)
 
 	if binder.packages != nil && len(binder.packages) > 0 {
 		err = addPackages(l, binder.packages...)

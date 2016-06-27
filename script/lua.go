@@ -94,13 +94,20 @@ func (p *LuaPool) SetPoolSize(minSize int, maxSize int) {
 	p.minSize = minSize
 	p.maxSize = maxSize
 }
+func (p *LuaPool) getDefSize(m int, def int) int {
+	if m <= 0 {
+		return def
+	}
+	return m
+}
 
 //PreLoad 预加载脚本
 func (p *LuaPool) PreLoad(script string, minSize int, maxSize int) error {
 	if !exist(script) {
 		return errors.New(fmt.Sprintf("not find script :%s", script))
 	}
-	p.p.Register(script, &luaPoolFactory{script: script, binders: p.binders}, minSize, maxSize)
+
+	p.p.Register(script, &luaPoolFactory{script: script, binders: p.binders}, p.getDefSize(minSize, 1), p.getDefSize(maxSize, 10))
 	return nil
 }
 

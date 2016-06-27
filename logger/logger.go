@@ -79,6 +79,7 @@ type Logger struct {
 var sysDefaultConfig concurrent.ConcurrentMap //map[string]*LoggerConfig
 var sysLoggers concurrent.ConcurrentMap       //map[string]*Logger
 var levelMap map[string]int
+var SysLogger *Logger
 
 func init() {
 	levelMap = map[string]int{
@@ -92,7 +93,7 @@ func init() {
 	sysDefaultConfig = concurrent.NewConcurrentMap()
 	sysLoggers = concurrent.NewConcurrentMap()
 	readLoggerConfig()
-
+	SysLogger, _ = New("sys", true)
 }
 
 //Get 根据sourceName创建新的日志组件
@@ -189,12 +190,14 @@ func (l *Logger) Print(content ...interface{}) {
 func (l *Logger) Printf(format string, a ...interface{}) {
 	l.Fatal(fmt.Sprintf(format, a...))
 }
+func (l *Logger) recover() {
+	if r := recover(); r != nil {
+		SysLogger.Fatal(r)
+	}
+}
+
 func (l *Logger) print(level string, content string) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("print exception ", r)
-		}
-	}()
+	defer l.recover()
 	if strings.EqualFold(content, "") {
 		return
 	}

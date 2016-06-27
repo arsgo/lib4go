@@ -1,13 +1,13 @@
 package utility
 
 import (
-	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
-	"encoding/hex"
 	"io"
 	"net"
 	"strings"
+
+	"github.com/colinyl/lib4go/security/md5"
 )
 
 //GetGuid 生成Guid字串
@@ -17,14 +17,7 @@ func GetGUID() string {
 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
 		return ""
 	}
-	return Md5(base64.URLEncoding.EncodeToString(b))
-}
-
-func Md5(s string) string {
-	md5Ctx := md5.New()
-	md5Ctx.Write([]byte(s))
-	cipherStr := md5Ctx.Sum(nil)
-	return hex.EncodeToString(cipherStr)
+	return md5.Encrypt(base64.URLEncoding.EncodeToString(b))
 }
 
 func GetLocalIPAddress(masks ...string) string {
