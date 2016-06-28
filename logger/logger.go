@@ -246,7 +246,10 @@ func (l *Logger) getEvents(level string, content string) (events map[string]*Log
 
 func createConfig(config []LoggerConfig) {
 	defer func() {
-		fmt.Printf("创建日志文件错误:%s\n", recover())
+		if r:=recover();r!=nil{
+			fmt.Printf("创建日志文件错误:%v\n", r)
+		}
+		
 	}()
 	data, _ := json.Marshal(config)
 	ioutil.WriteFile("lib4go.logger.json", data, os.ModeAppend)

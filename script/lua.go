@@ -112,10 +112,11 @@ func (p *LuaPool) PreLoad(script string, minSize int, maxSize int) error {
 }
 
 //Call 执行脚本main函数
-func (p *LuaPool) Call(script string, input string) (result []string, er error) {
+func (p *LuaPool) Call(script string, input string) (result []string, outparams map[string]string, er error) {
 	result = []string{}
 	if strings.EqualFold(script, "") {
-		return result, errors.New(fmt.Sprintf("script(%s) is nil", script))
+		er = errors.New(fmt.Sprintf("script(%s) is nil", script))
+		return
 	}
 	if !p.p.Exists(script) {
 		er = p.PreLoad(script, p.minSize, p.maxSize)
@@ -125,20 +126,23 @@ func (p *LuaPool) Call(script string, input string) (result []string, er error) 
 	}
 	o, er := p.p.Get(script)
 	if er != nil {
-		return nil, er
+		return
 	}
 	defer p.p.Recycle(script, o)
 	L := o.(*luaPoolObject).state
 	co := L.NewThread()
 	main := L.GetGlobal("main")
 	if main == lua.LNil {
-		return nil, errors.New("cant find main func")
+		er = errors.New("cant find main func")
+		return
 	}
+	outparams = getResponse(L)
 	fn := main.(*lua.LFunction)
 	st, err, values := L.Resume(co, fn, json2LuaTable(L, input))
 	co.Close()
 	if st == lua.ResumeError {
-		return nil, fmt.Errorf("resume error:%s", err)
+		er = fmt.Errorf("script  error:%s", err)
+		return
 	}
 	for _, lv := range values {
 		if strings.EqualFold(lv.Type().String(), "table") {
@@ -152,6 +156,25 @@ func (p *LuaPool) Call(script string, input string) (result []string, er error) 
 func exist(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil || os.IsExist(err)
+}
+func getResponse(L *lua.LState) (r map[string]string) {
+	fields := map[string]string{
+		"content_type": "Content-Type",
+		"charset":      "Charset",
+	}
+	r = make(map[string]string)
+	response := L.GetGlobal("response")
+	if response == lua.LNil {
+		return
+	}
+	for i, v := range fields {
+		fied := L.GetField(response, i)
+		if fied == lua.LNil {
+			continue
+		}
+		r[v] = fied.String()
+	}
+	return
 }
 
 func json2LuaTable(L *lua.LState, json string) (inputValue lua.LValue) {

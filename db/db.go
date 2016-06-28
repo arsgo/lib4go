@@ -45,7 +45,7 @@ func NewDB(provider string, connString string) (obj *DB, err error) {
 		obj.db, err = sql.Open(OCI8, connString)
 	case "sqlite":
 		obj.db, err = sql.Open(SQLITE3, connString)
-	}
+	}	
 	return
 }
 
