@@ -39,13 +39,14 @@ type DB struct {
 
 //NewDB 创建DB实例
 func NewDB(provider string, connString string) (obj *DB, err error) {
+	
 	obj = &DB{provider: provider, connString: connString, maxIdle: 3, maxOpen: 10, lang: "AMERICAN_AMERICA.AL32UTF8"}
 	switch strings.ToLower(provider) {
 	case "oracle":
 		obj.db, err = sql.Open(OCI8, connString)
 	case "sqlite":
 		obj.db, err = sql.Open(SQLITE3, connString)
-	}	
+	}
 	return
 }
 

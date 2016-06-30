@@ -1,6 +1,6 @@
 package db
 
-//DBMapTrans 
+//DBMapTrans
 type DBMapTrans struct {
 	db       *DBTransaction
 	provider string
@@ -20,6 +20,7 @@ func (db *DBMapTrans) Query(query string, data map[string]interface{}) (r DBQuer
 	r.Result, err = db.db.Query(r.SQL, r.Args...)
 	return
 }
+
 //Scalar 根据包含@名称占位符的查询语句执行查询语句
 func (db *DBMapTrans) Scalar(query string, data map[string]interface{}) (r DBScalarResult, err error) {
 	r.SQL, r.Args = GetSchema(db.provider, query, data)
@@ -32,6 +33,11 @@ func (db *DBMapTrans) Execute(query string, data map[string]interface{}) (r DBEx
 	r.SQL, r.Args = GetSchema(db.provider, query, data)
 	r.Result, err = db.db.Execute(r.SQL, r.Args...)
 	return
+}
+
+//GetReplaceSchema 获取替换后的SQL语句
+func (db *DBMapTrans) GetReplaceSchema(query string, args []interface{}) string {
+	return GetReplaceSpSchema(db.provider, query, args)
 }
 
 //Rollback 回滚所有操作

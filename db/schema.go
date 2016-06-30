@@ -10,7 +10,12 @@ func getSchema(format string, data map[string]interface{}, prefix func() string)
 	args = make([]interface{}, 0)
 	word, _ := regexp.Compile(`@\w+`)
 	query = word.ReplaceAllStringFunc(format, func(s string) string {
-		args = append(args, data[s[1:]])
+		value := data[s[1:]]
+		if value != nil && !strings.EqualFold(fmt.Sprintf("%s", value), "") {
+			args = append(args, value)
+		} else {
+			args = append(args, nil)
+		}
 		return prefix()
 	})
 	return
@@ -24,6 +29,17 @@ func GetOracleSchema(format string, data map[string]interface{}) (query string, 
 		return fmt.Sprint(":", index)
 	}
 	query, args = getSchema(format, data, f)
+	return
+
+}
+func ReplaceOracleSchema(query string, args []interface{}) (r string) {	
+	r = query
+	if strings.EqualFold(query, "") || args == nil || len(args) == 0 {
+		return
+	}
+	for i, v := range args {
+		r = strings.Replace(r, fmt.Sprintf(":%d", i+1), fmt.Sprintf("'%s'", v), -1)
+	}
 	return
 
 }
@@ -69,6 +85,16 @@ func GetSpSchema(provider string, format string, data map[string]interface{}) (q
 		return GetOracleSPSchema(format, data)
 	case "sqlite3":
 		return GetSqliteSchema(format, data)
+	}
+	return
+}
+func GetReplaceSpSchema(provider string, query string, args []interface{}) (q string) {
+	p := strings.ToLower(provider)
+	switch p {
+	case "oracle":
+		return ReplaceOracleSchema(query, args)
+	case "sqlite3":
+		return ""
 	}
 	return
 }

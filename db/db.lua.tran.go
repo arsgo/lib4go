@@ -12,25 +12,23 @@ type DBScriptBindTrans struct {
 
 func (bind *DBScriptBindTrans) Query(query string, tb *lua.LTable) (r string, err error, sql string, args []interface{}) {
 	result, err := bind.db.Query(query, getInputArgs(tb))
-	if err != nil {
+	sql = bind.db.GetReplaceSchema(result.SQL, result.Args)
+	args = result.Args
+	if result.Result == nil {
 		return
 	}
-	sql = result.SQL
-	args = result.Args
 	buffer, err := json.Marshal(&result.Result)
 	if err != nil {
 		return
 	}
 	r = string(buffer)
+
 	return
 }
 
 func (bind *DBScriptBindTrans) Scalar(query string, tb *lua.LTable) (r interface{}, err error, sql string, args []interface{}) {
 	result, err := bind.db.Scalar(query, getInputArgs(tb))
-	if err != nil {
-		return
-	}
-	sql = result.SQL
+	sql = bind.db.GetReplaceSchema(result.SQL, result.Args)
 	args = result.Args
 	r = result.Result
 	return
@@ -39,11 +37,8 @@ func (bind *DBScriptBindTrans) Scalar(query string, tb *lua.LTable) (r interface
 //Execute 根据包含@名称占位符的语句执行查询语句
 func (bind *DBScriptBindTrans) Execute(query string, tb *lua.LTable) (r int64, err error, sql string, args []interface{}) {
 	result, err := bind.db.Execute(query, getInputArgs(tb))
-	if err != nil {
-		return
-	}
 	r = result.Result
-	sql = result.SQL
+	sql = bind.db.GetReplaceSchema(result.SQL, result.Args)
 	args = result.Args
 	return
 }

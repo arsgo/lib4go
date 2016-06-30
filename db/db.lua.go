@@ -30,11 +30,11 @@ func getInputArgs(tb *lua.LTable) (data map[string]interface{}) {
 //Query 根据包含@名称占位符的查询语句执行查询语句
 func (bind *DBScriptBind) Query(query string, tb *lua.LTable) (r string, err error, sql string, args []interface{}) {
 	result, err := bind.db.Query(query, getInputArgs(tb))
-	if err != nil {
-		return
-	}
 	sql = result.SQL
 	args = result.Args
+	if result.Result == nil {
+		return
+	}
 	buffer, err := json.Marshal(&result.Result)
 	if err != nil {
 		return
@@ -46,23 +46,17 @@ func (bind *DBScriptBind) Query(query string, tb *lua.LTable) (r string, err err
 //Scalar 根据包含@名称占位符的查询语句执行查询语句
 func (bind *DBScriptBind) Scalar(query string, tb *lua.LTable) (r interface{}, err error, sql string, args []interface{}) {
 	result, err := bind.db.Scalar(query, getInputArgs(tb))
-	if err != nil {
-		return
-	}
-	sql = result.SQL
-	args = result.Args
 	r = result.Result
+	sql = bind.db.GetReplaceSchema(result.SQL, result.Args)
+	args = result.Args
 	return
 }
 
 //Execute 根据包含@名称占位符的语句执行查询语句
 func (bind *DBScriptBind) Execute(query string, tb *lua.LTable) (r int64, err error, sql string, args []interface{}) {
 	result, err := bind.db.Execute(query, getInputArgs(tb))
-	if err != nil {
-		return
-	}
 	r = result.Result
-	sql = result.SQL
+	sql = bind.db.GetReplaceSchema(result.SQL, result.Args)
 	args = result.Args
 	return
 }
@@ -70,11 +64,8 @@ func (bind *DBScriptBind) Execute(query string, tb *lua.LTable) (r int64, err er
 //ExecuteSP 根据包含@名称占位符的语句执行查询语句
 func (bind *DBScriptBind) ExecuteSP(query string, tb *lua.LTable) (r int64, err error, sql string, args []interface{}) {
 	result, err := bind.db.ExecuteSP(query, getInputArgs(tb))
-	if err != nil {
-		return
-	}
 	r = result.Result
-	sql = result.SQL
+	sql = bind.db.GetReplaceSchema(result.SQL, result.Args)
 	args = result.Args
 	return
 }

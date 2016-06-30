@@ -102,3 +102,8 @@ func (db *DBMap) ExecuteSP(query string, data map[string]interface{}) (r DBExecu
 	r.Result, err = db.db.Execute(r.SQL, r.Args...)
 	return
 }
+
+//GetReplaceSchema 获取替换后的SQL语句
+func (db *DBMap) GetReplaceSchema(query string, args []interface{}) string {
+	return GetReplaceSpSchema(db.db.provider, query, args)
+}

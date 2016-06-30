@@ -62,11 +62,10 @@ func (p *poolSet) Get() (obj Object, err error) {
 }
 
 func (p *poolSet) getSingle(create bool) (obj Object, err error) {
-	defer func() {
-		if atomic.LoadInt32(&p.canUse) == 0 && atomic.LoadInt32(&p.current) > 0 {
-			p.createNew()
-		}
-	}()
+	if atomic.LoadInt32(&p.canUse) == 0 {
+		p.createNew()
+	}
+
 	ticker := time.NewTicker(time.Millisecond * 50)
 	select {
 	case ps := <-p.queue:
