@@ -20,7 +20,7 @@ type MsgHandler interface {
 type IMQService interface {
 	Consume(string, func(MsgHandler)) error
 	UnConsume(string)
-	Send(string, string) error
+	Send(string, string, int) error
 	Close()
 }
 

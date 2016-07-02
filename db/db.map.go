@@ -65,6 +65,17 @@ func NewDBMap(provider string, connString string) (obj *DBMap, err error) {
 	return
 }
 
+//ResetPoolSize 根据配置文件重置连接池大小
+func (db *DBMap) ResetPoolSize(config string) (err error) {
+	var dbConfig DBMapConfig
+	err = json.Unmarshal([]byte(config), &dbConfig)
+	if err != nil {
+		return
+	}
+	db.SetPoolSize(dbConfig.Min, dbConfig.Max)
+	return
+}
+
 //SetPoolSize 设置连接池大小
 func (db *DBMap) SetPoolSize(maxIdle int, maxOpen int) {
 	db.db.SetPoolSize(maxIdle, maxOpen)

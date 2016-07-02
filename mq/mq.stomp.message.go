@@ -1,6 +1,10 @@
 package mq
 
-import s "github.com/gmallard/stompngo"
+import (
+	"fmt"
+
+	s "github.com/gmallard/stompngo"
+)
 
 type StompMessage struct {
 	s       *Stomp
@@ -10,10 +14,12 @@ type StompMessage struct {
 
 //Ack
 func (m *StompMessage) Ack() {
+	fmt.Println("------ack:", m.msg.Headers)
 	m.s.conn.Ack(m.msg.Headers)
 }
 func (m *StompMessage) Nack() {
-	m.s.conn.Nack(m.msg.Headers)
+	//	fmt.Println("------nack:", m.msg.Headers)
+	//	m.s.conn.Nack(m.msg.Headers)
 }
 func (m *StompMessage) GetMessage() string {
 	return m.Message

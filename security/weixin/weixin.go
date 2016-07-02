@@ -21,21 +21,26 @@ import (
 	"time"
 )
 
-const (
-	token          = "wechat4go"
-	appID          = "wx5b5c2614d269ddb2"
-	encodingAESKey = "kZvGYbDKbtPbhv4LBWOcdsp5VktA3xe9epVhINevtGg"
-)
-
-var aesKey []byte
-
-func encodingAESKey2AESKey(encodingKey string) []byte {
-	data, _ := base64.StdEncoding.DecodeString(encodingKey + "=")
-	return data
+type WechatEntity struct {
+	token          string
+	appID          string
+	encodingAESKey string
+	aesKey         []byte
 }
 
-func init() {
-	aesKey = encodingAESKey2AESKey(encodingAESKey)
+func (e WechatEntity) encodingAESKey2AESKey(encodingKey string) (data []byte, err error) {
+	data, err = base64.StdEncoding.DecodeString(encodingKey + "=")
+	return
+}
+
+//NewWechatEntity 设置初始参数
+func NewWechatEntity(appid string, token string, encodingAESKey string) (e WechatEntity, err error) {
+	e = WechatEntity{}
+	e.appID = appid
+	e.token = token
+	e.encodingAESKey = encodingAESKey
+	e.aesKey, err = e.encodingAESKey2AESKey(e.encodingAESKey)
+	return
 }
 
 type TextRequestBody struct {
@@ -83,39 +88,53 @@ type CDATAText struct {
 	Text string `xml:",innerxml"`
 }
 
-func makeSignature(timestamp, nonce string) string {
-	sl := []string{token, timestamp, nonce}
+func (e WechatEntity) makeSignature(timestamp, nonce string) string {
+	sl := []string{e.token, timestamp, nonce}
 	sort.Strings(sl)
 	s := sha1.New()
 	io.WriteString(s, strings.Join(sl, ""))
 	return fmt.Sprintf("%x", s.Sum(nil))
 }
 
-func makeMsgSignature(timestamp, nonce, msg_encrypt string) string {
-	sl := []string{token, timestamp, nonce, msg_encrypt}
+func (e WechatEntity) makeMsgSignature(timestamp, nonce, msg_encrypt string) string {
+	sl := []string{e.token, timestamp, nonce, msg_encrypt}
 	sort.Strings(sl)
 	s := sha1.New()
 	io.WriteString(s, strings.Join(sl, ""))
 	return fmt.Sprintf("%x", s.Sum(nil))
 }
 
-func validateUrl(timestamp, nonce, signatureIn string) bool {
-	signatureGen := makeSignature(timestamp, nonce)
+func (e WechatEntity) validateUrl(timestamp, nonce, signatureIn string) bool {
+	signatureGen := e.makeSignature(timestamp, nonce)
 	if signatureGen != signatureIn {
 		return false
 	}
 	return true
 }
 
-func validateMsg(timestamp, nonce, msgEncrypt, msgSignatureIn string) bool {
-	msgSignatureGen := makeMsgSignature(timestamp, nonce, msgEncrypt)
+func (e WechatEntity) validateMsg(timestamp, nonce, msgEncrypt, msgSignatureIn string) bool {
+	msgSignatureGen := e.makeMsgSignature(timestamp, nonce, msgEncrypt)
 	if msgSignatureGen != msgSignatureIn {
 		return false
 	}
 	return true
 }
+func (e WechatEntity) Decrypt(content string) (b *TextRequestBody, err error) {
+	cipherData, err := base64.StdEncoding.DecodeString(content)
+	if err != nil {
+		return
+	}
 
-func parseEncryptRequestBody(r *http.Request) *EncryptRequestBody {
+	// AES Decrypt
+	plainData, err := aesDecrypt(cipherData, e.aesKey)
+	if err != nil {
+		return
+	}
+	b, err = e.parseEncryptTextRequestBody([]byte(plainData))
+	return
+}
+
+func (e WechatEntity) parseEncryptRequestBody(r *http.Request) *EncryptRequestBody {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
@@ -126,7 +145,7 @@ func parseEncryptRequestBody(r *http.Request) *EncryptRequestBody {
 	return requestBody
 }
 
-func parseTextRequestBody(r *http.Request) *TextRequestBody {
+func (e WechatEntity) parseTextRequestBody(r *http.Request) *TextRequestBody {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
@@ -138,39 +157,39 @@ func parseTextRequestBody(r *http.Request) *TextRequestBody {
 	return requestBody
 }
 
-func value2CDATA(v string) CDATAText {
+func (e WechatEntity) value2CDATA(v string) CDATAText {
 	//return CDATAText{[]byte("<![CDATA[" + v + "]]>")}
 	return CDATAText{"<![CDATA[" + v + "]]>"}
 }
 
-func makeTextResponseBody(fromUserName, toUserName, content string) ([]byte, error) {
+func (e WechatEntity) makeTextResponseBody(fromUserName, toUserName, content string) ([]byte, error) {
 	textResponseBody := &TextResponseBody{}
-	textResponseBody.FromUserName = value2CDATA(fromUserName)
-	textResponseBody.ToUserName = value2CDATA(toUserName)
-	textResponseBody.MsgType = value2CDATA("text")
-	textResponseBody.Content = value2CDATA(content)
+	textResponseBody.FromUserName = e.value2CDATA(fromUserName)
+	textResponseBody.ToUserName = e.value2CDATA(toUserName)
+	textResponseBody.MsgType = e.value2CDATA("text")
+	textResponseBody.Content = e.value2CDATA(content)
 	textResponseBody.CreateTime = strconv.Itoa(int(time.Duration(time.Now().Unix())))
 	return xml.MarshalIndent(textResponseBody, " ", "  ")
 }
 
-func makeEncryptResponseBody(fromUserName, toUserName, content, nonce, timestamp string) ([]byte, error) {
+func (e WechatEntity) makeEncryptResponseBody(fromUserName, toUserName, content, nonce, timestamp string) ([]byte, error) {
 	encryptBody := &EncryptResponseBody{}
 
-	encryptXmlData, _ := makeEncryptXmlData(fromUserName, toUserName, timestamp, content)
-	encryptBody.Encrypt = value2CDATA(encryptXmlData)
-	encryptBody.MsgSignature = value2CDATA(makeMsgSignature(timestamp, nonce, encryptXmlData))
+	encryptXmlData, _ := e.makeEncryptXmlData(fromUserName, toUserName, timestamp, content)
+	encryptBody.Encrypt = e.value2CDATA(encryptXmlData)
+	encryptBody.MsgSignature = e.value2CDATA(e.makeMsgSignature(timestamp, nonce, encryptXmlData))
 	encryptBody.TimeStamp = timestamp
-	encryptBody.Nonce = value2CDATA(nonce)
+	encryptBody.Nonce = e.value2CDATA(nonce)
 
 	return xml.MarshalIndent(encryptBody, " ", "  ")
 }
 
-func makeEncryptXmlData(fromUserName, toUserName, timestamp, content string) (string, error) {
+func (e WechatEntity) makeEncryptXmlData(fromUserName, toUserName, timestamp, content string) (string, error) {
 	textResponseBody := &TextResponseBody{}
-	textResponseBody.FromUserName = value2CDATA(fromUserName)
-	textResponseBody.ToUserName = value2CDATA(toUserName)
-	textResponseBody.MsgType = value2CDATA("text")
-	textResponseBody.Content = value2CDATA(content)
+	textResponseBody.FromUserName = e.value2CDATA(fromUserName)
+	textResponseBody.ToUserName = e.value2CDATA(toUserName)
+	textResponseBody.MsgType = e.value2CDATA("text")
+	textResponseBody.Content = e.value2CDATA(content)
 	textResponseBody.CreateTime = timestamp
 	body, err := xml.MarshalIndent(textResponseBody, " ", "  ")
 	if err != nil {
@@ -186,8 +205,8 @@ func makeEncryptXmlData(fromUserName, toUserName, timestamp, content string) (st
 
 	randomBytes := []byte("abcdefghijklmnop")
 
-	plainData := bytes.Join([][]byte{randomBytes, bodyLength, body, []byte(appID)}, nil)
-	cipherData, err := aesEncrypt(plainData, aesKey)
+	plainData := bytes.Join([][]byte{randomBytes, bodyLength, body, []byte(e.appID)}, nil)
+	cipherData, err := aesEncrypt(plainData, e.aesKey)
 	if err != nil {
 		return "", errors.New("aesEncrypt error")
 	}
@@ -272,26 +291,27 @@ func aesDecrypt(cipherData []byte, aesKey []byte) ([]byte, error) {
 	return plainData, nil
 }
 
-func validateAppId(id []byte) bool {
-	if string(id) == appID {
+func (e WechatEntity) validateAppId(id []byte) bool {
+	if string(id) == e.appID {
 		return true
 	}
 	return false
 }
 
-func parseEncryptTextRequestBody(plainText []byte) (*TextRequestBody, error) {
-	fmt.Println(string(plainText))
+func (e WechatEntity) parseEncryptTextRequestBody(plainText []byte) (*TextRequestBody, error) {
+	//fmt.Println(string(plainText), len(plainText))
 
 	// Read length
 	buf := bytes.NewBuffer(plainText[16:20])
 	var length int32
 	binary.Read(buf, binary.BigEndian, &length)
-	fmt.Println(string(plainText[20 : 20+length]))
+	//fmt.Println("lenth:", length)
+//	fmt.Println(string(plainText[20 : 20+length]))
 
 	// appID validation
 	appIDstart := 20 + length
-	id := plainText[appIDstart : int(appIDstart)+len(appID)]
-	if !validateAppId(id) {
+	id := plainText[appIDstart : int(appIDstart)+len(e.appID)]
+	if !e.validateAppId(id) {
 		return nil, errors.New("Appid is invalid")
 	}
 
@@ -300,11 +320,11 @@ func parseEncryptTextRequestBody(plainText []byte) (*TextRequestBody, error) {
 	return textRequestBody, nil
 }
 
-func parseEncryptResponse(responseEncryptTextBody []byte) {
+func (e WechatEntity) parseEncryptResponse(responseEncryptTextBody []byte) {
 	textResponseBody := &EncryptResponseBody1{}
 	xml.Unmarshal(responseEncryptTextBody, textResponseBody)
 
-	if !validateMsg(textResponseBody.TimeStamp, textResponseBody.Nonce, textResponseBody.Encrypt, textResponseBody.MsgSignature) {
+	if !e.validateMsg(textResponseBody.TimeStamp, textResponseBody.Nonce, textResponseBody.Encrypt, textResponseBody.MsgSignature) {
 		fmt.Println("msg signature is invalid")
 		return
 	}
@@ -315,7 +335,7 @@ func parseEncryptResponse(responseEncryptTextBody []byte) {
 		return
 	}
 
-	plainText, err := aesDecrypt(cipherData, aesKey)
+	plainText, err := aesDecrypt(cipherData, e.aesKey)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -324,7 +344,7 @@ func parseEncryptResponse(responseEncryptTextBody []byte) {
 	fmt.Println(string(plainText))
 }
 
-func procRequest(w http.ResponseWriter, r *http.Request) {
+func (e WechatEntity) procRequest(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	timestamp := strings.Join(r.Form["timestamp"], "")
@@ -338,7 +358,7 @@ func procRequest(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("signature =", signature)
 	fmt.Println("msgSignature =", msgSignature)
 
-	if !validateUrl(timestamp, nonce, signature) {
+	if !e.validateUrl(timestamp, nonce, signature) {
 		log.Println("Wechat Service: this http request is not from Wechat platform!")
 		return
 	}
@@ -346,10 +366,10 @@ func procRequest(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		if encryptType == "aes" {
 			log.Println("Wechat Service: in safe mode")
-			encryptRequestBody := parseEncryptRequestBody(r)
+			encryptRequestBody := e.parseEncryptRequestBody(r)
 
 			// Validate msg signature
-			if !validateMsg(timestamp, nonce, encryptRequestBody.Encrypt, msgSignature) {
+			if !e.validateMsg(timestamp, nonce, encryptRequestBody.Encrypt, msgSignature) {
 				log.Println("Wechat Service: msg_signature is invalid")
 				return
 			}
@@ -363,19 +383,19 @@ func procRequest(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// AES Decrypt
-			plainData, err := aesDecrypt(cipherData, aesKey)
+			plainData, err := aesDecrypt(cipherData, e.aesKey)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 
-			textRequestBody, _ := parseEncryptTextRequestBody(plainData)
+			textRequestBody, _ := e.parseEncryptTextRequestBody(plainData)
 			fmt.Println(textRequestBody)
 			fmt.Printf("Wechat Service: Recv text msg [%s] from user [%s]!",
 				textRequestBody.Content,
 				textRequestBody.FromUserName)
 
-			responseEncryptTextBody, _ := makeEncryptResponseBody(textRequestBody.ToUserName,
+			responseEncryptTextBody, _ := e.makeEncryptResponseBody(textRequestBody.ToUserName,
 				textRequestBody.FromUserName,
 				"Hello, "+textRequestBody.FromUserName,
 				nonce,
@@ -384,7 +404,7 @@ func procRequest(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("\n", string(responseEncryptTextBody))
 			fmt.Fprintf(w, string(responseEncryptTextBody))
 
-			parseEncryptResponse(responseEncryptTextBody)
+			e.parseEncryptResponse(responseEncryptTextBody)
 		} else if encryptType == "raw" {
 			log.Println("Wechat Service: in raw mode")
 		}

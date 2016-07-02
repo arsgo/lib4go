@@ -39,21 +39,34 @@ type DB struct {
 
 //NewDB 创建DB实例
 func NewDB(provider string, connString string) (obj *DB, err error) {
-	
-	obj = &DB{provider: provider, connString: connString, maxIdle: 3, maxOpen: 10, lang: "AMERICAN_AMERICA.AL32UTF8"}
+
+	obj = &DB{provider: provider, connString: connString, lang: "AMERICAN_AMERICA.AL32UTF8"}
 	switch strings.ToLower(provider) {
 	case "oracle":
 		obj.db, err = sql.Open(OCI8, connString)
 	case "sqlite":
 		obj.db, err = sql.Open(SQLITE3, connString)
 	}
+	obj.SetPoolSize(obj.maxIdle, obj.maxOpen)
 	return
 }
 
 //SetPoolSize 设置连接池大小
 func (db *DB) SetPoolSize(maxIdle int, maxOpen int) {
-	db.db.SetMaxIdleConns(maxIdle)
-	db.db.SetMaxOpenConns(maxOpen)
+	if maxIdle == 0 {
+		maxIdle = 3
+	}
+	if maxOpen == 0 {
+		maxOpen = 5
+	}
+	if maxIdle != db.maxIdle {
+		db.maxIdle = maxIdle
+		db.db.SetMaxIdleConns(maxIdle)
+	}
+	if maxOpen != db.maxOpen {
+		db.maxOpen = maxOpen
+		db.db.SetMaxOpenConns(maxOpen)
+	}
 }
 
 //SetLang 设置语言

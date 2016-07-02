@@ -18,6 +18,10 @@ func NewDBScriptBind(config string) (b *DBScriptBind, err error) {
 	}
 	return
 }
+//ResetPoolSize 根据配置文件重置连接池大小
+func (db *DBScriptBind) ResetPoolSize(config string) (err error) {
+	return db.db.ResetPoolSize(config)
+}
 
 func getInputArgs(tb *lua.LTable) (data map[string]interface{}) {
 	data = make(map[string]interface{})

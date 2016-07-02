@@ -12,7 +12,7 @@ import (
 
 type forever struct {
 	dm   daemon.Daemon
-	log  *logger.Logger
+	log  logger.ILogger
 	svs  service
 	name string
 	desc string
@@ -22,7 +22,7 @@ type service interface {
 	Stop() error
 }
 
-func NewForever(svs service, log *logger.Logger, name string, desc string) *forever {
+func NewForever(svs service, log logger.ILogger, name string, desc string) *forever {
 	dm, err := daemon.New(name, desc)
 	if err != nil {
 		fmt.Println(err)

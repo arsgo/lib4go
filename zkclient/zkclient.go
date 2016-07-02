@@ -14,11 +14,11 @@ import (
 type ZKCli struct {
 	conn      *zk.Conn
 	eventChan <-chan zk.Event
-	Log       *logger.Logger
+	Log       logger.ILogger
 }
 
 //New 连接到Zookeeper服务器
-func New(servers []string, timeout time.Duration) (*ZKCli, error) {
+func New(servers []string, timeout time.Duration,loggerName string) (*ZKCli, error) {
 	zkcli := &ZKCli{}
 	conn, eventChan, err := zk.Connect(servers, timeout)
 	if err != nil {
@@ -26,7 +26,7 @@ func New(servers []string, timeout time.Duration) (*ZKCli, error) {
 	}
 	zkcli.conn = conn
 	zkcli.eventChan = eventChan
-	zkcli.Log, err = logger.New("zk client", true)
+	zkcli.Log, err = logger.Get(loggerName, true)
 	zkcli.conn.SetLogger(zkcli.Log)
 	return zkcli, nil
 }

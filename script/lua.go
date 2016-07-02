@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/colinyl/lib4go/logger"
 	"github.com/colinyl/lib4go/pool"
 	"github.com/yuin/gopher-lua"
 )
@@ -104,18 +105,36 @@ func (p *LuaPool) getDefSize(m int, def int) int {
 //PreLoad 预加载脚本
 func (p *LuaPool) PreLoad(script string, minSize int, maxSize int) error {
 	if !exist(script) {
-		return errors.New(fmt.Sprintf("not find script :%s", script))
+		return fmt.Errorf("not find script :%s", script)
 	}
 
 	p.p.Register(script, &luaPoolFactory{script: script, binders: p.binders}, p.getDefSize(minSize, 1), p.getDefSize(maxSize, 10))
 	return nil
 }
+func (p *LuaPool) getScriptLoggerName(name string) string {
+	script := strings.TrimPrefix(strings.TrimSuffix(strings.TrimSuffix(strings.ToLower(name), ".lua"), ".luac"), ".")
+	rname := strings.Trim(strings.Replace(strings.Replace(script, "/", "-", -1), "\\", "-", -1), "-")
+	return strings.Replace(rname, "scripts-", "script/", -1)
+}
+func (p *LuaPool) Call(script string, input string, body string) (result []string, outparams map[string]string, err error) {
+	log, err := logger.New(p.getScriptLoggerName(script), true)
+	if err != nil {
+		return
+	}
+	log.Info(" -> 开始执行脚本:", script)
+	result, outparams, err = p.call(script, input, body, log)
+	if err != nil {
+		log.Error(script, err)
+	}
+	log.Infof(" -> 脚本:%s执行完成", script)
+	return
+}
 
 //Call 执行脚本main函数
-func (p *LuaPool) Call(script string, input string) (result []string, outparams map[string]string, er error) {
+func (p *LuaPool) call(script string, input string, body string, log logger.ILogger) (result []string, outparams map[string]string, er error) {
 	result = []string{}
 	if strings.EqualFold(script, "") {
-		er = errors.New(fmt.Sprintf("script(%s) is nil", script))
+		er = fmt.Errorf("script(%s) is nil", script)
 		return
 	}
 	if !p.p.Exists(script) {
@@ -130,6 +149,16 @@ func (p *LuaPool) Call(script string, input string) (result []string, outparams 
 	}
 	defer p.p.Recycle(script, o)
 	L := o.(*luaPoolObject).state
+	dynamicBind(L, map[string]interface{}{
+		"print":  log.Info,
+		"printf": log.Infof,
+		"error":  log.Error,
+		"errorf": log.Errorf,
+		"fatal":  log.Fatal,
+		"fatalf": log.Fatalf,
+		"debug":  log.Debug,
+		"debugf": log.Debugf,
+	})
 	co := L.NewThread()
 	main := L.GetGlobal("main")
 	if main == lua.LNil {
@@ -138,7 +167,7 @@ func (p *LuaPool) Call(script string, input string) (result []string, outparams 
 	}
 	outparams = getResponse(L)
 	fn := main.(*lua.LFunction)
-	st, err, values := L.Resume(co, fn, json2LuaTable(L, input))
+	st, err, values := L.Resume(co, fn, json2LuaTable(L, input), lua.LString(body))
 	co.Close()
 	if st == lua.ResumeError {
 		er = fmt.Errorf("script  error:%s", err)
@@ -151,11 +180,18 @@ func (p *LuaPool) Call(script string, input string) (result []string, outparams 
 			result = append(result, lv.String())
 		}
 	}
+	err = collectgarbage(L)
+	if err != nil {
+		log.Error(err)
+	}
 	return
 }
 func exist(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil || os.IsExist(err)
+}
+func collectgarbage(L *lua.LState) error {
+	return L.DoString(`collectgarbage("collect")`)
 }
 func getResponse(L *lua.LState) (r map[string]string) {
 	fields := map[string]string{

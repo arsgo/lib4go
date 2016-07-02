@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/colinyl/lib4go/concurrent"
@@ -53,6 +55,8 @@ type LoggerEvent struct {
 	Name    string
 	Content string
 	Path    string
+	Session string
+	Caller  string
 }
 
 //ILogger 日志接口
@@ -65,6 +69,7 @@ type ILogger interface {
 	Errorf(format string, a ...interface{})
 	Fatal(content ...interface{})
 	Fatalf(format string, a ...interface{})
+	Printf(format string, a ...interface{})
 }
 
 //Logger 日志组件
@@ -74,12 +79,15 @@ type Logger struct {
 	Config     LoggerConfig
 	DataChan   chan *LoggerEvent
 	OpenSysLog bool
+	session    string
 }
 
 var sysDefaultConfig concurrent.ConcurrentMap //map[string]*LoggerConfig
 var sysLoggers concurrent.ConcurrentMap       //map[string]*Logger
 var levelMap map[string]int
-var SysLogger *Logger
+var SysLogger ILogger
+var currentSession int32
+var logCreateLock sync.Mutex
 
 func init() {
 	levelMap = map[string]int{
@@ -90,35 +98,47 @@ func init() {
 		SLevel_Debug: ILevel_Debug,
 		SLevel_ALL:   ILevel_ALL,
 	}
+	currentSession = 100
 	sysDefaultConfig = concurrent.NewConcurrentMap()
 	sysLoggers = concurrent.NewConcurrentMap()
 	readLoggerConfig()
-	SysLogger, _ = New("sys", true)
+	SysLogger = &NilLogger{}
 }
 
-//Get 根据sourceName创建新的日志组件
-func Get(name string, sourceName string, openSysLog bool) (*Logger, error) {
-	return getLogger(name, sourceName, openSysLog)
+//Get 根据日志组件名称获取日志组件
+func Get(name string, openSysLog bool) (ILogger, error) {
+	return getLogger(name, name, false, true, openSysLog)
 }
 
-//New 获取指定日志组件
-func New(name string, openSysLog bool) (*Logger, error) {
-	return getLogger(name, name, openSysLog)
+//New 根据日志组件名称创建新的日志组件
+func New(name string, openSysLog bool) (ILogger, error) {
+	return getLogger(name, name, true, false, openSysLog)
 }
 
 //--------------------以下是私有函数--------------------------------------------
-func getLogger(name string, sourceName string, openSysLog bool) (logger *Logger, err error) {
-	l := sysLoggers.Get(name)
-	if l != nil {
-		logger = l.(*Logger)
-		return
+func getLogger(name string, sourceName string, updateSession bool, getFromCache bool, openSysLog bool) (logger ILogger, err error) {
+
+	if getFromCache {
+		logCreateLock.Lock()
+		defer logCreateLock.Unlock()
+		l := sysLoggers.Get(name)
+		if l != nil {
+			logger = l.(*Logger)
+			return
+		}
 	}
 	logger, err = createLogger(name, sourceName, openSysLog)
 	if err != nil {
-		return nil, err
+		return SysLogger, err
 	}
-	sysLoggers.Set(name, logger)
+	if getFromCache {
+		sysLoggers.Set(name, logger)
+	}
+
 	return
+}
+func createSession() string {
+	return fmt.Sprintf("%s%d", time.Now().Format("150405"), atomic.AddInt32(&currentSession, 1))
 }
 func createLogger(name string, sourceName string, openSysLog bool) (log *Logger, err error) {
 	objConfig := sysDefaultConfig.Get(sourceName)
@@ -133,6 +153,7 @@ func createLogger(name string, sourceName string, openSysLog bool) (log *Logger,
 	dataChan = make(chan *LoggerEvent, 1000000)
 	log = &Logger{Name: name, Level: config.Appender.Level, Config: config,
 		DataChan: dataChan, OpenSysLog: openSysLog}
+	log.session = createSession()
 	go FileAppenderWrite(dataChan)
 	return
 }
@@ -185,10 +206,10 @@ func (l *Logger) Fatalf(format string, a ...interface{}) {
 	l.Fatal(fmt.Sprintf(format, a...))
 }
 func (l *Logger) Print(content ...interface{}) {
-	l.print(SLevel_Info, fmt.Sprint(content...))
+	l.Info(content...)
 }
 func (l *Logger) Printf(format string, a ...interface{}) {
-	l.Fatal(fmt.Sprintf(format, a...))
+	l.Infof(format, a...)
 }
 func (l *Logger) recover() {
 	if r := recover(); r != nil {
@@ -206,21 +227,19 @@ func (l *Logger) print(level string, content string) {
 		l.DataChan <- event
 	}
 
-	//if l.OpenSysLog {
-	log.SetFlags(log.Ldate | log.Lmicroseconds)
-	if level == SLevel_Error {
-		log.Println(content, "\n", l.getCaller(3), l.getCaller(4), l.getCaller(5), l.getCaller(6))
-	} else {
-		log.Println(content)
+	if l.OpenSysLog {
+		log.SetFlags(log.Ldate | log.Lmicroseconds)
+		if level == SLevel_Error {
+			log.Printf("[%s][%s]: %s\n%s", l.session, level, content, getCaller(3))
+		} else {
+			log.Printf("[%s][%s]: %s", l.session, level, content)
+		}
 	}
-
-	//}
-
 }
 
-func (l *Logger) getCaller(index int) string {
+func getCaller(index int) string {
 	_, file, line, _ := runtime.Caller(index)
-	return fmt.Sprintf("%s %d", filepath.Base(file), line)
+	return fmt.Sprintf("%s%d", filepath.Base(file), line)
 }
 
 func (l *Logger) getEvents(level string, content string) (events map[string]*LoggerEvent) {
@@ -228,7 +247,7 @@ func (l *Logger) getEvents(level string, content string) (events map[string]*Log
 	currentLevel := levelMap[level]
 	if currentLevel <= levelMap[l.Level] && currentLevel > ILevel_OFF && currentLevel < ILevel_ALL {
 		event := &LoggerEvent{Level: level, Name: l.Name, Now: time.Now(), Content: content,
-			Path: l.Config.Appender.Path}
+			Path: l.Config.Appender.Path, Session: l.session, Caller: getCaller(4)}
 		events[level] = event
 	}
 
@@ -246,10 +265,10 @@ func (l *Logger) getEvents(level string, content string) (events map[string]*Log
 
 func createConfig(config []LoggerConfig) {
 	defer func() {
-		if r:=recover();r!=nil{
+		if r := recover(); r != nil {
 			fmt.Printf("创建日志文件错误:%v\n", r)
 		}
-		
+
 	}()
 	data, _ := json.Marshal(config)
 	ioutil.WriteFile("lib4go.logger.json", data, os.ModeAppend)

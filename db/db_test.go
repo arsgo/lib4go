@@ -2,6 +2,7 @@ package db
 
 import "testing"
 
+/*
 func TestScalar(t *testing.T) {
 	t.Log("sales")
 	orcl, err := NewDBMapByConfig(`{
@@ -12,14 +13,14 @@ func TestScalar(t *testing.T) {
 		t.Error(err)
 	}
 	data, err := orcl.Query(`select t.product_name,t.product_id
-	from 
+	from
 	cy_product_info t`, make(map[string]interface{}))
 	if err != nil {
 		t.Error(err)
 	}
 	t.Log(data.Result)
 }
-
+*/
 /*
 func TestBaseQuerySelect(t *testing.T) {
 	orcl, err := NewDB("oracle", "grs_delivery/123456@ORCL136")
@@ -129,43 +130,30 @@ func TestSchema(t *testing.T) {
 	}
 
 }
+*/
 func TestSchemaExecute(t *testing.T) {
 	input := map[string]interface{}{
-		"id":         1,
-		"name":       2,
-		"age":        3,
-		"notify_id":  27277522,
-		"notify_now": 8,
+		"pre_order_no": 1,
 	}
-	dbMap, err := NewDBMap("oracle", "grs_delivery/123456@ORCL136")
+	dbMap, err := NewDBMap("oracle", "CY_ESALES/123456@ORCL136")
 	if err != nil {
 		t.Error(err)
-	}
-	q, err := dbMap.Query("select 'colin' name, 1 id from dual where 1=@id and 2=@name", input)
-	if err != nil {
-		t.Error(err)
-	}
-	if len(q.Result) != 1 || q.Result[0]["NAME"] != "colin" || q.Result[0]["ID"] != "1" {
-		t.Error("返回条数或结果不正确", len(q.Result), q.Result[0]["NAME"], q.Result[0]["ID"])
-	}
-	r, err := dbMap.ExecuteSP("gr_p_notify_add_t(@notify_id)", input)
-	if err != nil {
-		t.Error(err)
-	}
-	if r.Result != 1 {
-		t.Error("返回条数或结果不正确")
 	}
 	tr, err := dbMap.Begin()
 	if err != nil {
 		t.Error(err)
 	}
-	r, err = tr.Execute("update gr_order_notify t set t.notify_now=@notify_now where t.notify_id=@notify_id", input)
+	r, err := tr.Scalar(`select p.pre_order_no
+			from cy_order_pre p
+			where p.pre_order_no = @pre_order_no
+			and p.is_create_order = 1
+			and p.pre_status = 10
+			for update wait 3`, input)
 	if err != nil {
 		t.Error(err, r.SQL, len(r.Args))
 	}
 	if r.Result != 1 {
-		t.Error("返回条数或结果不正确")
+		t.Error("返回条数或结果不正确", r.Result)
 	}
 	tr.Commit()
 }
-*/

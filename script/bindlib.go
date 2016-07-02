@@ -28,6 +28,12 @@ package.path = string.format('%s;%s/?.lua;%s/?.luac;%s/?.dll',
 
 	return
 }
+func dynamicBind(l *lua.LState, binder map[string]interface{}) {
+	for i, v := range binder {
+		l.SetGlobal(i, New(l, v))
+	}
+}
+
 func bindLib(l *lua.LState, binder *LuaBinder) (err error) {
 	l.SetGlobal("sys_md5", New(l, md5.Encrypt))
 	l.SetGlobal("print", New(l, fmt.Println))
