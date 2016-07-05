@@ -168,6 +168,8 @@ func (p *LuaPool) call(script string, input string, body string, log logger.ILog
 	outparams = getResponse(L)
 	fn := main.(*lua.LFunction)
 	st, err, values := L.Resume(co, fn, json2LuaTable(L, input), lua.LString(body))
+	defer collectgarbage(L)
+	co.
 	co.Close()
 	if st == lua.ResumeError {
 		er = fmt.Errorf("script  error:%s", err)
@@ -179,10 +181,6 @@ func (p *LuaPool) call(script string, input string, body string, log logger.ILog
 		} else {
 			result = append(result, lv.String())
 		}
-	}
-	err = collectgarbage(L)
-	if err != nil {
-		log.Error(err)
 	}
 	return
 }
