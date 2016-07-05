@@ -61,6 +61,11 @@ func (c ConcurrentMap) Get(key string) interface{} {
 
 }
 
+//GetLength 获取数据个数
+func (c ConcurrentMap) GetLength() int {
+	return len(c.data)
+}
+
 //GetAll 获取所有所有元素的拷贝
 func (c ConcurrentMap) GetAll() map[string]interface{} {
 	if c.isClose {
@@ -104,6 +109,8 @@ func (c ConcurrentMap) do() {
 					}
 				case DEL:
 					{
+
+						//c.data[data.key] = nil
 						delete(c.data, data.key)
 					}
 				case SET:

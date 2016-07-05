@@ -51,6 +51,12 @@ type TextRequestBody struct {
 	MsgType      string        `json:"msgType"`
 	Content      string        `json:"content"`
 	MsgId        int           `json:"msgId"`
+	Event        string
+	EventKey     string
+	Latitude     string
+	Longitude    string
+	Precision    string
+	Ticket       string
 }
 
 type TextResponseBody struct {
@@ -306,7 +312,7 @@ func (e WechatEntity) parseEncryptTextRequestBody(plainText []byte) (*TextReques
 	var length int32
 	binary.Read(buf, binary.BigEndian, &length)
 	//fmt.Println("lenth:", length)
-//	fmt.Println(string(plainText[20 : 20+length]))
+	//	fmt.Println(string(plainText[20 : 20+length]))
 
 	// appID validation
 	appIDstart := 20 + length
