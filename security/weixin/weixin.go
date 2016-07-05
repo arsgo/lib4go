@@ -187,11 +187,11 @@ func (e WechatEntity) makeEncryptResponseBody(fromUserName, toUserName, content,
 	encryptBody.TimeStamp = timestamp
 	encryptBody.Nonce = e.value2CDATA(nonce)
 
-	return xml.MarshalIndent(encryptBody, " ", "  ")
+	return xml.Marshal(encryptBody)
 }
 
-func (e WechatEntity) makeEncryptXmlData(fromUserName, toUserName, timestamp, content string) (string, error) {
-	textResponseBody := &TextResponseBody{}
+func (e WechatEntity) makeEncryptXmlData(fromUserName, toUserName, timestamp, body string) (string, error) {
+	/*textResponseBody := &TextResponseBody{}
 	textResponseBody.FromUserName = e.value2CDATA(fromUserName)
 	textResponseBody.ToUserName = e.value2CDATA(toUserName)
 	textResponseBody.MsgType = e.value2CDATA("text")
@@ -200,10 +200,10 @@ func (e WechatEntity) makeEncryptXmlData(fromUserName, toUserName, timestamp, co
 	body, err := xml.MarshalIndent(textResponseBody, " ", "  ")
 	if err != nil {
 		return "", errors.New("xml marshal error")
-	}
+	}*/
 
 	buf := new(bytes.Buffer)
-	err = binary.Write(buf, binary.BigEndian, int32(len(body)))
+	err := binary.Write(buf, binary.BigEndian, int32(len(body)))
 	if err != nil {
 		fmt.Println("Binary write err:", err)
 	}
@@ -211,7 +211,7 @@ func (e WechatEntity) makeEncryptXmlData(fromUserName, toUserName, timestamp, co
 
 	randomBytes := []byte("abcdefghijklmnop")
 
-	plainData := bytes.Join([][]byte{randomBytes, bodyLength, body, []byte(e.appID)}, nil)
+	plainData := bytes.Join([][]byte{randomBytes, bodyLength, []byte(body), []byte(e.appID)}, nil)
 	cipherData, err := aesEncrypt(plainData, e.aesKey)
 	if err != nil {
 		return "", errors.New("aesEncrypt error")

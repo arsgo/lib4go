@@ -26,17 +26,17 @@ type FileAppenderWriterEntity struct {
 	Path       string
 	FileEntity *os.File
 	Log        *log.Logger
-	Data       chan *LoggerEvent
+	Data       chan LoggerEvent
 	Close      chan int
 }
 
-func fileWirteRcover() {
+func fileWriteRecover() {
 	if r := recover(); r != nil {
 		sysWrite("./logs/sys.log", r)
 	}
 }
-func getFileAppender(data *LoggerEvent) (f *FileAppenderWriterEntity, err error) {
-	defer fileWirteRcover()
+func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) {
+	defer fileWriteRecover()
 	path := getAppendPath(data)
 	writeLock.Lock()
 	defer writeLock.Unlock()
@@ -60,14 +60,14 @@ func getFileAppender(data *LoggerEvent) (f *FileAppenderWriterEntity, err error)
 //FileAppenderWrite 1. 循环等待写入数据超时时长为1分钟，有新数据过来时先翻译文件输出路径，并查询缓存的实体对象，
 //如果存在则调用该对象并输出，不存在则创建, 并输出
 //超时后检查所有缓存对象，超过1分钟未使用的请除出缓存，并继续循环
-func FileAppenderWrite(dataChan chan *LoggerEvent) {
-	defer fileWirteRcover()
+func FileAppenderWrite(dataChan chan LoggerEvent) {
+	defer fileWriteRecover()
 	for {
-		defer fileWirteRcover()
+		defer fileWriteRecover()
 		select {
 		case data, b := <-dataChan:
 			{
-				defer fileWirteRcover()
+				defer fileWriteRecover()
 				if b {
 					f, er := getFileAppender(data)
 					if er == nil {
@@ -78,7 +78,7 @@ func FileAppenderWrite(dataChan chan *LoggerEvent) {
 		}
 	}
 }
-func getAppendPath(event *LoggerEvent) string {
+func getAppendPath(event LoggerEvent) string {
 	var resultString string
 	resultString = event.Path
 	formater := make(map[string]string)
@@ -101,15 +101,15 @@ func getAppendPath(event *LoggerEvent) string {
 	return path
 }
 func (entity *FileAppenderWriterEntity) checkAppender() {
-	defer fileWirteRcover()
+	defer fileWriteRecover()
 	ticker := time.NewTicker(time.Minute)
 LOOP:
 	for {
-		defer fileWirteRcover()
+		defer fileWriteRecover()
 		select {
 		case <-ticker.C:
 			{
-				defer fileWirteRcover()
+				defer fileWriteRecover()
 				currentTime := time.Now().Unix()
 				if (currentTime - entity.LastUse) >= 60 {
 					entity.delete()
@@ -120,7 +120,7 @@ LOOP:
 	}
 }
 func (entity *FileAppenderWriterEntity) delete() {
-	defer fileWirteRcover()
+	defer fileWriteRecover()
 	writeLock.Lock()
 	defer writeLock.Unlock()
 	fileAppenders.Delete(entity.Path)
@@ -129,31 +129,27 @@ func (entity *FileAppenderWriterEntity) delete() {
 }
 func (entity *FileAppenderWriterEntity) writeLoop() {
 	sysWrite("./logs/sys.log", "writeLoop")
-	defer fileWirteRcover()
+	defer fileWriteRecover()
 LOOP:
 	for {
 		select {
 		case e := <-entity.Data:
 			{
-				defer fileWirteRcover()
+				defer fileWriteRecover()
 				entity.writelog2file(e)
 			}
 		case <-entity.Close:
 			break LOOP
-		default:
-			{
-				sleep()
-			}
 
 		}
 	}
 }
 func sleep() {
-	defer fileWirteRcover()
+	defer fileWriteRecover()
 	time.Sleep(time.Millisecond)
 }
-func (entity *FileAppenderWriterEntity) writelog2file(logEvent *LoggerEvent) {
-	defer fileWirteRcover()
+func (entity *FileAppenderWriterEntity) writelog2file(logEvent LoggerEvent) {
+	defer fileWriteRecover()
 	tag := ""
 	if levelMap[logEvent.Level] == ILevel_Info {
 		entity.Log.SetFlags(log.Ldate | log.Lmicroseconds)
@@ -163,10 +159,9 @@ func (entity *FileAppenderWriterEntity) writelog2file(logEvent *LoggerEvent) {
 	}
 	entity.Log.Printf("[%s][%s]%s: %s\r\n", logEvent.Session, logEvent.Level, tag, logEvent.Content)
 	entity.LastUse = time.Now().Unix()
-
 }
 func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
-	defer fileWirteRcover()
+	defer fileWriteRecover()
 	dir := filepath.Dir(path)
 	er := os.MkdirAll(dir, 0777)
 	if er != nil {
@@ -178,7 +173,7 @@ func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
 	}
 	logger := log.New(logFile, "", log.Ldate|log.Lmicroseconds)
 	return &FileAppenderWriterEntity{LastUse: time.Now().Unix(),
-		Path: path, Log: logger, FileEntity: logFile, Data: make(chan *LoggerEvent, 1000000),
+		Path: path, Log: logger, FileEntity: logFile, Data: make(chan LoggerEvent, 1000),
 		Close: make(chan int, 1)}, nil
 }
 func sysWrite(path string, content ...interface{}) {

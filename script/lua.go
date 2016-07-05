@@ -169,8 +169,7 @@ func (p *LuaPool) call(script string, input string, body string, log logger.ILog
 	fn := main.(*lua.LFunction)
 	st, err, values := L.Resume(co, fn, json2LuaTable(L, input), lua.LString(body))
 	defer collectgarbage(L)
-	co.
-	co.Close()
+	defer co.Close()
 	if st == lua.ResumeError {
 		er = fmt.Errorf("script  error:%s", err)
 		return
@@ -195,6 +194,7 @@ func getResponse(L *lua.LState) (r map[string]string) {
 	fields := map[string]string{
 		"content_type": "Content-Type",
 		"charset":      "Charset",
+		"original":     "_original",
 	}
 	r = make(map[string]string)
 	response := L.GetGlobal("response")
