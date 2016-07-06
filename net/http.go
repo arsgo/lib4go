@@ -16,7 +16,7 @@ type HTTPClient struct {
 }
 
 //NewHTTPClientCert 根据pem证书初始化httpClient
-func NewHTTPClientCert(certFile string, keyFile string, caFile string) (client *HTTPClient, err error) {
+func NewHTTPClientCert(certFile string, keyFile string, caFile string) (client *HTTPClient, err error) {	
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return

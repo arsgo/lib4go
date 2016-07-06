@@ -1,5 +1,7 @@
 package concurrent
 
+import "strings"
+
 const (
 	GET = iota
 	SET
@@ -33,11 +35,10 @@ func NewConcurrentMap() (m ConcurrentMap) {
 
 //Set 添加或修改指定KEY对应的值
 func (c ConcurrentMap) Set(key string, value interface{}) {
-	if c.isClose {
+	if c.isClose || strings.EqualFold(key, "") {
 		return
 	}
 	c.request <- requestKeyValue{key: key, value: value, method: SET, result: make(chan interface{}, 1)}
-
 }
 
 //Delete 删除指定KEY的数据
@@ -109,8 +110,6 @@ func (c ConcurrentMap) do() {
 					}
 				case DEL:
 					{
-
-						//c.data[data.key] = nil
 						delete(c.data, data.key)
 					}
 				case SET:

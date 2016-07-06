@@ -130,6 +130,11 @@ func (p *LuaPool) Call(script string, input string, body string) (result []strin
 	return
 }
 
+//GetSnap 获取LUA引擎的快照信息
+func (p *LuaPool) GetSnap() pool.ObjectPoolSnap {
+	return p.p.GetSnap()
+}
+
 //Call 执行脚本main函数
 func (p *LuaPool) call(script string, input string, body string, log logger.ILogger) (result []string, outparams map[string]string, er error) {
 	result = []string{}

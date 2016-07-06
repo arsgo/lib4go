@@ -12,6 +12,20 @@ type ObjectPool struct {
 	pools concurrent.ConcurrentMap
 }
 
+//ObjectPoolSnap 引擎池快照信息
+type ObjectPoolSnap struct {
+	Snaps []ObjectSnap `json:"objects"`
+}
+
+//ObjectSnap 引擎快照信息
+type ObjectSnap struct {
+	Name      string `json:"name"`
+	Status    bool   `json:"status"`
+	MinSize   int    `json:"minSize"`
+	MaxSize   int    `json:"maxSize"`
+	Available int    `json:"available"`
+}
+
 //New 创建一个新的对象k
 func New() *ObjectPool {
 	pools := &ObjectPool{}
@@ -125,6 +139,24 @@ func (p *ObjectPool) close(name string) bool {
 	p.pools.Delete(name)
 	return true
 
+}
+
+//GetSnap 获取当前连接池的快照信息
+func (p *ObjectPool) GetSnap() (snaps ObjectPoolSnap) {
+	snaps = ObjectPoolSnap{}
+	pools := p.pools.GetAll()
+	snaps.Snaps = make([]ObjectSnap, 0)
+	for i, v := range pools {
+		snap := ObjectSnap{}
+		snap.Name = i
+		set := v.(*poolSet)
+		snap.Status = set.added > 0
+		snap.MinSize = int(set.minSize)
+		snap.MaxSize = int(set.maxSize)
+		snap.Available = int(set.canUse)
+		snaps.Snaps = append(snaps.Snaps, snap)
+	}
+	return snaps
 }
 
 //Close 关闭所有连接池
