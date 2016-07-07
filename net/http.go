@@ -16,7 +16,7 @@ type HTTPClient struct {
 }
 
 //NewHTTPClientCert 根据pem证书初始化httpClient
-func NewHTTPClientCert(certFile string, keyFile string, caFile string) (client *HTTPClient, err error) {	
+func NewHTTPClientCert(certFile string, keyFile string, caFile string) (client *HTTPClient, err error) {
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return
@@ -66,6 +66,35 @@ func NewHTTPClient() (client *HTTPClient) {
 			ResponseHeaderTimeout: 0,
 		},
 	}
+	return
+}
+
+//Request 发送http请求, method:http请求方法包括:get,post,delete,put等 url: 请求的HTTP地址,不包括参数,params:请求参数,
+//header,http请求头多个用/n分隔,每个键值之前用=号连接
+func (c *HTTPClient) Request(method string, url string, params string, headers string) (content string, status int, err error) {
+	req, err := http.NewRequest(method, url, strings.NewReader(params))
+	if err != nil {
+		return
+	}
+	hd := strings.Split(headers, "\n")
+	for _, v := range hd {
+		h := strings.Split(v, "=")
+		if len(h) != 2 {
+			continue
+		}
+		req.Header.Set(h[0], h[1])
+	}
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	content = string(body)
+	status = resp.StatusCode
 	return
 }
 
