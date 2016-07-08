@@ -2,10 +2,17 @@ package sysinfo
 
 import (
 	"encoding/json"
+	"runtime"
 
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/mem"
 )
+
+func GetAPPMemory() uint64 {
+	var mem runtime.MemStats
+	runtime.ReadMemStats(&mem)
+	return mem.Alloc >> 20
+}
 
 func GetMemory() []map[string]interface{} {
 	v, _ := mem.VirtualMemory()
