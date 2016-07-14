@@ -2,6 +2,7 @@ package script
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/colinyl/lib4go/security/md5"
 	"github.com/yuin/gopher-lua"
@@ -14,7 +15,7 @@ func addPackages(l *lua.LState, paths ...string) (err error) {
 		}
 	}()
 	for _, v := range paths {
-		pk := `local p = [[` + v + `]]
+		pk := `local p = [[` + strings.Replace(v, "//", "/", -1) + `]]
 local m_package_path = package.path
 package.path = string.format('%s;%s/?.lua;%s/?.luac;%s/?.dll',
 	m_package_path, p,p,p)`
