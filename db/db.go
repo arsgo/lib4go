@@ -39,8 +39,8 @@ type DB struct {
 
 //NewDB 创建DB实例
 func NewDB(provider string, connString string) (obj *DB, err error) {
-
-	obj = &DB{provider: provider, connString: connString, lang: "AMERICAN_AMERICA.AL32UTF8"}
+	fmt.Println(">-创建DB")
+	obj = &DB{provider: provider, maxIdle: 3, maxOpen: 5, connString: connString, lang: "AMERICAN_AMERICA.AL32UTF8"}
 	switch strings.ToLower(provider) {
 	case "oracle":
 		obj.db, err = sql.Open(OCI8, connString)
@@ -48,6 +48,7 @@ func NewDB(provider string, connString string) (obj *DB, err error) {
 		obj.db, err = sql.Open(SQLITE3, connString)
 	}
 	obj.SetPoolSize(obj.maxIdle, obj.maxOpen)
+	fmt.Println(">-db创建完成")
 	return
 }
 
@@ -76,7 +77,7 @@ func (db *DB) SetLang(lang string) {
 }
 
 //Query 执行SQL查询语句
-func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]interface{}, err error) {
+func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]interface{}, err error) {	
 	rows, err := db.db.Query(query, args...)
 	if err != nil {
 		return
@@ -130,6 +131,11 @@ func queryResolve(rows *sql.Rows, col int) (dataRows []map[string]interface{}, c
 		}
 	}
 	return
+}
+
+//Close 关闭数据库
+func (db *DB) Close() {
+	db.db.Close()
 }
 
 //Execute 执行SQL操作语句

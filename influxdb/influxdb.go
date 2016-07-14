@@ -22,9 +22,10 @@ type InfluxDB struct {
 }
 
 func New(config string) (i *InfluxDB, err error) {
+	fmt.Println("new influxdb:", config)
 	i = &InfluxDB{}
 	i.config = &influxDbConfig{}
-	err = json.Unmarshal([]byte(config), &config)
+	err = json.Unmarshal([]byte(config), &i.config)
 	if err != nil {
 		return
 	}

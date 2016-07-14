@@ -29,6 +29,11 @@ func (c *MemcacheClient) Get(key string) string {
 	return string(data.Value)
 }
 
+func (c *MemcacheClient) Add(key string, value string, expiresAt int32) error {
+	data := &memcache.Item{Key: key, Value: []byte(value), Expiration: expiresAt}
+	return c.client.Add(data)
+}
+
 func (c *MemcacheClient) Set(key string, value string, expiresAt int32) error {
 	data := &memcache.Item{Key: key, Value: []byte(value), Expiration: expiresAt}
 	return c.client.Set(data)

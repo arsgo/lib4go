@@ -4,8 +4,10 @@ import "strings"
 
 const (
 	GET = iota
+	ADD
 	SET
 	DEL
+	GETORADD
 	ALL
 	CLOSE
 )
@@ -33,6 +35,17 @@ func NewConcurrentMap() (m ConcurrentMap) {
 	return
 }
 
+//Add 添加值
+func (c ConcurrentMap) Add(key string, value interface{}) bool {
+	if c.isClose || strings.EqualFold(key, "") {
+		return false
+	}
+	ch := make(chan interface{}, 1)
+	c.request <- requestKeyValue{key: key, value: value, method: ADD, result: ch}
+	v := <-ch
+	return v.(bool)
+}
+
 //Set 添加或修改指定KEY对应的值
 func (c ConcurrentMap) Set(key string, value interface{}) {
 	if c.isClose || strings.EqualFold(key, "") {
@@ -47,7 +60,17 @@ func (c ConcurrentMap) Delete(key string) {
 		return
 	}
 	c.request <- requestKeyValue{key: key, method: DEL}
+}
 
+//GetOrAdd 不存在时添加，存在时直接返回值
+func (c ConcurrentMap) GetOrAdd(key string, value interface{}) interface{} {
+	if c.isClose || strings.EqualFold(key, "") {
+		return nil
+	}
+	ch := make(chan interface{}, 1)
+	c.request <- requestKeyValue{key: key, value: value, method: GETORADD, result: ch}
+	v := <-ch
+	return v
 }
 
 //Get 获取指定KEY对应的数据
@@ -59,7 +82,6 @@ func (c ConcurrentMap) Get(key string) interface{} {
 	c.request <- requestKeyValue{key: key, method: GET, result: ch}
 	value := <-ch
 	return value
-
 }
 
 //GetLength 获取数据个数
@@ -96,6 +118,24 @@ func (c ConcurrentMap) do() {
 		case data := <-c.request:
 			{
 				switch data.method {
+				case ADD:
+					{
+						if _, ok := c.data[data.key]; !ok {
+							c.data[data.key] = data.value
+							data.result <- true
+						} else {
+							data.result <- false
+						}
+					}
+				case GETORADD:
+					{
+						if value, ok := c.data[data.key]; !ok {
+							c.data[data.key] = data.value
+							data.result <- data.value
+						} else {
+							data.result <- value
+						}
+					}
 				case GET:
 					{
 						data.result <- c.data[data.key]

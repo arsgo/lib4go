@@ -1,7 +1,11 @@
 package logger
 
 import (
+	"bufio"
 	"fmt"
+	"log"
+	"os"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -39,24 +43,33 @@ func init() {
 	currentSession = 100
 	sysDefaultConfig = concurrent.NewConcurrentMap()
 	sysLoggers = concurrent.NewConcurrentMap()
-	dataChan = make(chan LoggerEvent, 1000)
+	dataChan = make(chan LoggerEvent, 1)
 	go FileAppenderWrite(dataChan)
 	readLoggerConfig()
 	sysLogger = &NilLogger{}
+
+	f := bufio.NewWriter(os.Stdout)
+	log.SetOutput(f)
+	log.SetFlags(log.Ldate | log.Lmicroseconds)
 }
 
 //Get 根据日志组件名称获取日志组件
 func Get(name string, openSysLog bool) (ILogger, error) {
-	return getLogger(name, name, false, true, openSysLog)
+	return getLogger(name, name, "", true, openSysLog)
 }
 
 //New 根据日志组件名称创建新的日志组件
 func New(name string, openSysLog bool) (ILogger, error) {
-	return getLogger(name, name, true, false, openSysLog)
+	return getLogger(name, name, "", false, openSysLog)
+}
+
+//NewSession 根据session创建新的日志
+func NewSession(name string, session string, openSysLog bool) (ILogger, error) {
+	return getLogger(name, name, session, false, openSysLog)
 }
 
 //--------------------以下是私有函数--------------------------------------------
-func getLogger(name string, sourceName string, updateSession bool, getFromCache bool, openSysLog bool) (logger ILogger, err error) {
+func getLogger(name string, sourceName string, session string, getFromCache bool, openSysLog bool) (logger ILogger, err error) {
 
 	if getFromCache {
 		logCreateLock.Lock()
@@ -67,7 +80,7 @@ func getLogger(name string, sourceName string, updateSession bool, getFromCache 
 			return
 		}
 	}
-	logger, err = createLogger(name, sourceName, openSysLog)
+	logger, err = createLogger(name, sourceName, openSysLog, session)
 	if err != nil {
 		return sysLogger, err
 	}
@@ -76,7 +89,7 @@ func getLogger(name string, sourceName string, updateSession bool, getFromCache 
 	}
 	return
 }
-func createLogger(name string, sourceName string, openSysLog bool) (log *Logger, err error) {
+func createLogger(name string, sourceName string, openSysLog bool, session string) (log *Logger, err error) {
 	objConfig := sysDefaultConfig.Get(sourceName)
 	if objConfig == nil {
 		objConfig = sysDefaultConfig.Get("*")
@@ -86,8 +99,11 @@ func createLogger(name string, sourceName string, openSysLog bool) (log *Logger,
 	}
 	config := objConfig.(LoggerConfig)
 	log = &Logger{Name: name, Level: config.Appender.Level, Config: config,
-		DataChan: dataChan, OpenSysLog: openSysLog}
-	log.session = createSession()
+		DataChan: dataChan, OpenSysLog: openSysLog, session: session}
+	if strings.EqualFold(session, "") {
+		log.session = createSession()
+	}
+
 	return
 }
 func createSession() string {

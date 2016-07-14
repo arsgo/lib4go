@@ -62,14 +62,14 @@ func (l *Logger) print(level string, content string) {
 		l.DataChan <- event
 		delete(events, k)
 	}
+	l.logPrint(level, content)
+}
 
-	if l.OpenSysLog {
-		log.SetFlags(log.Ldate | log.Lmicroseconds)
-		if level == SLevel_Error {
-			log.Printf("[%s][%s]: %s\n%s", l.session, level, content, getCaller(3))
-		} else {
-			log.Printf("[%s][%s]: %s", l.session, level, content)
-		}
+func (l *Logger) logPrint(level string, content string) {
+	if level == SLevel_Error {
+		log.Printf("[%s][%s]: %s\n%s", l.session, level, content, getCaller(3))
+	} else {
+		log.Printf("[%s][%s]: %s", l.session, level, content)
 	}
 }
 

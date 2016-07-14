@@ -65,17 +65,23 @@ func (p *poolSet) getSingle(create bool) (obj Object, err error) {
 	if atomic.LoadInt32(&p.canUse) == 0 {
 		p.createNew()
 	}
-
-	ticker := time.NewTicker(time.Millisecond * 50)
-	select {
-	case ps := <-p.queue:
-		obj = ps
-		atomic.AddInt32(&p.canUse, -1)
-		return
-	case <-ticker.C:
-		break
+	timeOut := time.NewTicker(time.Millisecond * 80)
+	createNew := time.NewTicker(time.Millisecond * 41)
+BRK:
+	for {
+		select {
+		case ps := <-p.queue:
+			obj = ps
+			atomic.AddInt32(&p.canUse, -1)
+			break BRK
+		case <-createNew.C:
+			p.createNew()
+		case <-timeOut.C:
+			err = fmt.Errorf("cant get object from pool:%d/%d/%d/%d", atomic.LoadInt32(&p.canUse), atomic.LoadInt32(&p.current), p.minSize, p.maxSize)
+			break BRK
+		}
 	}
-	err = fmt.Errorf("cant get object from pool:%d/%d/%d", atomic.LoadInt32(&p.current), p.minSize, p.maxSize)
+
 	return
 }
 

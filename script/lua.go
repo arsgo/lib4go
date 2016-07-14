@@ -27,10 +27,12 @@ type LuaBinder struct {
 
 //LuaPool  LUA对象池
 type LuaPool struct {
-	p       *pool.ObjectPool
-	binders *LuaBinder
-	minSize int
-	maxSize int
+	p          *pool.ObjectPool
+	binders    *LuaBinder
+	minSize    int
+	maxSize    int
+	backStatus chan *lua.LState
+	close      chan int
 }
 
 var _pool *LuaPool
@@ -72,8 +74,31 @@ func (f *luaPoolFactory) Create() (p pool.Object, err error) {
 
 //NewLuaPool 构建LUA对象池
 func NewLuaPool() *LuaPool {
-	return &LuaPool{p: pool.New(), binders: &LuaBinder{}, minSize: 1, maxSize: 10}
+	pool := &LuaPool{p: pool.New(), binders: &LuaBinder{}, minSize: 1, maxSize: 10}
+	pool.backStatus = make(chan *lua.LState, 100)
+	pool.close = make(chan int, 1)
+	go pool.recycle()
+	return pool
 }
+func (p *LuaPool) recycle() {
+BRK:
+	for {
+		select {
+		case l := <-p.backStatus:
+			{
+				//collectgarbage(l)
+				l.Close()
+				l = nil
+
+			}
+		case <-p.close:
+			{
+				break BRK
+			}
+		}
+	}
+}
+
 func (p *LuaPool) SetPackages(paths ...string) {
 	p.binders.packages = append(p.binders.packages, paths...)
 }
@@ -88,6 +113,10 @@ func (p *LuaPool) RegisterTypes(types map[string]interface{}) error {
 func (p *LuaPool) RegisterModules(modules map[string]map[string]lua.LGFunction) error {
 	p.binders.modeules = modules
 	return nil
+}
+
+func (p *LuaPool) Close() {
+	p.close <- 1
 }
 
 //SetPoolSize 设置连接池大小
@@ -116,17 +145,16 @@ func (p *LuaPool) getScriptLoggerName(name string) string {
 	rname := strings.Trim(strings.Replace(strings.Replace(script, "/", "-", -1), "\\", "-", -1), "-")
 	return strings.Replace(rname, "scripts-", "script/", -1)
 }
-func (p *LuaPool) Call(script string, input string, body string) (result []string, outparams map[string]string, err error) {
-	log, err := logger.New(p.getScriptLoggerName(script), true)
+func (p *LuaPool) Call(script string, session string, input string, body string) (result []string, outparams map[string]string, err error) {
+	log, err := logger.NewSession(p.getScriptLoggerName(script), session, true)
+	defer luaRecover(log)
 	if err != nil {
 		return
 	}
-	log.Info(" -> 开始执行脚本:", script)
-	result, outparams, err = p.call(script, input, body, log)
+	result, outparams, err = p.call(script, session, input, body, log)
 	if err != nil {
 		log.Error(script, err)
 	}
-	log.Infof(" -> 脚本:%s执行完成", script)
 	return
 }
 
@@ -134,9 +162,15 @@ func (p *LuaPool) Call(script string, input string, body string) (result []strin
 func (p *LuaPool) GetSnap() pool.ObjectPoolSnap {
 	return p.p.GetSnap()
 }
+func luaRecover(log logger.ILogger) {
+	if r := recover(); r != nil {
+		log.Error(r)
+	}
+}
 
 //Call 执行脚本main函数
-func (p *LuaPool) call(script string, input string, body string, log logger.ILogger) (result []string, outparams map[string]string, er error) {
+func (p *LuaPool) call(script string, session string, input string, body string, log logger.ILogger) (result []string, outparams map[string]string, er error) {
+	defer luaRecover(log)
 	result = []string{}
 	if strings.EqualFold(script, "") {
 		er = fmt.Errorf("script(%s) is nil", script)
@@ -152,7 +186,6 @@ func (p *LuaPool) call(script string, input string, body string, log logger.ILog
 	if er != nil {
 		return
 	}
-	defer p.p.Recycle(script, o)
 	L := o.(*luaPoolObject).state
 	dynamicBind(L, map[string]interface{}{
 		"print":  log.Info,
@@ -164,28 +197,31 @@ func (p *LuaPool) call(script string, input string, body string, log logger.ILog
 		"debug":  log.Debug,
 		"debugf": log.Debugf,
 	})
+	p.p.Recycle(script, o)
 	co := L.NewThread()
-	main := L.GetGlobal("main")
+	co.SetGlobal("__session", lua.LString(session))
+	main := co.GetGlobal("main")
 	if main == lua.LNil {
 		er = errors.New("cant find main func")
 		return
 	}
-	outparams = getResponse(L)
+	outparams = getResponse(co)
 	fn := main.(*lua.LFunction)
-	st, err, values := L.Resume(co, fn, json2LuaTable(L, input), lua.LString(body))
-	defer collectgarbage(L)
-	defer co.Close()
+	inputArgs := json2LuaTable(co, input, log)
+	st, err, values := L.Resume(co, fn, inputArgs, lua.LString(body))
+
 	if st == lua.ResumeError {
 		er = fmt.Errorf("script  error:%s", err)
 		return
 	}
 	for _, lv := range values {
 		if strings.EqualFold(lv.Type().String(), "table") {
-			result = append(result, luaTable2Json(L, lv))
+			result = append(result, luaTable2Json(co, lv, log))
 		} else {
 			result = append(result, lv.String())
 		}
 	}
+	p.backStatus <- co
 	return
 }
 func exist(filename string) bool {
@@ -193,7 +229,8 @@ func exist(filename string) bool {
 	return err == nil || os.IsExist(err)
 }
 func collectgarbage(L *lua.LState) error {
-	return L.DoString(`collectgarbage("collect")`)
+	//return L.DoString(`collectgarbage("collect")`)
+	return L.DoString(`collectgarbage("setpause"，10)`)
 }
 func getResponse(L *lua.LState) (r map[string]string) {
 	fields := map[string]string{
@@ -216,13 +253,17 @@ func getResponse(L *lua.LState) (r map[string]string) {
 	return
 }
 
-func json2LuaTable(L *lua.LState, json string) (inputValue lua.LValue) {
+func json2LuaTable(L *lua.LState, json string, log logger.ILogger) (inputValue lua.LValue) {
+	defer luaRecover(log)
 	block := lua.P{
 		Fn:      L.GetField(L.GetGlobal("xjson"), "decode"),
 		NRet:    1,
 		Protect: true,
 	}
-	er := L.CallByParam(block, lua.LString(json))
+	rjson := strings.Replace(json, "\\u0026", "&", -1)
+	rjson = strings.Replace(rjson, "\\u003c", "<", -1)
+	rjson = strings.Replace(rjson, "\\u003e", ">", -1)
+	er := L.CallByParam(block, lua.LString(rjson))
 	if er != nil {
 		inputValue = lua.LString(json)
 	} else {
@@ -231,7 +272,8 @@ func json2LuaTable(L *lua.LState, json string) (inputValue lua.LValue) {
 	return
 }
 
-func luaTable2Json(L *lua.LState, inputValue lua.LValue) (json string) {
+func luaTable2Json(L *lua.LState, inputValue lua.LValue, log logger.ILogger) (json string) {
+	defer luaRecover(log)
 	block := lua.P{
 		Fn:      L.GetField(L.GetGlobal("xjson"), "encode"),
 		NRet:    1,

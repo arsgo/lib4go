@@ -10,6 +10,10 @@ import (
 	"github.com/colinyl/lib4go/security/md5"
 )
 
+func GetSessionID() string {
+	return GetGUID()[0:8]
+}
+
 //GetGuid 生成Guid字串
 func GetGUID() string {
 	b := make([]byte, 48)
