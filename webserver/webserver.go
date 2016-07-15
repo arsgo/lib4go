@@ -3,6 +3,7 @@ package webserver
 import (
 	"fmt"
 	"net/http"
+	"runtime/debug"
 	"strings"
 
 	"github.com/colinyl/lib4go/logger"
@@ -52,7 +53,7 @@ func (h WebHandler) call(w http.ResponseWriter, r *http.Request) {
 	context := NewContext(w, r, h.Path, h.Script)
 	defer func() {
 		if r := recover(); r != nil {
-			context.Log.Fatal(r)
+			context.Log.Fatal(r, string(debug.Stack()))
 		}
 	}()
 	if strings.EqualFold(h.Method, "*") || strings.EqualFold(strings.ToLower(r.Method), strings.ToLower(h.Method)) {

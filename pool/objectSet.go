@@ -1,5 +1,5 @@
 package pool
-
+/*
 import (
 	"errors"
 	"fmt"
@@ -34,8 +34,9 @@ type poolSet struct {
 
 //New 创建对象池
 func newPoolSet(minSize int, maxSize int, fac ObjectFactory) (pool *poolSet, err error) {
-	pool = &poolSet{minSize: int32(minSize), maxSize: int32(maxSize), factory: fac, queue: make(chan Object, maxSize*10),
-		notity: make(chan int, maxSize*10)}
+	pool = &poolSet{minSize: int32(minSize), maxSize: int32(swap(maxSize, 999)), factory: fac}
+	pool.queue = make(chan Object, pool.maxSize*10)
+	pool.notity = make(chan int, pool.maxSize*10)
 	go pool.init()
 	return
 }
@@ -151,5 +152,11 @@ func (p *poolSet) init() {
 			}
 		}
 	}
-
 }
+func swap(v int, def int) int {
+	if v == 0 {
+		return def
+	}
+	return v
+}
+*/

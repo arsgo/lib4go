@@ -19,11 +19,11 @@ type ObjectPoolSnap struct {
 
 //ObjectSnap 引擎快照信息
 type ObjectSnap struct {
-	Name      string `json:"name"`
-	Status    bool   `json:"status"`
-	MinSize   int    `json:"minSize"`
-	MaxSize   int    `json:"maxSize"`
-	Available int    `json:"available"`
+	Name    string `json:"name"`
+	Status  bool   `json:"status"`
+	MinSize int    `json:"minSize"`
+	MaxSize int    `json:"maxSize"`
+	Cache   int    `json:"cache"`
 }
 
 //New 创建一个新的对象k
@@ -35,11 +35,6 @@ func New() *ObjectPool {
 
 //ResetAllPoolSize 重置所有链接池大小
 func (p *ObjectPool) ResetAllPoolSize(minSize int, maxSize int) {
-	if minSize == 0 || maxSize == 0 {
-		err := fmt.Errorf("minSize:%d 或 maxSize:%d 不能为0", minSize, maxSize)
-		fmt.Println(err)
-		return
-	}
 	all := p.pools.GetAll()
 	for _, value := range all {
 		value.(*poolSet).SetSize(minSize, maxSize)
@@ -48,11 +43,6 @@ func (p *ObjectPool) ResetAllPoolSize(minSize int, maxSize int) {
 
 //ResetPoolSize 重置链接池大小
 func (p *ObjectPool) ResetPoolSize(name string, minSize int, maxSize int) {
-	if minSize == 0 || maxSize == 0 {
-		err := fmt.Errorf("%s minSize:%d 或 maxSize:%d 不能为0", name, minSize, maxSize)
-		fmt.Println(err)
-		return
-	}
 	value := p.pools.Get(name)
 	if value != nil {
 		value.(*poolSet).SetSize(minSize, maxSize)
@@ -61,11 +51,6 @@ func (p *ObjectPool) ResetPoolSize(name string, minSize int, maxSize int) {
 
 //Register 注册指定的对象
 func (p *ObjectPool) Register(name string, factory ObjectFactory, minSize int, maxSize int) (err error) {
-	if minSize == 0 || maxSize == 0 {
-		err = fmt.Errorf("%s minSize:%d 或 maxSize:%d 不能为0", name, minSize, maxSize)
-		fmt.Println(err)
-		return
-	}
 	value := p.pools.Get(name)
 	if value != nil {
 		value.(*poolSet).SetSize(minSize, maxSize)
@@ -115,7 +100,7 @@ func (p *ObjectPool) Recycle(name string, obj Object) {
 	if v == nil {
 		return
 	}
-	v.(*poolSet).back(obj)
+	v.(*poolSet).Back(obj)
 }
 
 //Unusable 标记为不可用，并通知连接池创建新的连接
@@ -124,7 +109,7 @@ func (p *ObjectPool) Unusable(name string, obj Object) {
 	if v == nil {
 		return
 	}
-	v.(*poolSet).reCreate()
+	v.(*poolSet).startCacheMaker()
 	obj.Close()
 }
 
@@ -150,10 +135,10 @@ func (p *ObjectPool) GetSnap() (snaps ObjectPoolSnap) {
 		snap := ObjectSnap{}
 		snap.Name = i
 		set := v.(*poolSet)
-		snap.Status = set.added > 0
+		snap.Status = set.hasCratedCount > 0
 		snap.MinSize = int(set.minSize)
 		snap.MaxSize = int(set.maxSize)
-		snap.Available = int(set.canUse)
+		snap.Cache = int(set.cacheCount)
 		snaps.Snaps = append(snaps.Snaps, snap)
 	}
 	return snaps

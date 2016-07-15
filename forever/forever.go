@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"syscall"
 
 	"github.com/colinyl/daemon"
@@ -33,7 +34,7 @@ func NewForever(svs service, log logger.ILogger, name string, desc string) *fore
 func (f *forever) Start() {
 	defer func() {
 		if r := recover(); r != nil {
-			f.log.Error(r)
+			f.log.Error(r, string(debug.Stack()))
 		}
 	}()
 	result, err := f.run()

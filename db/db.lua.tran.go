@@ -3,6 +3,7 @@ package db
 import (
 	"encoding/json"
 
+	"github.com/colinyl/lib4go/utility"
 	"github.com/yuin/gopher-lua"
 )
 
@@ -21,7 +22,7 @@ func (bind *DBScriptBindTrans) Query(query string, tb *lua.LTable) (r string, er
 	if err != nil {
 		return
 	}
-	r = string(buffer)
+	r = utility.Escape(string(buffer))
 
 	return
 }

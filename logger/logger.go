@@ -1,10 +1,8 @@
 package logger
 
 import (
-	"bufio"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -47,9 +45,10 @@ func init() {
 	go FileAppenderWrite(dataChan)
 	readLoggerConfig()
 	sysLogger = &NilLogger{}
-
-	f := bufio.NewWriter(os.Stdout)
-	log.SetOutput(f)
+	/*
+		f := bufio.NewWriter(os.Stdout)
+		log.SetOutput(f)
+	*/
 	log.SetFlags(log.Ldate | log.Lmicroseconds)
 }
 

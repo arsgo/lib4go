@@ -77,7 +77,7 @@ func (db *DB) SetLang(lang string) {
 }
 
 //Query 执行SQL查询语句
-func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]interface{}, err error) {	
+func (db *DB) Query(query string, args ...interface{}) (dataRows []map[string]interface{}, err error) {
 	rows, err := db.db.Query(query, args...)
 	if err != nil {
 		return

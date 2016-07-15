@@ -3,6 +3,7 @@ package db
 import (
 	"encoding/json"
 
+	"github.com/colinyl/lib4go/utility"
 	"github.com/yuin/gopher-lua"
 )
 
@@ -18,6 +19,7 @@ func NewDBScriptBind(config string) (b *DBScriptBind, err error) {
 	}
 	return
 }
+
 //ResetPoolSize 根据配置文件重置连接池大小
 func (db *DBScriptBind) ResetPoolSize(config string) (err error) {
 	return db.db.ResetPoolSize(config)
@@ -43,7 +45,7 @@ func (bind *DBScriptBind) Query(query string, tb *lua.LTable) (r string, err err
 	if err != nil {
 		return
 	}
-	r = string(buffer)
+	r = utility.Escape(string(buffer))
 	return
 }
 

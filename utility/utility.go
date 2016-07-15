@@ -47,3 +47,10 @@ func GetLocalIPAddress(masks ...string) string {
 	}
 	return "127.0.0.1"
 }
+
+func Escape(input string) string {
+	r := strings.Replace(input, "\\u0026", "&", -1)
+	r = strings.Replace(r, "\\u003c", "<", -1)
+	r = strings.Replace(r, "\\u003e", ">", -1)
+	return r
+}
