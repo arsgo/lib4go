@@ -61,6 +61,8 @@ func (f *forever) run() (string, error) {
 			return f.dm.Stop()
 		case "status":
 			return f.dm.Status()
+		case "debug":
+			f.dup(f.name)
 		default:
 			return usage, nil
 		}
