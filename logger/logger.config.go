@@ -10,6 +10,12 @@ import (
 	"runtime"
 )
 
+var loggerPath string
+
+func init() {
+	loggerPath, _ = filepath.Abs("./ars.logger.json")
+}
+
 //------------------------------------------
 
 func createConfig(config []LoggerConfig) {
@@ -20,18 +26,19 @@ func createConfig(config []LoggerConfig) {
 
 	}()
 	data, _ := json.Marshal(config)
-	ioutil.WriteFile("lib4go.logger.json", data, os.ModeAppend)
+	ioutil.WriteFile(loggerPath, data, os.ModeAppend)
 }
 func exists(p string) bool {
 	_, err := os.Stat(p)
 	return err == nil || os.IsExist(err)
 }
 func readFromFile() ([]LoggerConfig, error) {
-	if !exists("./lib4go.logger.json") {
+	if !exists(loggerPath) {
 		return nil, errors.New("lib4go.logger.json not exists,using default logger config and create it")
 	}
 	configs := []LoggerConfig{}
-	bytes, err := ioutil.ReadFile("./lib4go.logger.json")
+
+	bytes, err := ioutil.ReadFile(loggerPath)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +63,7 @@ func getConfig() []LoggerConfig {
 	configs := &[1]LoggerConfig{}
 	configs[0] = LoggerConfig{}
 	configs[0].Name = "*"
-	configs[0].Appender = &LoggerAppender{Level: "All", Type: "FileAppender", Path: "./logs/%level/%name/%pid_%date.log"}
+	configs[0].Appender = &LoggerAppender{Level: "All", Type: "FileAppender", Path: "./logs/%level/%name/%date.log"}
 	return configs[:]
 }
 func getCaller(index int) string {

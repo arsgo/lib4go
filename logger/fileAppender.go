@@ -15,9 +15,11 @@ import (
 
 var fileAppenders concurrent.ConcurrentMap
 var writeLock sync.Mutex
+var sysfilepath string
 
 func init() {
 	fileAppenders = concurrent.NewConcurrentMap()
+	sysfilepath, _ = filepath.Abs("./logs/sys.log")
 }
 
 //FileAppenderWriterEntity fileappender
@@ -32,7 +34,7 @@ type FileAppenderWriterEntity struct {
 
 func fileWriteRecover() {
 	if r := recover(); r != nil {
-		sysWrite("./logs/sys.log", r)
+		sysWrite(sysfilepath, r)
 	}
 }
 func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) {
@@ -125,10 +127,10 @@ func (entity *FileAppenderWriterEntity) delete() {
 	defer writeLock.Unlock()
 	fileAppenders.Delete(entity.Path)
 	entity.FileEntity.Close()
-	sysWrite("./logs/sys.log", "close file:", entity.Path)
+	sysWrite(sysfilepath, "close file:", entity.Path)
 }
 func (entity *FileAppenderWriterEntity) writeLoop() {
-	sysWrite("./logs/sys.log", "writeLoop")
+	sysWrite(sysfilepath, "writeLoop")
 	defer fileWriteRecover()
 LOOP:
 	for {
