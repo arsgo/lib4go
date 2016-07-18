@@ -47,7 +47,7 @@ func (f *forever) Start() {
 
 func (f *forever) run() (string, error) {
 
-	usage := fmt.Sprintf("Usage: %s install | remove | start | stop | status", f.name)
+	usage := fmt.Sprintf("Usage: %s install | remove | start | stop | status | debug", f.name)
 	if len(os.Args) > 1 {
 		command := os.Args[1]
 		switch command {
