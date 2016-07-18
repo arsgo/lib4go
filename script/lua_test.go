@@ -1,11 +1,10 @@
 package script
 
 import (
-	"strconv"
 	"strings"
-	"sync/atomic"
 	"testing"
-	"time"
+
+	"github.com/colinyl/lib4go/security/md5"
 )
 
 var luaPool *LuaPool
@@ -25,6 +24,8 @@ func TestInit(t *testing.T) {
 		t.Error("luapool init error")
 	}
 }
+
+/*
 func TestBenchCall(t *testing.T) {
 	time.Sleep(time.Second * 2)
 	ch := make(chan int, max)
@@ -43,7 +44,7 @@ func TestBenchCall(t *testing.T) {
 					break
 				}
 				<-ch
-				values, err := luaPool.Call(groupName, "123456")
+				values, _, err := luaPool.Call(groupName, "", "{}", "123456")
 				if err != nil {
 					t.Error(err.Error())
 				} else {
@@ -60,29 +61,23 @@ func TestBenchCall(t *testing.T) {
 	<-close
 
 }
-
+*/
 func TestLua(t *testing.T) {
 
-	values, err := luaPool.Call("./t1.lua")
+	values, _, err := luaPool.Call("./t2.lua", "", "{}", "123456")
 	if err != nil {
-		t.Error(err.Error())
+		t.Error(err)
 	}
-	for i, v := range values {
-		if !strings.EqualFold(strconv.Itoa(i+1), string(v)) {
-			t.Errorf("return values is error [%s]:[%s]", strconv.Itoa(i+1), string(v))
-		}
+	if len(values) != 2 {
+		t.Error("return values len error", len(values))
+		t.SkipNow()
 	}
-	values, err = luaPool.Call("./t2.lua", "123456")
-	if err != nil {
-		t.Error(err.Error())
+
+	if !strings.EqualFold(md5.Encrypt("123456"), values[0]) {
+		t.Errorf("return values is error %s,expect:%s", values[0], md5.Encrypt("123456"))
 	}
-	if len(values) != 1 {
-		t.Error("return values len error")
-	}
-	for _, v := range values {
-		if !strings.EqualFold("e10adc3949ba59abbe56e057f20f883e", v) {
-			t.Errorf("return values is error %s", v)
-		}
+	if !strings.EqualFold("123456", values[1]) {
+		t.Errorf("return values is error %s,expect:123456", values[1])
 	}
 
 }

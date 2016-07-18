@@ -1,0 +1,1268 @@
+2016/07/18 13:08:23.664022 [130823101][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.664022 [130823102][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.700024 [130823103][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.700024 [130823108][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.700024 [130823105][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.700024 [130823104][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.700024 [130823106][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.700024 [130823107][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.700024 [130823110][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.706024 [130823109][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.714025 [130823201][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.729025 [130823202][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.739026 [130823136][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.741026 [130823204][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.746026 [130823205][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.752027 [130823206][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.769627 [130823207][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.769627 [130823208][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.769627 [130823134][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.800827 [130823115][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.832027 [130823209][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.832027 [130823135][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.832027 [130823121][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.832027 [130823210][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.847627 [130823122][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.847627 [130823211][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.863227 [130823116][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.863227 [130823213][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.863227 [130823117][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.878827 [130823214][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.878827 [130823215][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.878827 [130823118][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.894427 [130823133][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.894427 [130823216][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.910027 [130823119][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.910027 [130823217][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.910027 [130823144][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.925627 [130823218][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.925627 [130823219][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.941227 [130823138][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.941227 [130823220][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.941227 [130823140][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.956827 [130823221][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.956827 [130823222][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.972427 [130823142][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.972427 [130823223][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.972427 [130823143][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:23.988027 [130823152][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.019227 [130823224][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.019227 [130823145][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.019227 [130824226][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.034827 [130823149][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.034827 [130824228][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.034827 [130824227][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.034827 [130823150][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.050427 [130823151][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.050427 [130824229][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.050427 [130823156][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.066027 [130823153][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.066027 [130824231][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.081627 [130823155][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.081627 [130824232][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.081627 [130823157][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.097227 [130824233][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.097227 [130824234][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.097227 [130823147][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.112827 [130823160][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.112827 [130824235][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.112827 [130823162][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.128427 [130823163][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.128427 [130824237][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.128427 [130823172][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.144027 [130823176][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.144027 [130824240][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.159628 [130823178][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.190828 [130824241][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.190828 [130823179][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.190828 [130823173][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.190828 [130824243][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.206428 [130823190][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.206428 [130824245][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.222028 [130823166][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.222028 [130824246][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.222028 [130823167][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.237628 [130823168][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.237628 [130824247][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.237628 [130823192][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.253228 [130824248][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.253228 [130824249][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.268828 [130823195][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.268828 [130824250][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.284428 [130823197][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.284428 [130824251][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.284428 [130823199][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.284428 [130824252][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.284428 [130824253][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.300028 [130824254][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.300028 [130824258][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.300028 [130824259][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.346828 [130824260][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.346828 [130823175][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.346828 [130823169][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.346828 [130824264][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.362428 [130823183][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.362428 [130824266][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.362428 [130824265][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.378028 [130823174][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.378028 [130824267][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.378028 [130823186][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.393628 [130823184][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.393628 [130824268][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.393628 [130823185][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.409228 [130823188][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.409228 [130824269][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.409228 [130823187][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.424828 [130823189][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.424828 [130824270][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.424828 [130823111][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.441428 [130824271][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.449429 [130824272][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.453429 [130824273][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.455429 [130824274][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.455429 [130824275][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.455429 [130824276][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.502229 [130823126][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.502229 [130824277][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.517829 [130824279][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.533429 [130824281][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.533429 [130824280][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.533429 [130823127][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.549029 [130824283][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.549029 [130824284][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.549029 [130824285][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.564629 [130824286][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.564629 [130824288][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.580229 [130824287][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.580229 [130824290][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.580229 [130824291][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.595829 [130824292][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.595829 [130824294][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.595829 [130824293][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.595829 [130824296][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.611429 [130824297][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.650030 [130824301][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.653031 [130823146][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.656031 [130824303][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.661031 [130824304][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.670032 [130824305][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.673032 [130824306][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.686033 [130824307][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.693033 [130824308][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.700033 [130824309][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.702033 [130824310][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.710034 [130824311][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.719034 [130824312][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.723035 [130824313][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.734035 [130824314][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.736035 [130824315][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.743036 [130824316][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.749036 [130824317][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.755036 [130824318][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.758037 [130824319][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.768037 [130824320][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.775038 [130824321][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.783038 [130824322][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.808040 [130824323][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.839240 [130823194][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.839240 [130824255][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.839240 [130824324][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.854840 [130824256][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.854840 [130824325][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.870440 [130824328][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.870440 [130824329][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.870440 [130824263][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.886040 [130824262][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.886040 [130824330][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.886040 [130824261][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.901640 [130823170][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.901640 [130824331][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.901640 [130823171][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.901640 [130824332][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.917240 [130824334][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.917240 [130824333][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.932840 [130824335][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.932840 [130824337][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.948440 [130824339][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.948440 [130824341][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.964040 [130824340][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.964040 [130824343][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.995240 [130823114][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:24.995240 [130824344][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.026440 [130824345][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.026440 [130823203][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.026440 [130823124][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.026440 [130825347][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.042040 [130823130][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.042040 [130825348][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.042040 [130823132][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.057640 [130823120][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.057640 [130825351][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.073240 [130825352][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.073240 [130825354][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.073240 [130824282][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.088840 [130825356][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.088840 [130825357][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.104440 [130823212][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.104440 [130825359][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.104440 [130823128][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.104440 [130825360][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.120040 [130825362][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.120040 [130825361][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.169840 [130824289][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.169840 [130825365][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.169840 [130823131][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.171840 [130823137][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.172840 [130825367][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.177841 [130825368][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.179841 [130825369][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.188841 [130824300][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.193842 [130825370][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.199842 [130825371][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.205842 [130823148][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.211843 [130825374][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.218843 [130825375][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.226844 [130824230][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.231844 [130825377][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.240844 [130823159][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.243845 [130825380][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.249845 [130825381][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.254845 [130825382][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.260846 [130825383][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.267846 [130825384][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.276846 [130825385][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.300848 [130825386][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.305848 [130824244][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.306848 [130825388][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.310848 [130825389][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.313849 [130825390][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.320849 [130825392][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.325849 [130825393][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.335850 [130825395][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.337850 [130825396][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.343850 [130823200][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.351851 [130825397][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.354851 [130824257][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.360851 [130825398][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.369852 [130825399][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.374852 [130825400][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.378852 [130825401][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.387853 [130825402][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.391853 [130825403][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.396853 [130825404][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.403854 [130825405][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.407854 [130824336][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.414854 [130825406][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.420855 [130824338][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.446856 [130824342][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.450856 [130825410][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.451856 [130825411][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.454857 [130825412][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.460857 [130824346][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.467857 [130825413][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.472858 [130825414][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.483858 [130825415][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.485858 [130825416][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.490859 [130825417][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.499859 [130825418][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.502859 [130825419][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.510860 [130825358][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.520860 [130825422][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.521860 [130825423][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.527861 [130825424][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.535861 [130825364][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.539861 [130825425][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.544862 [130825426][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.551862 [130824295][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.557863 [130823141][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.583864 [130825429][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.587864 [130825430][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.592865 [130824302][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.592865 [130825432][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.594865 [130825372][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.603865 [130825376][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.612866 [130825438][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.616866 [130825439][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.621866 [130825379][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.629867 [130825440][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.633867 [130825441][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.639867 [130825442][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.646868 [130824238][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.651868 [130825444][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.656868 [130825445][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.663869 [130825446][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.669869 [130824242][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.674869 [130823182][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.681870 [130825448][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.686870 [130825449][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.693870 [130825451][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.720872 [130825391][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.723872 [130823181][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.728872 [130825453][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.730872 [130825454][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.733873 [130825455][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.741873 [130825456][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.745873 [130825458][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.752874 [130825459][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.758874 [130825460][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.763874 [130825461][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.770875 [130825462][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.777875 [130825463][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.783875 [130825464][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.789876 [130825468][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.796876 [130825469][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.802877 [130825470][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.812877 [130825471][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.814877 [130825472][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?
+2016/07/18 13:08:25.821878 [130823113][Error][lua.go161]: ./t2.luaruntime error: invalid memory address or nil pointer dereference
+stack traceback:
+	./t2.lua:4: in main chunk
+	[G]: ?

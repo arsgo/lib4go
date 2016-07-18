@@ -79,7 +79,7 @@ func NewLuaPool() *LuaPool {
 	pool := &LuaPool{p: pool.New(), binders: &LuaBinder{}, minSize: 1, maxSize: 10}
 	pool.backStatus = make(chan *lua.LState, 100)
 	pool.close = make(chan int, 1)
-	go pool.recycle()
+	//	go pool.recycle()
 	return pool
 }
 func (p *LuaPool) recycle() {
@@ -191,8 +191,9 @@ func (p *LuaPool) call(script string, session string, input string, body string,
 	if er != nil {
 		return
 	}
-	L := o.(*luaPoolObject).state
-	dynamicBind(L, map[string]interface{}{
+	co := o.(*luaPoolObject).state
+	log.Info("init top：", co.GetTop())
+	dynamicBind(co, map[string]interface{}{
 		"print":  log.Info,
 		"printf": log.Infof,
 		"error":  log.Error,
@@ -202,12 +203,7 @@ func (p *LuaPool) call(script string, session string, input string, body string,
 		"debug":  log.Debug,
 		"debugf": log.Debugf,
 	})
-
-	co := L.NewThread()
 	defer p.p.Recycle(script, o)
-	defer func(la *lua.LState) {
-		p.backStatus <- la
-	}(co)
 	co.SetGlobal("__session", lua.LString(session))
 	main := co.GetGlobal("main")
 	if main == lua.LNil {
@@ -215,13 +211,8 @@ func (p *LuaPool) call(script string, session string, input string, body string,
 		return
 	}
 	outparams = getResponse(co)
-	fn := main.(*lua.LFunction)
 	inputArgs := json2LuaTable(co, input, log)
-	st, err, values := L.Resume(co, fn, inputArgs, lua.LString(body))
-	if st == lua.ResumeError {
-		er = fmt.Errorf("script  error:%s", err)
-		return
-	}
+	values, er := callMain(co, inputArgs, lua.LString(body), log)
 	for _, lv := range values {
 		if strings.EqualFold(lv.Type().String(), "table") {
 			result = append(result, luaTable2Json(co, lv, log))
@@ -261,9 +252,11 @@ func (p *LuaPool) call2(script string, session string, input string, body string
 		"debug":  log.Debug,
 		"debugf": log.Debugf,
 	})
-
 	co := L.NewThread()
-	p.p.Recycle(script, o)
+	defer p.p.Recycle(script, o)
+	defer func(la *lua.LState) {
+		p.backStatus <- la
+	}(co)
 	co.SetGlobal("__session", lua.LString(session))
 	main := co.GetGlobal("main")
 	if main == lua.LNil {
@@ -274,13 +267,6 @@ func (p *LuaPool) call2(script string, session string, input string, body string
 	fn := main.(*lua.LFunction)
 	inputArgs := json2LuaTable(co, input, log)
 	st, err, values := L.Resume(co, fn, inputArgs, lua.LString(body))
-	/*defer func(la *lua.LState) {
-	p.backStatus <- la
-	}(co)*/
-	//defer p.p.Recycle(script, o)
-	//defer co.Close()
-	//defer collectgarbage(co)
-	p.backStatus <- co
 	if st == lua.ResumeError {
 		er = fmt.Errorf("script  error:%s", err)
 		return
@@ -292,7 +278,6 @@ func (p *LuaPool) call2(script string, session string, input string, body string
 			result = append(result, lv.String())
 		}
 	}
-
 	return
 }
 
@@ -325,10 +310,82 @@ func getResponse(L *lua.LState) (r map[string]string) {
 	return
 }
 
+func callMain(ls *lua.LState, inputValue lua.LValue, others lua.LValue, log logger.ILogger) (rt []lua.LValue, er error) {
+	defer luaRecover(log)
+	ls.Pop(ls.GetTop())
+	block := lua.P{
+		Fn:      ls.GetGlobal("main"),
+		NRet:    2,
+		Protect: true,
+	}
+	er = ls.CallByParam(block, inputValue, others)
+	if er != nil {
+		return
+	}
+	defer ls.Pop(ls.GetTop())
+	rt = make([]lua.LValue, 0, ls.GetTop())
+	value1 := ls.Get(1)
+	if value1.String() == "nil" {
+		return
+	}
+	rt = append(rt, value1)
+	if value1.String() != "302" {
+		return
+	}
+	value2 := ls.Get(2)
+	if value2.String() == "nil" {
+		return
+	}
+	rt = append(rt, value2)
+	return
+}
+
+func luaTable2Json(L *lua.LState, inputValue lua.LValue, log logger.ILogger) (json string) {
+	defer luaRecover(log)
+	L.Pop(L.GetTop())
+	xjson := L.GetGlobal("xjson")
+	if xjson.String() == "nil" {
+		fmt.Println("not find xjson")
+		json = inputValue.String()
+		return
+	}
+	encode := L.GetField(xjson, "encode")
+	if encode == nil {
+		fmt.Println("not find xjson.encode")
+		json = inputValue.String()
+		return
+	}
+	block := lua.P{
+		Fn:      encode,
+		NRet:    1,
+		Protect: true,
+	}
+	er := L.CallByParam(block, inputValue)
+	if er != nil {
+		fmt.Println(er)
+		json = inputValue.String()
+	} else {
+		json = L.Get(-1).String()
+	}
+	L.Pop(L.GetTop())
+	return
+}
+
 func json2LuaTable(L *lua.LState, json string, log logger.ILogger) (inputValue lua.LValue) {
 	defer luaRecover(log)
+	L.Pop(L.GetTop())
+	xjson := L.GetGlobal("xjson")
+	if xjson.String() == "nil" {
+		inputValue = lua.LString(json)
+		return
+	}
+	decode := L.GetField(xjson, "decode")
+	if decode == nil {
+		inputValue = lua.LString(json)
+		return
+	}
 	block := lua.P{
-		Fn:      L.GetField(L.GetGlobal("xjson"), "decode"),
+		Fn:      decode,
 		NRet:    1,
 		Protect: true,
 	}
@@ -338,21 +395,6 @@ func json2LuaTable(L *lua.LState, json string, log logger.ILogger) (inputValue l
 	} else {
 		inputValue = L.Get(-1)
 	}
-	return
-}
-
-func luaTable2Json(L *lua.LState, inputValue lua.LValue, log logger.ILogger) (json string) {
-	defer luaRecover(log)
-	block := lua.P{
-		Fn:      L.GetField(L.GetGlobal("xjson"), "encode"),
-		NRet:    1,
-		Protect: true,
-	}
-	er := L.CallByParam(block, inputValue)
-	if er != nil {
-		json = inputValue.String()
-	} else {
-		json = L.Get(-1).String()
-	}
+	L.Pop(L.GetTop())
 	return
 }

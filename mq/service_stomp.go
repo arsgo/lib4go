@@ -3,7 +3,6 @@ package mq
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -36,7 +35,6 @@ func setDefaultConfig(cfg *StompConfig) (n *StompConfig) {
 	if strings.EqualFold(cfg.Ack, "") {
 		n.Ack = "client-individual"
 	}
-	fmt.Println("accept-version", n.AcceptVersion)
 	if strings.EqualFold(cfg.Dest, "") {
 		n.Dest = "queue"
 	}

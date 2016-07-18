@@ -1,6 +1,7 @@
 package net
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
@@ -9,6 +10,9 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 )
 
 //HTTPClient HTTP客户端
@@ -16,11 +20,12 @@ type HTTPClient struct {
 	client *http.Client
 }
 type HTTPClientRequest struct {
-	headers map[string]string
-	client  *http.Client
-	method  string
-	url     string
-	params  string
+	headers  map[string]string
+	client   *http.Client
+	method   string
+	url      string
+	params   string
+	encoding string
 }
 
 //NewHTTPClientCert 根据pem证书初始化httpClient
@@ -99,13 +104,14 @@ func NewHTTPClientProxy(proxy string) (client *HTTPClient) {
 	return
 }
 
-func (c *HTTPClient) NewRequest(method string, url string) *HTTPClientRequest {
+func (c *HTTPClient) NewRequest(method string, url string, args ...string) *HTTPClientRequest {
 	request := &HTTPClientRequest{}
 	request.client = c.client
 	request.headers = make(map[string]string)
 	request.method = strings.ToUpper(method)
 	request.params = ""
 	request.url = url
+	request.encoding = getEncoding(args...)
 	return request
 }
 func (c *HTTPClientRequest) SetData(params string) {
@@ -134,13 +140,15 @@ func (c *HTTPClientRequest) Request() (content string, status int, err error) {
 	if err != nil {
 		return
 	}
-	content = string(body)
 	status = resp.StatusCode
+	content, err = changeEncodingData(c.encoding, body)
+
 	return
 }
 
 //Get http get请求
-func (c *HTTPClient) Get(url string) (content string, status int, err error) {
+func (c *HTTPClient) Get(url string, args ...string) (content string, status int, err error) {
+	encoding := getEncoding(args...)
 	resp, err := c.client.Get(url)
 	if err != nil {
 		return
@@ -151,13 +159,14 @@ func (c *HTTPClient) Get(url string) (content string, status int, err error) {
 	if err != nil {
 		return
 	}
-	content = string(body)
 	status = resp.StatusCode
+	content, err = changeEncodingData(encoding, body)
 	return
 }
 
 //Post http Post请求
-func (c *HTTPClient) Post(url string, params string) (content string, status int, err error) {
+func (c *HTTPClient) Post(url string, params string, args ...string) (content string, status int, err error) {
+	encoding := getEncoding(args...)
 	resp, err := c.client.Post(url, "application/x-www-form-urlencoded", strings.NewReader(params))
 	if err != nil {
 		return
@@ -168,7 +177,27 @@ func (c *HTTPClient) Post(url string, params string) (content string, status int
 	if err != nil {
 		return
 	}
-	content = string(body)
 	status = resp.StatusCode
+	content, err = changeEncodingData(encoding, body)
+	return
+}
+
+func getEncoding(params ...string) (encoding string) {
+	if len(params) > 0 {
+		encoding = strings.ToUpper(params[0])
+		return
+	}
+	return "UTF-8"
+}
+func changeEncodingData(encoding string, data []byte) (content string, err error) {
+	if !strings.EqualFold(encoding, "GBK") && !strings.EqualFold(encoding, "GB2312") {
+		content = string(data)
+		return
+	}
+	buffer, err := ioutil.ReadAll(transform.NewReader(bytes.NewReader(data), simplifiedchinese.GBK.NewDecoder()))
+	if err != nil {
+		return
+	}
+	content = string(buffer)
 	return
 }

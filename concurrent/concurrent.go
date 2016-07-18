@@ -30,7 +30,7 @@ type ConcurrentMap struct {
 func NewConcurrentMap() (m ConcurrentMap) {
 	m = ConcurrentMap{}
 	m.data = make(map[string]interface{})
-	m.request = make(chan requestKeyValue, 1000000)
+	m.request = make(chan requestKeyValue, 100)
 	go m.do()
 	return
 }
