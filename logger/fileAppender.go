@@ -19,8 +19,7 @@ var sysfilepath string
 
 func init() {
 	fileAppenders = concurrent.NewConcurrentMap()
-	f, _ := os.Getwd()
-	sysfilepath, _ = filepath.Abs(fmt.Sprintf("%s/logs/sys.log", f))
+	sysfilepath, _ = filepath.Abs("./logs/sys.log")
 }
 
 //FileAppenderWriterEntity fileappender
