@@ -9,6 +9,7 @@ import (
 
 	"github.com/colinyl/daemon"
 	"github.com/colinyl/lib4go/logger"
+	"github.com/colinyl/profile"
 )
 
 type forever struct {
@@ -63,6 +64,12 @@ func (f *forever) run() (string, error) {
 			return f.dm.Status()
 		case "debug":
 			f.dup(f.name)
+		case "pprof_mem":
+			defer profile.Start(profile.MemProfile).Stop()
+		case "pprof_cpu":
+			defer profile.Start(profile.CPUProfile).Stop()
+		case "pprof_block":
+			defer profile.Start(profile.BlockProfile).Stop()
 		default:
 			return usage, nil
 		}

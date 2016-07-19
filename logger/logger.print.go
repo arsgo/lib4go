@@ -59,8 +59,11 @@ func (l *Logger) print(level string, content string) {
 	}
 	events := l.getEvents(level, content)
 	for k, event := range events {
-		l.DataChan <- event
-		delete(events, k)
+		select {
+		case l.DataChan <- event:
+			delete(events, k)
+		default:
+		}
 	}
 	l.logPrint(level, content)
 }

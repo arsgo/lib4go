@@ -2,9 +2,11 @@ package sysinfo
 
 import (
 	"encoding/json"
+	"fmt"
 	"runtime"
 
 	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 )
 
@@ -33,7 +35,7 @@ func GetCPU() []map[string]interface{} {
 }
 func GetDisk() (data []map[string]interface{}) {
 	data = make([]map[string]interface{}, 0)
-	/*defer func() {
+	defer func() {
 		if er := recover(); er != nil {
 			fmt.Println("get DISK error", er)
 		}
@@ -51,6 +53,6 @@ func GetDisk() (data []map[string]interface{}) {
 	}
 
 	buffer, _ := json.Marshal(&stats)
-	json.Unmarshal(buffer, &data)*/
+	json.Unmarshal(buffer, &data)
 	return
 }

@@ -12,13 +12,14 @@ import (
 
 //ZkClient zookeeper客户端
 type ZKCli struct {
-	conn      *zk.Conn
-	eventChan <-chan zk.Event
-	Log       logger.ILogger
+	conn       *zk.Conn
+	eventChan  <-chan zk.Event
+	Log        logger.ILogger
+	closeQueue chan int
 }
 
 //New 连接到Zookeeper服务器
-func New(servers []string, timeout time.Duration,loggerName string) (*ZKCli, error) {
+func New(servers []string, timeout time.Duration, loggerName string) (*ZKCli, error) {
 	zkcli := &ZKCli{}
 	conn, eventChan, err := zk.Connect(servers, timeout)
 	if err != nil {
@@ -28,6 +29,7 @@ func New(servers []string, timeout time.Duration,loggerName string) (*ZKCli, err
 	zkcli.eventChan = eventChan
 	zkcli.Log, err = logger.Get(loggerName, true)
 	zkcli.conn.SetLogger(zkcli.Log)
+	zkcli.closeQueue = make(chan int, 1)
 	return zkcli, nil
 }
 
@@ -103,8 +105,30 @@ func (client *ZKCli) UpdateValue(path string, value string) error {
 func (client *ZKCli) Delete(path string) error {
 	return client.conn.Delete(path, -1)
 }
+
 func (client *ZKCli) Close() {
 	client.conn.Close()
+}
+
+//WatchConnected 检查是否已连接到服务器
+func (client *ZKCli) WatchConnected() bool {
+	tk := time.NewTicker(time.Second)
+	var isConnected bool
+CONN:
+	for {
+		select {
+		case <-tk.C:
+			if strings.EqualFold(client.conn.State().String(), "StateHasSession") || strings.EqualFold(client.conn.State().String(), "StateConnected") {
+				isConnected = true
+				break CONN
+			}
+		case <-client.closeQueue:
+			isConnected = false
+			break CONN
+		}
+	}
+	tk.Stop()
+	return isConnected
 }
 
 //WatchValue 监控指定节点的值是否发生变化，变化时返回变化后的值
