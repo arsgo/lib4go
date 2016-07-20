@@ -128,6 +128,7 @@ func (c *HTTPClientRequest) Request() (content string, status int, err error) {
 	if err != nil {
 		return
 	}
+	req.Close = true
 	for i, v := range c.headers {
 		req.Header.Set(i, v)
 	}

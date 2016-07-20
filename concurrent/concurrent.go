@@ -138,7 +138,11 @@ func (c ConcurrentMap) do() {
 					}
 				case GET:
 					{
-						data.result <- c.data[data.key]
+						if d, ok := c.data[data.key]; ok {
+							data.result <- d
+						} else {
+							data.result <- nil
+						}
 					}
 				case ALL:
 					{
