@@ -17,13 +17,11 @@ type elasticConfig struct {
 }
 
 func New(config string) (host *ElasticSearch, err error) {
-
 	var elasticonfig elasticConfig
 	err = json.Unmarshal([]byte(config), &elasticonfig)
 	if err != nil {
 		return
 	}
-
 	host = &ElasticSearch{}
 	host.conn = elastigo.NewConn()
 	host.host = elasticonfig.Host

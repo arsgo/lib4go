@@ -20,7 +20,10 @@ https://github.com/wendal/go-oci8/downloads
 https://github.com/wendal/go-oci8
 
 安装方法
-http://www.oracle.com/technetwork/database/features/instant-client/index.html
+1. 下载：http://www.oracle.com/technetwork/database/features/instant-client/index.html
+2. 解压文件 unzip instantclient-basic-linux.x64-12.1.0.1.0.zip -d /usr/local/ 
+3. 配置环境变量
+vi .bash_profile
 export ora_home=/usr/local/instantclient_12_1 
 export PATH=$PATH:$ora_home 
 export LD_LIBRARY_PATH=$ora_home 
