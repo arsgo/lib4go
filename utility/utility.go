@@ -57,11 +57,16 @@ func Escape(input string) string {
 	return r
 }
 
-func GetExcPath(p string) string {
-	if strings.HasPrefix(p, ".") {
-		fp, _ := os.Getwd()
-		return filepath.Join(fp, strings.Trim(p, "."))
+func GetExcPath(p ...string) string {
+	if len(p) == 0 {
+		return ""
 	}
-	return p
-
+	if strings.HasPrefix(p[0], ".") {
+		fp, _ := os.Getwd()
+		for i := 1; i < len(p); i++ {
+			fp = strings.Trim(fp, p[i])
+		}
+		return filepath.Join(fp, strings.Trim(p[0], "."))
+	}
+	return p[0]
 }

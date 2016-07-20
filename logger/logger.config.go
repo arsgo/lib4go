@@ -8,12 +8,14 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/colinyl/lib4go/utility"
 )
 
 var loggerPath string
 
 func init() {
-	loggerPath, _ = filepath.Abs("./ars.logger.json")
+	loggerPath = utility.GetExcPath("./conf/ars.logger.json", "bin")
 }
 
 //------------------------------------------
@@ -34,7 +36,7 @@ func exists(p string) bool {
 }
 func readFromFile() ([]LoggerConfig, error) {
 	if !exists(loggerPath) {
-		return nil, errors.New("lib4go.logger.json not exists,using default logger config and create it")
+		return nil, errors.New("未找到日志文件:" + loggerPath)
 	}
 	configs := []LoggerConfig{}
 
@@ -63,7 +65,8 @@ func getConfig() []LoggerConfig {
 	configs := &[1]LoggerConfig{}
 	configs[0] = LoggerConfig{}
 	configs[0].Name = "*"
-	configs[0].Appender = &LoggerAppender{Level: "All", Type: "FileAppender", Path: "./logs/%level/%name/%date.log"}
+	configs[0].Appender = &LoggerAppender{Level: "All", Type: "FileAppender"}
+	configs[0].Appender.Path = utility.GetExcPath("./logs/%level/%name/%date.log", "bin")
 	return configs[:]
 }
 func getCaller(index int) string {

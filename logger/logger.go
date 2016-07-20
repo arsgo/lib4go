@@ -45,10 +45,6 @@ func init() {
 	go FileAppenderWrite(dataChan)
 	readLoggerConfig()
 	sysLogger = &NilLogger{}
-	/*
-		f := bufio.NewWriter(os.Stdout)
-		log.SetOutput(f)
-	*/
 	log.SetFlags(log.Ldate | log.Lmicroseconds)
 }
 
