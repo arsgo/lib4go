@@ -20,7 +20,7 @@ var sysfilepath string
 
 func init() {
 	fileAppenders = concurrent.NewConcurrentMap()
-	sysfilepath = utility.GetExcPath("./logs/sys.log")
+	sysfilepath = utility.GetExcPath("./logs/sys.log", "bin")
 }
 
 //FileAppenderWriterEntity fileappender
