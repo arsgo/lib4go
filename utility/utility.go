@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"io"
 	"net"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/colinyl/lib4go/security/md5"
@@ -53,4 +55,13 @@ func Escape(input string) string {
 	r = strings.Replace(r, "\\u003c", "<", -1)
 	r = strings.Replace(r, "\\u003e", ">", -1)
 	return r
+}
+
+func GetExcPath(p string) string {
+	if strings.HasPrefix(p, ".") {
+		fp, _ := os.Getwd()
+		return filepath.Join(fp, strings.Trim(p, "."))
+	}
+	return p
+
 }
