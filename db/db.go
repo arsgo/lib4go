@@ -18,6 +18,14 @@ http://blog.sina.com.cn/s/blog_48c95a190102w2ln.html
 http://www.tudou.com/programs/view/yet9OngrV_4/
 https://github.com/wendal/go-oci8/downloads
 https://github.com/wendal/go-oci8
+
+安装方法
+http://www.oracle.com/technetwork/database/features/instant-client/index.html
+export ora_home=/usr/local/instantclient_12_1 
+export PATH=$PATH:$ora_home 
+export LD_LIBRARY_PATH=$ora_home 
+
+
 */
 
 const (

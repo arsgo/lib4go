@@ -104,6 +104,9 @@ BRK:
 }
 
 func (p *LuaPool) SetPackages(paths ...string) {
+	if len(paths) == 0 {
+		return
+	}
 	p.binders.packages = append(p.binders.packages, paths...)
 }
 func (p *LuaPool) RegisterLibs(libs map[string]interface{}) error {
