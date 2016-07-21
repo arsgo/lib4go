@@ -20,7 +20,6 @@ func New(config string) (m *MemcacheClient, err error) {
 	m.client = memcache.New(m.Servers...)
 	return
 }
-
 func (c *MemcacheClient) Get(key string) string {
 	data, err := c.client.Get(key)
 	if err != nil {
