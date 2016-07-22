@@ -48,6 +48,9 @@ func init() {
 	sysLogger = &NilLogger{}
 	log.SetFlags(log.Ldate | log.Lmicroseconds)
 }
+func SetDebug(s bool) {
+	isDebug = s
+}
 
 //Get 根据日志组件名称获取日志组件
 func Get(name string) (ILogger, error) {
