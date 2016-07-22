@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/colinyl/lib4go/concurrent"
-	"github.com/colinyl/lib4go/utility"
 )
 
 var fileAppenders concurrent.ConcurrentMap
@@ -20,7 +19,7 @@ var sysfilepath string
 
 func init() {
 	fileAppenders = concurrent.NewConcurrentMap()
-	sysfilepath = utility.GetExcPath("./logs/sys.log", "bin")
+	//	sysfilepath = utility.GetExcPath("./logs/sys.log", "bin")
 }
 
 //FileAppenderWriterEntity fileappender
@@ -35,7 +34,8 @@ type FileAppenderWriterEntity struct {
 
 func fileWriteRecover() {
 	if r := recover(); r != nil {
-		sysWrite(sysfilepath, r)
+		fmt.Println(r)
+		//sysWrite(sysfilepath, r)
 	}
 }
 func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) {
