@@ -49,7 +49,7 @@ func (f *forever) Start() {
 		f.log.Error(err)
 		return
 	}
-	fmt.Println("7", err)
+	fmt.Println("7", result, err)
 	f.log.Info(result)
 }
 
