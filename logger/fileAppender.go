@@ -180,11 +180,11 @@ func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
 		Close: make(chan int, 1)}, nil
 }
 func sysWrite(path string, content ...interface{}) {
-	logFile, logErr := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	/*logFile, logErr := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if logErr != nil {
 		log.Fatal(fmt.Sprintf("logger.Fail to find file %s", path))
 		return
 	}
 	logger := log.New(logFile, "", log.Ldate|log.Lmicroseconds)
-	logger.Println(content...)
+	logger.Println(content...)*/
 }
