@@ -25,24 +25,31 @@ type service interface {
 }
 
 func NewForever(svs service, log logger.ILogger, name string, desc string) *forever {
+	fmt.Println("1")
 	dm, err := daemon.New(name, desc)
+	fmt.Println("2")
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
+	fmt.Println("3")
 	return &forever{dm: dm, name: name, desc: desc, svs: svs, log: log}
 }
 func (f *forever) Start() {
+	fmt.Println("4")
 	defer func() {
 		if r := recover(); r != nil {
 			f.log.Error(r, string(debug.Stack()))
 		}
 	}()
+	fmt.Println("5")
 	result, err := f.run()
+	fmt.Println("6")
 	if err != nil {
 		f.log.Error(err)
 		return
 	}
+	fmt.Println("7", err)
 	f.log.Info(result)
 }
 
