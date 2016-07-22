@@ -65,7 +65,6 @@ func NewSession(name string, session string, openSysLog bool) (ILogger, error) {
 
 //--------------------以下是私有函数--------------------------------------------
 func getLogger(name string, sourceName string, session string, getFromCache bool, openSysLog bool) (logger ILogger, err error) {
-
 	if getFromCache {
 		logCreateLock.Lock()
 		defer logCreateLock.Unlock()
