@@ -40,6 +40,7 @@ func (f *forever) Start() {
 	}()
 	result, err := f.run()
 	if err != nil {
+		fmt.Println("start error:", err)
 		f.log.Error("start error:", err)
 		return
 	}
@@ -66,6 +67,7 @@ func (f *forever) run() (string, error) {
 
 	if len(os.Args) > 1 {
 		command := os.Args[1]
+		logger.SetDebug(false)
 		switch command {
 		case "install":
 			return f.dm.Install()
