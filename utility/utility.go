@@ -5,8 +5,6 @@ import (
 	"encoding/base64"
 	"io"
 	"net"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/colinyl/lib4go/security/md5"
@@ -61,12 +59,12 @@ func GetExcPath(p ...string) string {
 	if len(p) == 0 {
 		return ""
 	}
-	if strings.HasPrefix(p[0], ".") {
+	/*if strings.HasPrefix(p[0], ".") {
 		fp, _ := os.Getwd()
 		for i := 1; i < len(p); i++ {
 			fp = strings.Trim(fp, p[i])
 		}
 		return filepath.Join(fp, strings.Trim(p[0], "."))
-	}
+	}*/
 	return p[0]
 }
