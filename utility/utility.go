@@ -67,6 +67,7 @@ func GetExcPath(p ...string) string {
 		for i := 1; i < len(p); i++ {
 			fp = strings.Trim(fp, p[i])
 		}
+		fmt.Println("exec path:", fp, p[0])
 		return filepath.Join(fp, strings.Trim(p[0], "."))
 	}
 	fmt.Println("exec path:", p[0])
