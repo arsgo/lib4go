@@ -172,7 +172,7 @@ func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
 	}
 	logFile, logErr := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if logErr != nil {
-		return nil, fmt.Errorf(fmt.Sprintf("Fail to find file %s", path))
+		return nil, fmt.Errorf(fmt.Sprintf("logger.Fail to find file %s", path))
 	}
 	logger := log.New(logFile, "", log.Ldate|log.Lmicroseconds)
 	return &FileAppenderWriterEntity{LastUse: time.Now().Unix(),
@@ -182,7 +182,7 @@ func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
 func sysWrite(path string, content ...interface{}) {
 	logFile, logErr := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if logErr != nil {
-		log.Fatal(fmt.Sprintf("Fail to find file %s", path))
+		log.Fatal(fmt.Sprintf("logger.Fail to find file %s", path))
 		return
 	}
 	logger := log.New(logFile, "", log.Ldate|log.Lmicroseconds)

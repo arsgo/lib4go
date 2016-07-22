@@ -24,7 +24,7 @@ type service interface {
 	Stop() error
 }
 
-func NewForever(svs service, log logger.ILogger, name string, desc string) *forever {	
+func NewForever(svs service, log logger.ILogger, name string, desc string) *forever {
 	dm, err := daemon.New(name, desc)
 	if err != nil {
 		fmt.Println(err)
@@ -32,7 +32,7 @@ func NewForever(svs service, log logger.ILogger, name string, desc string) *fore
 	}
 	return &forever{dm: dm, name: name, desc: desc, svs: svs, log: log}
 }
-func (f *forever) Start() {	
+func (f *forever) Start() {
 	defer func() {
 		if r := recover(); r != nil {
 			f.log.Error(r, string(debug.Stack()))
@@ -40,7 +40,7 @@ func (f *forever) Start() {
 	}()
 	result, err := f.run()
 	if err != nil {
-		f.log.Error(err)
+		f.log.Error("start error:", err)
 		return
 	}
 	f.log.Info(result)
