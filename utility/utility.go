@@ -3,7 +3,6 @@ package utility
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"fmt"
 	"io"
 	"net"
 	"path/filepath"
@@ -69,9 +68,7 @@ func GetExcPath(p ...string) string {
 		for i := 1; i < len(p); i++ {
 			path = strings.Trim(path, p[i])
 		}
-		fmt.Println("exec path:", path, p[0])
 		return filepath.Join(path, strings.Trim(p[0], "."))
 	}
-	fmt.Println("exec path:", p[0])
 	return p[0]
 }

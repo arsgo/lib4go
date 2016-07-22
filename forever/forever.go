@@ -71,7 +71,6 @@ func (f *forever) run() (string, error) {
 		case "remove":
 			return f.dm.Remove()
 		case "start":
-			fmt.Println("start.now.")
 			return f.dm.Start()
 		case "stop":
 			return f.dm.Stop()
