@@ -2,7 +2,6 @@ package mem
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/bradfitz/gomemcache/memcache"
 )
@@ -19,7 +18,6 @@ func New(config string) (m *MemcacheClient, err error) {
 		return
 	}
 	m.client = memcache.New(m.Servers...)
-	fmt.Println("client:", m.client)
 	return
 }
 func (c *MemcacheClient) Get(key string) string {
@@ -36,10 +34,8 @@ func (c *MemcacheClient) Add(key string, value string, expiresAt int32) error {
 }
 
 func (c *MemcacheClient) Set(key string, value string, expiresAt int32) error {
-	fmt.Println("set:", key, value, expiresAt)
 	data := &memcache.Item{Key: key, Value: []byte(value), Expiration: expiresAt}
 	err := c.client.Set(data)
-	fmt.Println("err:", err)
 	return err
 }
 
