@@ -67,6 +67,8 @@ func GetExcPath(p ...string) string {
 		for i := 1; i < len(p); i++ {
 			fp = strings.Trim(fp, p[i])
 		}
+		f, er := os.Readlink("/proc/self/exe")
+		fmt.Println("os.Readlink:", f, er)
 		fmt.Println("exec path:", fp, p[0])
 		return filepath.Join(fp, strings.Trim(p[0], "."))
 	}
