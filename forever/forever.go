@@ -56,6 +56,20 @@ func (f *forever) Start() {
 func (f *forever) run() (string, error) {
 
 	usage := fmt.Sprintf("Usage: %s install | remove | start | stop | status | debug | pprof_mem | pprof_block", f.name)
+	if len(os.Args) > 2 {
+		command := os.Args[2]
+		switch command {
+		case "debug":
+			f.dup(f.name)
+		case "pprof_mem":
+			defer profile.Start(profile.MemProfile).Stop()
+		case "pprof_cpu":
+			defer profile.Start(profile.CPUProfile).Stop()
+		case "pprof_block":
+			defer profile.Start(profile.BlockProfile).Stop()
+		}
+	}
+
 	if len(os.Args) > 1 {
 		command := os.Args[1]
 		switch command {
