@@ -69,6 +69,9 @@ func (l *Logger) print(level string, content string) {
 }
 
 func (l *Logger) logPrint(level string, content string) {
+	if !isDebug {
+		return
+	}
 	if level == SLevel_Error {
 		log.Printf("[%s][%s]: %s\n%s", l.session, level, content, getCaller(3))
 	} else {

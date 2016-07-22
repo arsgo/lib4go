@@ -46,7 +46,7 @@ type WebServer struct {
 //NewWebServer 创建WebServer服务
 func NewWebServer(address string, loggerName string, handlers ...WebHandler) (server *WebServer) {
 	server = &WebServer{routes: handlers, address: address, loggerName: loggerName}
-	server.Log, _ = logger.Get(loggerName, true)
+	server.Log, _ = logger.Get(loggerName)
 	return
 }
 func (h WebHandler) call(w http.ResponseWriter, r *http.Request) {

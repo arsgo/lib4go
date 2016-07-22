@@ -154,7 +154,7 @@ func (p *LuaPool) getScriptLoggerName(name string) string {
 }
 
 func (p *LuaPool) Call(script string, session string, input string, body string) (result []string, outparams map[string]string, err error) {
-	log, err := logger.NewSession(p.getScriptLoggerName(script), session, true)
+	log, err := logger.NewSession(p.getScriptLoggerName(script), session)
 	defer luaRecover(log)
 	if err != nil {
 		return

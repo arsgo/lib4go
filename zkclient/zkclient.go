@@ -27,7 +27,7 @@ func New(servers []string, timeout time.Duration, loggerName string) (*ZKCli, er
 	}
 	zkcli.conn = conn
 	zkcli.eventChan = eventChan
-	zkcli.Log, err = logger.Get(loggerName, true)
+	zkcli.Log, err = logger.Get(loggerName)
 	zkcli.conn.SetLogger(zkcli.Log)
 	zkcli.closeQueue = make(chan int, 1)
 	return zkcli, nil

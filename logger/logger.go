@@ -13,12 +13,11 @@ import (
 
 //Logger 日志组件
 type Logger struct {
-	Name       string
-	Level      string
-	Config     LoggerConfig
-	DataChan   chan LoggerEvent
-	OpenSysLog bool
-	session    string
+	Name     string
+	Level    string
+	Config   LoggerConfig
+	DataChan chan LoggerEvent
+	session  string
 }
 
 var sysDefaultConfig concurrent.ConcurrentMap //map[string]*LoggerConfig
@@ -28,6 +27,7 @@ var sysLogger ILogger
 var currentSession int32
 var logCreateLock sync.Mutex
 var dataChan chan LoggerEvent
+var isDebug bool
 
 func init() {
 	levelMap = map[string]int{
@@ -39,6 +39,7 @@ func init() {
 		SLevel_ALL:   ILevel_ALL,
 	}
 	currentSession = 100
+	isDebug = true
 	sysDefaultConfig = concurrent.NewConcurrentMap()
 	sysLoggers = concurrent.NewConcurrentMap()
 	dataChan = make(chan LoggerEvent, 1)
@@ -49,22 +50,22 @@ func init() {
 }
 
 //Get 根据日志组件名称获取日志组件
-func Get(name string, openSysLog bool) (ILogger, error) {
-	return getLogger(name, name, "", true, openSysLog)
+func Get(name string) (ILogger, error) {
+	return getLogger(name, name, "", true)
 }
 
 //New 根据日志组件名称创建新的日志组件
-func New(name string, openSysLog bool) (ILogger, error) {
-	return getLogger(name, name, "", false, openSysLog)
+func New(name string) (ILogger, error) {
+	return getLogger(name, name, "", false)
 }
 
 //NewSession 根据session创建新的日志
-func NewSession(name string, session string, openSysLog bool) (ILogger, error) {
-	return getLogger(name, name, session, false, openSysLog)
+func NewSession(name string, session string) (ILogger, error) {
+	return getLogger(name, name, session, false)
 }
 
 //--------------------以下是私有函数--------------------------------------------
-func getLogger(name string, sourceName string, session string, getFromCache bool, openSysLog bool) (logger ILogger, err error) {
+func getLogger(name string, sourceName string, session string, getFromCache bool) (logger ILogger, err error) {
 	if getFromCache {
 		logCreateLock.Lock()
 		defer logCreateLock.Unlock()
@@ -74,7 +75,7 @@ func getLogger(name string, sourceName string, session string, getFromCache bool
 			return
 		}
 	}
-	logger, err = createLogger(name, sourceName, openSysLog, session)
+	logger, err = createLogger(name, sourceName, session)
 	if err != nil {
 		return sysLogger, err
 	}
@@ -83,7 +84,7 @@ func getLogger(name string, sourceName string, session string, getFromCache bool
 	}
 	return
 }
-func createLogger(name string, sourceName string, openSysLog bool, session string) (log *Logger, err error) {
+func createLogger(name string, sourceName string, session string) (log *Logger, err error) {
 	objConfig := sysDefaultConfig.Get(sourceName)
 	if objConfig == nil {
 		objConfig = sysDefaultConfig.Get("*")
@@ -93,7 +94,7 @@ func createLogger(name string, sourceName string, openSysLog bool, session strin
 	}
 	config := objConfig.(LoggerConfig)
 	log = &Logger{Name: name, Level: config.Appender.Level, Config: config,
-		DataChan: dataChan, OpenSysLog: openSysLog, session: session}
+		DataChan: dataChan, session: session}
 	if strings.EqualFold(session, "") {
 		log.session = createSession()
 	}
