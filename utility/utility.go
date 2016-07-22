@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -63,22 +62,15 @@ func GetExcPath(p ...string) string {
 		return ""
 	}
 	if strings.HasPrefix(p[0], ".") {
-		fp, _ := os.Getwd()
-		for i := 1; i < len(p); i++ {
-			fp = strings.Trim(fp, p[i])
+		path, err := getExecRoot()
+		if err != nil {
+			return p[0]
 		}
-
-		f, er := os.Readlink("/proc/self/exe")
-		fmt.Println("/proc/self/exe:", f, er)
-		
-		f, er = os.Readlink("/proc")
-		fmt.Println("proc:", f, er)
-
-		f, er = os.Readlink("/proc/self")
-		fmt.Println("proc/self:", f, er)
-
-		fmt.Println("exec path:", fp, p[0])
-		return filepath.Join(fp, strings.Trim(p[0], "."))
+		for i := 1; i < len(p); i++ {
+			path = strings.Trim(path, p[i])
+		}
+		fmt.Println("exec path:", path, p[0])
+		return filepath.Join(path, strings.Trim(p[0], "."))
 	}
 	fmt.Println("exec path:", p[0])
 	return p[0]
