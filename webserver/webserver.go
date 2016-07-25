@@ -1,7 +1,7 @@
 package webserver
 
 import (
-	"fmt"
+	"net"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -41,6 +41,7 @@ type WebServer struct {
 	address    string
 	loggerName string
 	Log        logger.ILogger
+	l          net.Listener
 }
 
 //NewWebServer 创建WebServer服务
@@ -65,18 +66,24 @@ func (h WebHandler) call(w http.ResponseWriter, r *http.Request) {
 }
 
 //Serve 启动WEB服务器
-func (w *WebServer) Serve() {
+func (w *WebServer) Serve() (err error) {
+	mux := http.NewServeMux()
 	for _, handler := range w.routes {
-		http.HandleFunc(handler.Path, handler.call)
+		mux.HandleFunc(handler.Path, handler.call)
 
 	}
-	err := http.ListenAndServe(w.address, nil)
+	l, err := net.Listen("tcp", w.address)
 	if err != nil {
-		fmt.Println(err)
+		return
 	}
+	w.l = l
+	err = http.Serve(w.l, mux)
+	return
 }
 
 //Stop 停止服务器
 func (w *WebServer) Stop() {
-
+	if w.l != nil {
+		w.l.Close()
+	}
 }
