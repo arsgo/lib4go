@@ -133,10 +133,12 @@ func (c *HTTPClientRequest) Request() (content string, status int, err error) {
 		req.Header.Set(i, v)
 	}
 	resp, err := c.client.Do(req)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
@@ -151,11 +153,13 @@ func (c *HTTPClientRequest) Request() (content string, status int, err error) {
 func (c *HTTPClient) Get(url string, args ...string) (content string, status int, err error) {
 	encoding := getEncoding(args...)
 	resp, err := c.client.Get(url)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
 	if err != nil {
 		return
 	}
 
-	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
@@ -169,11 +173,12 @@ func (c *HTTPClient) Get(url string, args ...string) (content string, status int
 func (c *HTTPClient) Post(url string, params string, args ...string) (content string, status int, err error) {
 	encoding := getEncoding(args...)
 	resp, err := c.client.Post(url, "application/x-www-form-urlencoded", strings.NewReader(params))
+	if resp != nil {
+		defer resp.Body.Close()
+	}
 	if err != nil {
 		return
 	}
-
-	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
