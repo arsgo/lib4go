@@ -195,7 +195,7 @@ func (p *LuaPool) call(script string, session string, input string, body string,
 		return
 	}
 	co := o.(*luaPoolObject).state
-	log.Info("init top：", co.GetTop())
+	//log.Info("init top：", co.GetTop())
 	dynamicBind(co, map[string]interface{}{
 		"print":  log.Info,
 		"printf": log.Infof,
