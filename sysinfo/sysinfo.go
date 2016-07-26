@@ -34,7 +34,7 @@ func GetCPU() []map[string]interface{} {
 	return data
 }
 func GetDisk() (data []map[string]interface{}) {
-	data = make([]map[string]interface{}, 0)
+	data = make([]map[string]interface{}, 0, 6)
 	defer func() {
 		if er := recover(); er != nil {
 			fmt.Println("get DISK error", er)
