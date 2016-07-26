@@ -124,7 +124,7 @@ func (c *HTTPClientRequest) SetHeader(key string, value string) {
 //Request 发送http请求, method:http请求方法包括:get,post,delete,put等 url: 请求的HTTP地址,不包括参数,params:请求参数,
 //header,http请求头多个用/n分隔,每个键值之前用=号连接
 func (c *HTTPClientRequest) Request() (content string, status int, err error) {
-	req, err := http.NewRequest(c.method, c.url, strings.NewReader(c.params))
+	req, err := http.NewRequest(c.method, c.url, strings.NewReader(c.params))	
 	if err != nil {
 		return
 	}
