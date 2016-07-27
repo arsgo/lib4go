@@ -150,6 +150,10 @@ func (p *LuaPool) PreLoad(script string, minSize int, maxSize int) error {
 func (p *LuaPool) getScriptLoggerName(name string) string {
 	script := strings.TrimPrefix(strings.TrimSuffix(strings.TrimSuffix(strings.ToLower(name), ".lua"), ".luac"), ".")
 	rname := strings.Trim(strings.Replace(strings.Replace(script, "/", "-", -1), "\\", "-", -1), "-")
+
+	if index := strings.Index(rname, "script"); index > -1 {
+		return strings.Replace(rname[index:], "scripts-", "script/", -1)
+	}
 	return strings.Replace(rname, "scripts-", "script/", -1)
 }
 
