@@ -55,7 +55,7 @@ func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) 
 	fileAppenders.Set(path, entity)
 	f = entity.(*FileAppenderWriterEntity)
 	go f.writeLoop()
-	go f.checkAppender()
+	//go f.checkAppender()
 
 	return
 }
