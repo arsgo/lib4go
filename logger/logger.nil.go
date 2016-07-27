@@ -52,3 +52,6 @@ func (l *NilLogger) Printf(format string, a ...interface{}) {
 func (l *NilLogger) print(level string, content string) {
 	fmt.Println(content)
 }
+func (l *NilLogger) GetName() string {
+	return "nil"
+}

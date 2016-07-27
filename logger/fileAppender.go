@@ -41,7 +41,6 @@ func fileWriteRecover() {
 func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) {
 	defer fileWriteRecover()
 	path := getAppendPath(data)
-	fmt.Println("log.path:", path)
 	writeLock.Lock()
 	defer writeLock.Unlock()
 	entity := fileAppenders.Get(path)
@@ -154,6 +153,7 @@ func sleep() {
 }
 func (entity *FileAppenderWriterEntity) writelog2file(logEvent LoggerEvent) {
 	defer fileWriteRecover()
+	fmt.Println("++++", entity.Path, logEvent.Content)
 	tag := ""
 	if levelMap[logEvent.Level] == ILevel_Info {
 		entity.Log.SetFlags(log.Ldate | log.Lmicroseconds)

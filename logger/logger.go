@@ -52,7 +52,7 @@ func SetDebug(s bool) {
 	isDebug = s
 }
 
-//Get 根据日志组件名称获取日志组件
+//Get Logger
 func Get(name string) (ILogger, error) {
 	return getLogger(name, name, "", true)
 }
@@ -66,6 +66,9 @@ func New(name string) (ILogger, error) {
 func NewSession(name string, session string) (ILogger, error) {
 	fmt.Println("create logger:", name)
 	return getLogger(name, name, session, false)
+}
+func (s *Logger) GetName() string {
+	return s.Name
 }
 
 //--------------------以下是私有函数--------------------------------------------
