@@ -153,7 +153,7 @@ func sleep() {
 }
 func (entity *FileAppenderWriterEntity) writelog2file(logEvent LoggerEvent) {
 	defer fileWriteRecover()
-	fmt.Println("++++", entity.Path, logEvent.Content)
+	//fmt.Println("++++", entity.Path, logEvent.Content)
 	tag := ""
 	if levelMap[logEvent.Level] == ILevel_Info {
 		entity.Log.SetFlags(log.Ldate | log.Lmicroseconds)
