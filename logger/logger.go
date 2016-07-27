@@ -63,8 +63,7 @@ func New(name string) (ILogger, error) {
 }
 
 //NewSession 根据session创建新的日志
-func NewSession(name string, session string) (ILogger, error) {
-	fmt.Println("create logger:", name)
+func NewSession(name string, session string) (ILogger, error) {	
 	return getLogger(name, name, session, false)
 }
 func (s *Logger) GetName() string {
