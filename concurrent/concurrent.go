@@ -54,7 +54,7 @@ func NewConcurrentMap() (m *ConcurrentMap) {
 }
 
 //Add 添加值
-func (c ConcurrentMap) Add(key string, f CallBack, p ...interface{}) (bool, interface{}) {
+func (c *ConcurrentMap) Add(key string, f CallBack, p ...interface{}) (bool, interface{}) {
 	if c.isClose || strings.EqualFold(key, "") {
 		return false, nil
 	}
@@ -66,7 +66,7 @@ func (c ConcurrentMap) Add(key string, f CallBack, p ...interface{}) (bool, inte
 }
 
 //Set 添加或修改指定KEY对应的值
-func (c ConcurrentMap) Set(key string, value interface{}) {
+func (c *ConcurrentMap) Set(key string, value interface{}) {
 	if c.isClose || strings.EqualFold(key, "") {
 		return
 	}
@@ -74,7 +74,7 @@ func (c ConcurrentMap) Set(key string, value interface{}) {
 }
 
 //Delete 删除指定KEY的数据
-func (c ConcurrentMap) Delete(key string) {
+func (c *ConcurrentMap) Delete(key string) {
 	if c.isClose {
 		return
 	}
@@ -82,7 +82,7 @@ func (c ConcurrentMap) Delete(key string) {
 }
 
 //Get 获取指定KEY对应的数据
-func (c ConcurrentMap) Get(key string) interface{} {
+func (c *ConcurrentMap) Get(key string) interface{} {
 	if c.isClose {
 		return nil
 	}
@@ -93,12 +93,12 @@ func (c ConcurrentMap) Get(key string) interface{} {
 }
 
 //GetLength 获取数据个数
-func (c ConcurrentMap) GetLength() int {
+func (c *ConcurrentMap) GetLength() int {
 	return len(c.data)
 }
 
 //GetAll 获取所有所有元素的拷贝
-func (c ConcurrentMap) GetAll() map[string]interface{} {
+func (c *ConcurrentMap) GetAll() map[string]interface{} {
 	if c.isClose {
 		return make(map[string]interface{})
 	}
@@ -112,7 +112,7 @@ func (c ConcurrentMap) GetAll() map[string]interface{} {
 }
 
 //Close 关闭当前线程安全MAP
-func (c ConcurrentMap) Close() {
+func (c *ConcurrentMap) Close() {
 	if c.isClose {
 		return
 	}
@@ -120,7 +120,7 @@ func (c ConcurrentMap) Close() {
 }
 
 //do 单线程处理外部所有操作
-func (c ConcurrentMap) do() {
+func (c *ConcurrentMap) do() {
 	for {
 		select {
 		case data := <-c.request:
