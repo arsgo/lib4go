@@ -13,7 +13,7 @@ import (
 	"github.com/colinyl/lib4go/concurrent"
 )
 
-var fileAppenders concurrent.ConcurrentMap
+var fileAppenders *concurrent.ConcurrentMap
 var writeLock sync.Mutex
 var sysfilepath string
 

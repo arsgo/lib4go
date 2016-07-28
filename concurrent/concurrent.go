@@ -45,8 +45,8 @@ type ConcurrentMap struct {
 }
 
 //NewConcurrentMap 创建线程安全MAP
-func NewConcurrentMap() (m ConcurrentMap) {
-	m = ConcurrentMap{isClose: false}
+func NewConcurrentMap() (m *ConcurrentMap) {
+	m = &ConcurrentMap{isClose: false}
 	m.data = make(map[string]interface{})
 	m.request = make(chan requestKeyValue, 1000)
 	go m.do()

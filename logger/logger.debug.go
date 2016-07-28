@@ -4,7 +4,7 @@ import (
 	"github.com/colinyl/lib4go/concurrent"
 )
 
-var logMap concurrent.ConcurrentMap
+var logMap *concurrent.ConcurrentMap
 
 func init() {
 	logMap = concurrent.NewConcurrentMap()

@@ -20,8 +20,8 @@ type Logger struct {
 	session  string
 }
 
-var sysDefaultConfig concurrent.ConcurrentMap //map[string]*LoggerConfig
-var sysLoggers concurrent.ConcurrentMap       //map[string]*Logger
+var sysDefaultConfig *concurrent.ConcurrentMap //map[string]*LoggerConfig
+var sysLoggers *concurrent.ConcurrentMap       //map[string]*Logger
 var levelMap map[string]int
 var sysLogger ILogger
 var currentSession int32
