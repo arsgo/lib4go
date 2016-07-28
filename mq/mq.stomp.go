@@ -1,9 +1,9 @@
 package mq
 
 import (
-	"errors"
 	"fmt"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/gmallard/stompngo"
@@ -11,24 +11,41 @@ import (
 
 //StompMQ manage stomp server
 type Stomp struct {
-	conn *stompngo.Connection
-	cfg  *StompConfig
+	conn    *stompngo.Connection
+	cfg     *StompConfig
+	Address string
+	header  []string
+	lk      sync.Mutex
 }
 
 //NewStompMQ
 func NewStomp(cfg *StompConfig) (mq *Stomp, err error) {
 	mq = &Stomp{cfg: cfg}
-	con, err := net.Dial("tcp", cfg.Address)
+	mq.header = stompngo.Headers{"accept-version", cfg.AcceptVersion}
+	mq.Address = cfg.Address
+	err = mq.connect()
+	return
+
+}
+func (s *Stomp) connect() (err error) {
+	con, err := net.Dial("tcp", s.Address)
 	if err != nil {
 		return
 	}
-	header := stompngo.Headers{"accept-version", cfg.AcceptVersion}
-	mq.conn, err = stompngo.Connect(con, header)
+	s.conn, err = stompngo.Connect(con, s.header)
 	return
 }
 
 //Send
-func (s *Stomp) Send(queue string, msg string, timeout int) error {
+func (s *Stomp) Send(queue string, msg string, timeout int) (err error) {
+	s.lk.Lock()
+	if !s.conn.Connected() {
+		err = s.connect()
+	}
+	s.lk.Unlock()
+	if err != nil {
+		return
+	}
 	header := stompngo.Headers{"destination", queue, "persistent", s.cfg.Persistent}
 	if timeout > 0 {
 		header = stompngo.Headers{"destination", fmt.Sprintf("/%s/%s", s.cfg.Dest, queue), "persistent", s.cfg.Persistent, "expires",
@@ -37,10 +54,14 @@ func (s *Stomp) Send(queue string, msg string, timeout int) error {
 	return s.conn.Send(header, msg)
 }
 
-//Subscribe
+//Consume
 func (s *Stomp) Consume(queue string, call func(MsgHandler)) (err error) {
+	s.lk.Lock()
 	if !s.conn.Connected() {
-		err = errors.New("not connect to stomp server")
+		err = s.connect()
+	}
+	s.lk.Unlock()
+	if err != nil {
 		return
 	}
 	subscriberHeader := stompngo.Headers{"destination",

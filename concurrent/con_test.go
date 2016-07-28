@@ -1,7 +1,10 @@
 package concurrent
 
 import (
+	"errors"
+	"fmt"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -9,6 +12,45 @@ var current ConcurrentMap
 
 func init() {
 	current = NewConcurrentMap()
+}
+
+func TestAdd(b *testing.B) {
+	nmap := NewConcurrentMap()
+	total := 0
+	v := &sync.WaitGroup{}
+	v.Add(3)
+	f := func(p ...interface{}) (interface{}, error) {
+		fmt.Println("A:", p[0])
+		total++
+		return p[0], errors.New("error")
+	}
+
+	go func() {
+		for i := 0; i < 10000; i++ {
+			nmap.Add(fmt.Sprintf("%d", i), f, i)
+		}
+		v.Done()
+	}()
+	go func() {
+		for i := 0; i < 10000; i++ {
+			nmap.Add(fmt.Sprintf("%d", i), f, i)
+		}
+		v.Done()
+	}()
+	go func() {
+		for i := 0; i < 10000; i++ {
+			nmap.Add(fmt.Sprintf("%d", i), f, i)
+		}
+		v.Done()
+	}()
+	v.Wait()
+	if total != 10000 {
+		b.Error("create count error")
+	}
+	if len(nmap.GetAll()) != 10000 {
+		b.Error("added count error")
+	}
+
 }
 
 func BenchmarkConcurrentMap(b *testing.B) {
