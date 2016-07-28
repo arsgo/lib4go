@@ -19,6 +19,19 @@ type requestKeyValue struct {
 	result chan interface{}
 }
 
+type CallBack func(...interface{}) (interface{}, error)
+type swap struct {
+	params []interface{}
+	call   CallBack
+}
+
+func newswap(call CallBack, p ...interface{}) *swap {
+	return &swap{params: p, call: call}
+}
+func (s *swap) doCall() (interface{}, error) {
+	return s.call(s.params...)
+}
+
 //ConcurrentMap 线程安全MAP
 type ConcurrentMap struct {
 	data    map[string]interface{}
@@ -36,12 +49,12 @@ func NewConcurrentMap() (m ConcurrentMap) {
 }
 
 //Add 添加值
-func (c ConcurrentMap) Add(key string, value interface{}) bool {
+func (c ConcurrentMap) Add(key string, f CallBack, p ...interface{}) bool {
 	if c.isClose || strings.EqualFold(key, "") {
 		return false
 	}
 	ch := make(chan interface{}, 1)
-	c.request <- requestKeyValue{key: key, value: value, method: ADD, result: ch}
+	c.request <- requestKeyValue{key: key, value: newswap(f, p...), method: ADD, result: ch}
 	v := <-ch
 	return v.(bool)
 }
@@ -121,8 +134,14 @@ func (c ConcurrentMap) do() {
 				case ADD:
 					{
 						if _, ok := c.data[data.key]; !ok {
-							c.data[data.key] = data.value
-							data.result <- true
+							v, er := data.value.(*swap).doCall()
+							if er != nil {
+								c.data[data.key] = v
+								data.result <- false
+							} else {
+								data.result <- true
+							}
+
 						} else {
 							data.result <- false
 						}

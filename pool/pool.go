@@ -48,23 +48,15 @@ func (p *ObjectPool) ResetPoolSize(name string, minSize int, maxSize int) {
 		value.(*poolSet).SetSize(minSize, maxSize)
 	}
 }
+func (o *ObjectPool) createSet(p ...interface{}) (interface{}, error) {
+	minSize, maxSize, factory := p[0].(int), p[1].(int), p[2].(ObjectFactory)
+	return newPoolSet(minSize, maxSize, factory)
+}
 
 //Register 注册指定的对象
 func (p *ObjectPool) Register(name string, factory ObjectFactory, minSize int, maxSize int) (err error) {
-	value := p.pools.Get(name)
-	if value != nil {
-		value.(*poolSet).SetSize(minSize, maxSize)
-		return
-	}
-
-	ps, err := newPoolSet(minSize, maxSize, factory)
-	if err != nil {
-		return
-	}
-	p.pools.Set(name, ps)
-
-	return
-
+	p.pools.Add(name, p.createSet, minSize, maxSize, factory)
+	return nil
 }
 func (p *ObjectPool) UnRegister(name string) {
 	obj := p.pools.Get(name)

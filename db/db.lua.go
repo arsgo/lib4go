@@ -14,9 +14,6 @@ type DBScriptBind struct {
 func NewDBScriptBind(config string) (b *DBScriptBind, err error) {
 	b = &DBScriptBind{}
 	b.db, err = NewDBMapByConfig(config)
-	if err != nil {
-		return
-	}
 	return
 }
 

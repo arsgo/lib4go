@@ -48,16 +48,18 @@ func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) 
 		f = entity.(*FileAppenderWriterEntity)
 		return
 	}
-	entity, err = createFileHandler(path)
-	if err != nil {
+	if !fileAppenders.Add(path, createFileEntity, path) {
 		return
 	}
-	fileAppenders.Set(path, entity)
+	entity = fileAppenders.Get(path)
 	f = entity.(*FileAppenderWriterEntity)
 	go f.writeLoop()
 	//go f.checkAppender()
 
 	return
+}
+func createFileEntity(args ...interface{}) (interface{}, error) {
+	return createFileHandler(args[0].(string))
 }
 
 //FileAppenderWrite 1. 循环等待写入数据超时时长为1分钟，有新数据过来时先翻译文件输出路径，并查询缓存的实体对象，
