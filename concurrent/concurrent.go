@@ -12,6 +12,11 @@ const (
 	CLOSE
 )
 
+type addResult struct {
+	add   bool
+	value interface{}
+}
+
 type requestKeyValue struct {
 	method int
 	key    string
@@ -49,14 +54,15 @@ func NewConcurrentMap() (m ConcurrentMap) {
 }
 
 //Add 添加值
-func (c ConcurrentMap) Add(key string, f CallBack, p ...interface{}) bool {
+func (c ConcurrentMap) Add(key string, f CallBack, p ...interface{}) (bool, interface{}) {
 	if c.isClose || strings.EqualFold(key, "") {
-		return false
+		return false, nil
 	}
 	ch := make(chan interface{}, 1)
 	c.request <- requestKeyValue{key: key, value: newswap(f, p...), method: ADD, result: ch}
 	v := <-ch
-	return v.(bool)
+	r := v.(*addResult)
+	return r.add, r.value
 }
 
 //Set 添加或修改指定KEY对应的值
@@ -73,17 +79,6 @@ func (c ConcurrentMap) Delete(key string) {
 		return
 	}
 	c.request <- requestKeyValue{key: key, method: DEL}
-}
-
-//GetOrAdd 不存在时添加，存在时直接返回值
-func (c ConcurrentMap) GetOrAdd(key string, value interface{}) interface{} {
-	if c.isClose || strings.EqualFold(key, "") {
-		return nil
-	}
-	ch := make(chan interface{}, 1)
-	c.request <- requestKeyValue{key: key, value: value, method: GETORADD, result: ch}
-	v := <-ch
-	return v
 }
 
 //Get 获取指定KEY对应的数据
@@ -136,23 +131,14 @@ func (c ConcurrentMap) do() {
 						if _, ok := c.data[data.key]; !ok {
 							v, er := data.value.(*swap).doCall()
 							if er != nil {
-								c.data[data.key] = v
-								data.result <- false
+								data.result <- &addResult{add: false}
 							} else {
-								data.result <- true
+								c.data[data.key] = v
+								data.result <- &addResult{add: true, value: v}
 							}
 
 						} else {
-							data.result <- false
-						}
-					}
-				case GETORADD:
-					{
-						if value, ok := c.data[data.key]; !ok {
-							c.data[data.key] = data.value
-							data.result <- data.value
-						} else {
-							data.result <- value
+							data.result <- &addResult{add: false, value: c.data[data.key]}
 						}
 					}
 				case GET:

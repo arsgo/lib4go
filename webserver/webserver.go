@@ -19,20 +19,21 @@ type Context struct {
 	Log     logger.ILogger
 }
 
-func NewContext(w http.ResponseWriter, r *http.Request, address string, script string) *Context {
+func NewContext(loggerName string, w http.ResponseWriter, r *http.Request, address string, script string) *Context {
 	context := &Context{Writer: w, Request: r, Address: address, Script: script}
 	context.Session = utility.GetSessionID()
-	context.Log = logger.GetDeubgLogger(context.Session)
+	context.Log, _ = logger.NewSession(loggerName, context.Session)
 	return context
 
 }
 
 //WebHandler Web处理程序
 type WebHandler struct {
-	Path    string
-	Script  string
-	Method  string
-	Handler func(*Context)
+	LoggerName string
+	Path       string
+	Script     string
+	Method     string
+	Handler    func(*Context)
 }
 
 //WebServer WEB服务
@@ -51,7 +52,7 @@ func NewWebServer(address string, loggerName string, handlers ...WebHandler) (se
 	return
 }
 func (h WebHandler) call(w http.ResponseWriter, r *http.Request) {
-	context := NewContext(w, r, h.Path, h.Script)
+	context := NewContext(h.LoggerName, w, r, h.Path, h.Script)
 	defer func() {
 		if r := recover(); r != nil {
 			context.Log.Fatal(r, string(debug.Stack()))
