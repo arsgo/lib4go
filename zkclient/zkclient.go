@@ -10,8 +10,10 @@ import (
 	"github.com/samuel/go-zookeeper/zk"
 )
 
-//ZkClient zookeeper客户端
+//ZKCli zookeeper客户端
 type ZKCli struct {
+	servers    []string
+	timeout    time.Duration
 	conn       *zk.Conn
 	eventChan  <-chan zk.Event
 	Log        logger.ILogger
@@ -20,7 +22,7 @@ type ZKCli struct {
 
 //New 连接到Zookeeper服务器
 func New(servers []string, timeout time.Duration, loggerName string) (*ZKCli, error) {
-	zkcli := &ZKCli{}
+	zkcli := &ZKCli{servers: servers, timeout: timeout}
 	conn, eventChan, err := zk.Connect(servers, timeout)
 	if err != nil {
 		return nil, err
@@ -31,6 +33,17 @@ func New(servers []string, timeout time.Duration, loggerName string) (*ZKCli, er
 	zkcli.conn.SetLogger(zkcli.Log)
 	zkcli.closeQueue = make(chan int, 1)
 	return zkcli, nil
+}
+
+//Reconnect 重新连接
+func (client *ZKCli) Reconnect() error {
+	conn, eventChan, err := zk.Connect(client.servers, client.timeout)
+	if err != nil {
+		return err
+	}
+	client.eventChan = eventChan
+	client.conn = conn
+	return nil
 }
 
 // Exists check whether the path exists
@@ -106,29 +119,78 @@ func (client *ZKCli) Delete(path string) error {
 	return client.conn.Delete(path, -1)
 }
 
+//Close 关闭服务
 func (client *ZKCli) Close() {
 	client.conn.Close()
 }
 
-//WatchConnected 检查是否已连接到服务器
-func (client *ZKCli) WatchConnected() bool {
-	tk := time.NewTicker(time.Second)
-	var isConnected bool
-CONN:
+//WaitForConnected 等待服务器连接成功
+func (client *ZKCli) WaitForConnected() bool {
+	connected := false
+START:
 	for {
 		select {
-		case <-tk.C:
-			if strings.EqualFold(client.conn.State().String(), "StateHasSession") || strings.EqualFold(client.conn.State().String(), "StateConnected") {
-				isConnected = true
-				break CONN
+		case v := <-client.eventChan:
+			switch v.State {
+			case zk.StateConnected:
+				connected = true
+				break START
 			}
-		case <-client.closeQueue:
-			isConnected = false
-			break CONN
 		}
 	}
-	tk.Stop()
-	return isConnected
+	return connected
+}
+
+//WaitForDisconnected 等待服务器失去连接
+func (client *ZKCli) WaitForDisconnected() bool {
+	disconnected := false
+START:
+	for {
+		select {
+		case v := <-client.eventChan:
+			switch v.State {
+			case zk.StateExpired:
+				disconnected = true
+				break START
+			case zk.StateDisconnected:
+				disconnected = true
+				break START
+			}
+		}
+	}
+	return disconnected
+}
+
+//WatchConnectionChange 监控指定节点的值是否发生变化，变化时返回变化后的值
+func (client *ZKCli) WatchConnectionChange(data chan string) error {
+	for {
+		select {
+		case v := <-client.eventChan:
+			switch v.State {
+			case zk.StateConnected:
+				select {
+				case data <- "connected":
+				default:
+				}
+			case zk.StateDisconnected:
+				select {
+				case data <- "disconnected":
+				default:
+				}
+			case zk.StateExpired:
+				select {
+				case data <- "expired":
+				default:
+				}
+			case zk.StateAuthFailed:
+				select {
+				case data <- "authfailed":
+				default:
+				}
+			default:
+			}
+		}
+	}
 }
 
 //WatchValue 监控指定节点的值是否发生变化，变化时返回变化后的值
