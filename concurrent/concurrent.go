@@ -1,9 +1,6 @@
 package concurrent
 
-import (
-	"strings"
-	"sync/atomic"
-)
+import "strings"
 
 const (
 	GET = iota
@@ -142,7 +139,7 @@ func (c *ConcurrentMap) do() {
 							v, er := data.value.(*swap).doCall()
 							if er != nil {
 								data.result <- &addResult{add: false}
-							} else {								
+							} else {
 								c.data[data.key] = v
 								data.result <- &addResult{add: true, value: v}
 							}
@@ -169,14 +166,14 @@ func (c *ConcurrentMap) do() {
 					}
 				case DEL:
 					{
-						delete(c.data, data.key)						
+						delete(c.data, data.key)
 					}
 				case LEN:
 					{
 						data.result <- len(c.data)
 					}
 				case SET:
-					{						
+					{
 						c.data[data.key] = data.value
 					}
 				case CLOSE:
