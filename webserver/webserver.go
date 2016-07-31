@@ -5,26 +5,32 @@ import (
 	"net/http"
 	"runtime/debug"
 	"strings"
+	"time"
 
 	"github.com/colinyl/lib4go/logger"
 	"github.com/colinyl/lib4go/utility"
 )
 
 type Context struct {
-	Writer  http.ResponseWriter
-	Request *http.Request
-	Session string
-	Address string
-	Script  string
-	Log     logger.ILogger
+	StartTime time.Time
+	Writer    http.ResponseWriter
+	Request   *http.Request
+	Session   string
+	Address   string
+	Script    string
+	Log       logger.ILogger
 }
 
 func NewContext(loggerName string, w http.ResponseWriter, r *http.Request, address string, script string) *Context {
 	context := &Context{Writer: w, Request: r, Address: address, Script: script}
+	context.StartTime = time.Now()
 	context.Session = utility.GetSessionID()
 	context.Log, _ = logger.NewSession(loggerName, context.Session)
 	return context
 
+}
+func (c *Context) PassTime() time.Duration {
+	return time.Now().Sub(c.StartTime)
 }
 
 //WebHandler Web处理程序
