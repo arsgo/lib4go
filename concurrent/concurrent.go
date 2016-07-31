@@ -46,7 +46,6 @@ type ConcurrentMap struct {
 	data    map[string]interface{}
 	request chan requestKeyValue
 	isClose bool
-	count   int32
 }
 
 //NewConcurrentMap 创建线程安全MAP
@@ -143,8 +142,7 @@ func (c *ConcurrentMap) do() {
 							v, er := data.value.(*swap).doCall()
 							if er != nil {
 								data.result <- &addResult{add: false}
-							} else {
-								atomic.AddInt32(&c.count, 1)
+							} else {								
 								c.data[data.key] = v
 								data.result <- &addResult{add: true, value: v}
 							}
@@ -171,18 +169,14 @@ func (c *ConcurrentMap) do() {
 					}
 				case DEL:
 					{
-						delete(c.data, data.key)
-						atomic.AddInt32(&c.count, -1)
+						delete(c.data, data.key)						
 					}
 				case LEN:
 					{
-						data.result <- int(atomic.LoadInt32(&c.count))
+						data.result <- len(c.data)
 					}
 				case SET:
-					{
-						if _, ok := c.data[data.key]; !ok {
-							atomic.AddInt32(&c.count, 1)
-						}
+					{						
 						c.data[data.key] = data.value
 					}
 				case CLOSE:
