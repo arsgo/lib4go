@@ -273,7 +273,7 @@ func (p *LuaPool) call2(script string, session string, input string, body string
 	outparams = getResponse(co)
 	fn := main.(*lua.LFunction)
 	inputArgs := json2LuaTable(co, input, log)
-	st, err, values := L.Resume(co, fn, inputArgs, lua.LString(body))
+	st, err, values := L.Resume(co, fn, inputArgs, lua.LString(utility.Escape(body)))
 	if st == lua.ResumeError {
 		er = fmt.Errorf("script  error:%s", err)
 		return
@@ -388,7 +388,7 @@ func json2LuaTable(L *lua.LState, json string, log logger.ILogger) (inputValue l
 	}
 	decode := L.GetField(xjson, "decode")
 	if decode == nil {
-		inputValue = lua.LString(json)
+		inputValue = lua.LString(utility.Escape(json))
 		return
 	}
 	block := lua.P{

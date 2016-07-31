@@ -3,6 +3,7 @@ package zkClient
 import (
 	//"fmt"
 
+	"fmt"
 	"strings"
 	"time"
 
@@ -121,6 +122,11 @@ func (client *ZKCli) Delete(path string) error {
 
 //Close 关闭服务
 func (client *ZKCli) Close() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println(r)
+		}
+	}()
 	client.conn.Close()
 }
 
@@ -144,9 +150,13 @@ START:
 //WaitForDisconnected 等待服务器失去连接
 func (client *ZKCli) WaitForDisconnected() bool {
 	disconnected := false
+	tk := time.NewTicker(time.Second * 35)
 START:
 	for {
 		select {
+		case <-tk.C:
+			disconnected = true
+			break START
 		case v := <-client.eventChan:
 			switch v.State {
 			case zk.StateExpired:

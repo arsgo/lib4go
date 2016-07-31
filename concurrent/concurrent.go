@@ -1,6 +1,9 @@
 package concurrent
 
-import "strings"
+import (
+	"strings"
+	"sync/atomic"
+)
 
 const (
 	GET = iota
@@ -10,6 +13,7 @@ const (
 	GETORADD
 	ALL
 	CLOSE
+	LEN
 )
 
 type addResult struct {
@@ -42,6 +46,7 @@ type ConcurrentMap struct {
 	data    map[string]interface{}
 	request chan requestKeyValue
 	isClose bool
+	count   int32
 }
 
 //NewConcurrentMap 创建线程安全MAP
@@ -94,7 +99,13 @@ func (c *ConcurrentMap) Get(key string) interface{} {
 
 //GetLength 获取数据个数
 func (c *ConcurrentMap) GetLength() int {
-	return len(c.data)
+	if c.isClose {
+		return 0
+	}
+	ch := make(chan interface{}, 1)
+	c.request <- requestKeyValue{method: LEN, result: ch}
+	value := <-ch
+	return value.(int)
 }
 
 //GetAll 获取所有所有元素的拷贝
@@ -133,6 +144,7 @@ func (c *ConcurrentMap) do() {
 							if er != nil {
 								data.result <- &addResult{add: false}
 							} else {
+								atomic.AddInt32(&c.count, 1)
 								c.data[data.key] = v
 								data.result <- &addResult{add: true, value: v}
 							}
@@ -160,9 +172,17 @@ func (c *ConcurrentMap) do() {
 				case DEL:
 					{
 						delete(c.data, data.key)
+						atomic.AddInt32(&c.count, -1)
+					}
+				case LEN:
+					{
+						data.result <- int(atomic.LoadInt32(&c.count))
 					}
 				case SET:
 					{
+						if _, ok := c.data[data.key]; !ok {
+							atomic.AddInt32(&c.count, 1)
+						}
 						c.data[data.key] = data.value
 					}
 				case CLOSE:
