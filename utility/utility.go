@@ -1,8 +1,10 @@
 package utility
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/gob"
 	"io"
 	"net"
 	"path/filepath"
@@ -71,4 +73,12 @@ func GetExcPath(p ...string) string {
 		return filepath.Join(path, strings.Trim(p[0], "."))
 	}
 	return p[0]
+}
+func Clone(src interface{}) (dst interface{}, err error) {
+	var buf bytes.Buffer
+	if err = gob.NewEncoder(&buf).Encode(src); err != nil {
+		return
+	}
+	err = gob.NewDecoder(bytes.NewBuffer(buf.Bytes())).Decode(dst)
+	return
 }
