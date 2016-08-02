@@ -24,7 +24,7 @@ func init() {
 
 //FileAppenderWriterEntity fileappender
 type FileAppenderWriterEntity struct {
-	LastUse    int64
+	LastUse    time.Time
 	Path       string
 	FileEntity *os.File
 	Log        *log.Logger
@@ -54,7 +54,7 @@ func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) 
 	}
 	f = entity.(*FileAppenderWriterEntity)
 	go f.writeLoop()
-	//go f.checkAppender()
+	go f.checkAppender()
 
 	return
 }
@@ -115,8 +115,8 @@ LOOP:
 		case <-ticker.C:
 			{
 				defer fileWriteRecover()
-				currentTime := time.Now().Unix()
-				if (currentTime - entity.LastUse) >= 60 {
+				currentTime := time.Now().Sub(entity.LastUse).Minutes()
+				if currentTime >= 10 {
 					entity.delete()
 					break LOOP
 				}
@@ -164,7 +164,7 @@ func (entity *FileAppenderWriterEntity) writelog2file(logEvent LoggerEvent) {
 		tag = fmt.Sprintf("[%s]", logEvent.Caller)
 	}
 	entity.Log.Printf("[%s][%s]%s: %s\r\n", logEvent.Session, logEvent.Level, tag, logEvent.Content)
-	entity.LastUse = time.Now().Unix()
+	entity.LastUse = time.Now()
 }
 func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
 	defer fileWriteRecover()
@@ -178,7 +178,7 @@ func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
 		return nil, fmt.Errorf(fmt.Sprintf("logger.Fail to find file %s", path))
 	}
 	logger := log.New(logFile, "", log.Ldate|log.Lmicroseconds)
-	return &FileAppenderWriterEntity{LastUse: time.Now().Unix(),
+	return &FileAppenderWriterEntity{LastUse: time.Now(),
 		Path: path, Log: logger, FileEntity: logFile, Data: make(chan LoggerEvent, 1000),
 		Close: make(chan int, 1)}, nil
 }
