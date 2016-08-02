@@ -49,7 +49,7 @@ func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) 
 		return
 	}
 	var b bool
-	if b, entity = fileAppenders.Add(path, createFileEntity, path); !b {
+	if b, entity, _ = fileAppenders.Add(path, createFileEntity, path); !b {
 		return
 	}
 	f = entity.(*FileAppenderWriterEntity)
