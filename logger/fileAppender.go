@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/colinyl/lib4go/concurrent"
+	"github.com/arsgo/lib4go/concurrent"
 )
 
 var fileAppenders *concurrent.ConcurrentMap

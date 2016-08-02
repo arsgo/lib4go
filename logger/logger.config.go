@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/colinyl/lib4go/utility"
+	"github.com/arsgo/lib4go/utility"
 )
 
 var loggerPath string

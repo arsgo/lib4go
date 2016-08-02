@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/colinyl/lib4go/concurrent"
+	"github.com/arsgo/lib4go/concurrent"
 )
 
 //ObjectPool 对象缓存池, 缓存池中的对象只添加,不会修改或删除,部分代码对锁进行了优化

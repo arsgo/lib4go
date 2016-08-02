@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"time"
-	"github.com/colinyl/lib4go/mq"
-	zk "github.com/colinyl/lib4go/zkclient"
+	"github.com/arsgo/lib4go/mq"
+	zk "github.com/arsgo/lib4go/zkclient"
 )
 
 func main() {

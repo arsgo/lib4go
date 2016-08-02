@@ -1,6 +1,6 @@
 package scheduler
 
-import "github.com/colinyl/cron"
+import "github.com/arsgo/cron"
 
 type Scheduler struct {
 	c *cron.Cron

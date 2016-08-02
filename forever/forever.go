@@ -7,9 +7,9 @@ import (
 	"runtime/debug"
 	"syscall"
 
-	"github.com/colinyl/daemon"
-	"github.com/colinyl/lib4go/logger"
-	"github.com/colinyl/profile"
+	"github.com/arsgo/daemon"
+	"github.com/arsgo/lib4go/logger"
+	"github.com/arsgo/profile"
 )
 
 type forever struct {

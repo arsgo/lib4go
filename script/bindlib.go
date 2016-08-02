@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/colinyl/lib4go/security/md5"
+	"github.com/arsgo/lib4go/security/md5"
 	"github.com/yuin/gopher-lua"
 )
 

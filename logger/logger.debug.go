@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/colinyl/lib4go/concurrent"
+	"github.com/arsgo/lib4go/concurrent"
 )
 
 var logMap *concurrent.ConcurrentMap

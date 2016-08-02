@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/colinyl/lib4go/logger"
+	"github.com/arsgo/lib4go/logger"
 	"github.com/samuel/go-zookeeper/zk"
 )
 

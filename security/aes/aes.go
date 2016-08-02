@@ -4,7 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"strings"
-	"github.com/colinyl/lib4go/security/base64"
+	"github.com/arsgo/lib4go/security/base64"
 )
 
 func getKey(key string) []byte {

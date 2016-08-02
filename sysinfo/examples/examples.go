@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/colinyl/ars/cluster"
-	"github.com/colinyl/lib4go/influxdb"
-	"github.com/colinyl/lib4go/sysinfo"
+	"github.com/arsgo/ars/cluster"
+	"github.com/arsgo/lib4go/influxdb"
+	"github.com/arsgo/lib4go/sysinfo"
 )
 
 func main() {

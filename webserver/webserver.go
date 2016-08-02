@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/colinyl/lib4go/logger"
-	"github.com/colinyl/lib4go/utility"
+	"github.com/arsgo/lib4go/logger"
+	"github.com/arsgo/lib4go/utility"
 )
 
 type Context struct {

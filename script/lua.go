@@ -7,9 +7,9 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/colinyl/lib4go/logger"
-	"github.com/colinyl/lib4go/pool"
-	"github.com/colinyl/lib4go/utility"
+	"github.com/arsgo/lib4go/logger"
+	"github.com/arsgo/lib4go/pool"
+	"github.com/arsgo/lib4go/utility"
 	"github.com/yuin/gopher-lua"
 )
 

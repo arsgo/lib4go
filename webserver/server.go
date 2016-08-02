@@ -3,7 +3,7 @@ package webserver
 package webserver
 
 import (
-	"github.com/colinyl/web"
+	"github.com/arsgo/web"
 )
 
 //WebHandler Web处理程序

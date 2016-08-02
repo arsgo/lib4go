@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/colinyl/lib4go/concurrent"
+	"github.com/arsgo/lib4go/concurrent"
 )
 
 //Logger 日志组件

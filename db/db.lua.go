@@ -3,7 +3,7 @@ package db
 import (
 	"encoding/json"
 
-	"github.com/colinyl/lib4go/utility"
+	"github.com/arsgo/lib4go/utility"
 	"github.com/yuin/gopher-lua"
 )
 
