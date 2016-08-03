@@ -24,6 +24,7 @@ type LuaBinder struct {
 	packages []string
 	libs     map[string]interface{}
 	types    map[string]interface{}
+	global   map[string]lua.LGFunction
 	modeules map[string]map[string]lua.LGFunction
 }
 
@@ -109,6 +110,11 @@ func (p *LuaPool) SetPackages(paths ...string) {
 	}
 	p.binders.packages = append(p.binders.packages, paths...)
 }
+func (p *LuaPool) RegisterGlobal(values map[string]lua.LGFunction) error {
+	p.binders.global = values
+	return nil
+}
+
 func (p *LuaPool) RegisterLibs(libs map[string]interface{}) error {
 	p.binders.libs = libs
 	return nil
@@ -200,7 +206,7 @@ func (p *LuaPool) call(script string, session string, input string, body string,
 	}
 	co := o.(*luaPoolObject).state
 	//log.Info("init top：", co.GetTop())
-	dynamicBind(co, map[string]interface{}{
+	/*	dynamicBind(co, map[string]interface{}{
 		"print":  log.Info,
 		"printf": log.Infof,
 		"error":  log.Error,
@@ -209,9 +215,10 @@ func (p *LuaPool) call(script string, session string, input string, body string,
 		"fatalf": log.Fatalf,
 		"debug":  log.Debug,
 		"debugf": log.Debugf,
-	})
+	})*/
 	defer p.p.Recycle(script, o)
 	co.SetGlobal("__session", lua.LString(session))
+	co.SetGlobal("__logger_name", lua.LString(log.GetName()))
 	main := co.GetGlobal("main")
 	if main == lua.LNil {
 		er = errors.New("cant find main func")

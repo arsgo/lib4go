@@ -63,19 +63,22 @@ func New(name string) (ILogger, error) {
 }
 
 //NewSession 根据session创建新的日志
-func NewSession(name string, session string) (ILogger, error) {	
+func NewSession(name string, session string) (ILogger, error) {
 	return getLogger(name, name, session, false)
 }
+
+//GetName 获取日志组件名称
 func (s *Logger) GetName() string {
 	return s.Name
 }
 
 //--------------------以下是私有函数--------------------------------------------
 func getLogger(name string, sourceName string, session string, getFromCache bool) (logger ILogger, err error) {
+	key := name + "|" + session
 	if getFromCache {
 		logCreateLock.Lock()
 		defer logCreateLock.Unlock()
-		l := sysLoggers.Get(name)
+		l := sysLoggers.Get(key)
 		if l != nil {
 			logger = l.(*Logger)
 			return
@@ -86,7 +89,7 @@ func getLogger(name string, sourceName string, session string, getFromCache bool
 		return sysLogger, err
 	}
 	if getFromCache {
-		sysLoggers.Set(name, logger)
+		sysLoggers.Set(key, logger)
 	}
 	return
 }

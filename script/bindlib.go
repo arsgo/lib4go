@@ -59,5 +59,10 @@ func bindLib(l *lua.LState, binder *LuaBinder) (err error) {
 			l.SetGlobal(k, NewType(l, v))
 		}
 	}
+	if binder.global != nil {
+		for i, v := range binder.global {
+			l.SetGlobal(i, l.NewFunction(v))
+		}
+	}
 	return
 }
