@@ -58,6 +58,7 @@ func (s *Stomp) Send(queue string, msg string, timeout int) (err error) {
 func (s *Stomp) Consume(queue string, call func(MsgHandler)) (err error) {
 	s.lk.Lock()
 	if !s.conn.Connected() {
+		fmt.Println("mq.disconnected")
 		err = s.connect()
 	}
 	s.lk.Unlock()
