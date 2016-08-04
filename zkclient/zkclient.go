@@ -53,8 +53,8 @@ func (client *ZKCli) Exists(path string) bool {
 	return exists
 }
 
-//CreatePath 创建持久节点
-func (client *ZKCli) CreatePath(path string, data string) error {
+//CreateNode 创建持久节点
+func (client *ZKCli) CreateNode(path string, data string) error {
 	paths := getPaths(path)
 	l := len(paths)
 	for index, value := range paths {
@@ -219,31 +219,21 @@ func (client *ZKCli) WatchValue(path string, data chan string) error {
 }
 
 //WatchChildren 监控指定节点的值是否发生变化，变化时返回变化后的值
-func (client *ZKCli) WatchChildren(path string, data chan []string) error {
+func (client *ZKCli) WatchChildren(path string, data chan []string) (err error) {
 	if !client.Exists(path) {
 		return nil
 	}
-	for {
-		_, _, event, err := client.conn.ChildrenW(path)
-		if err != nil {
-			break
-		}
-		select {
-		case e := <-event:
-			{
-				switch e.Type {
-				case zk.EventNodeChildrenChanged:
-					data <- []string{"ChildrenChanged"}
-				case zk.EventNodeDataChanged:
-					data <- []string{"dataChanged"}
-				case zk.EventNodeDeleted:
-					data <- []string{"deleted"}
-				}
-			}
-		}
-		time.Sleep(time.Second)
+	_, _, event, err := client.conn.ChildrenW(path)
+	if err != nil {
+		return
 	}
-	return nil
+	select {
+	case e := <-event:
+		{
+			data <- []string{e.Type.String()}
+		}
+	}
+	return client.WatchChildren(path, data)
 }
 
 //CreateNode 创建临时节点
@@ -251,7 +241,7 @@ func (client *ZKCli) createNodeRoot(path string) error {
 	paths := getPaths(path)
 	if len(paths) > 1 {
 		root := paths[len(paths)-2]
-		err := client.CreatePath(root, "")
+		err := client.CreateNode(root, "")
 		if err != nil {
 			return err
 		}

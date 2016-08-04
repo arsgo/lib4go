@@ -3,12 +3,12 @@ package logger
 import "time"
 
 const (
-	ILevel_OFF = iota
+	ILevel_ALL = iota
+	ILevel_Debug
 	ILevel_Info
 	ILevel_Error
 	ILevel_Fatal
-	ILevel_Debug
-	ILevel_ALL
+	ILevel_OFF
 )
 const (
 	SLevel_OFF   = "Off"
