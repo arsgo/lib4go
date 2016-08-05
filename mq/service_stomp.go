@@ -41,7 +41,7 @@ func setDefaultConfig(cfg *StompConfig) (n *StompConfig) {
 	return n
 
 }
-func NewStompService(sconfig string) (ps IMQService, err error) {
+func NewStompService(sconfig string) (ps IMQService, err error) {	
 	p := &StompService{}
 	ps = p
 	err = json.Unmarshal([]byte(sconfig), &p.config)

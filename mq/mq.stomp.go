@@ -16,6 +16,7 @@ type Stomp struct {
 	Address string
 	header  []string
 	lk      sync.Mutex
+	reconnect  bool
 }
 
 //NewStompMQ
@@ -38,20 +39,37 @@ func (s *Stomp) connect() (err error) {
 
 //Send
 func (s *Stomp) Send(queue string, msg string, timeout int) (err error) {
+	index:=0
+	reconnect:=false
+	START:
+	if index>3{
+		return
+	}
 	s.lk.Lock()
-	if !s.conn.Connected() {
+	fmt.Println("-----status:",reconnect,s.conn.Connected())
+	if reconnect || !s.conn.Connected()  {
+		fmt.Println("---->  reconnect to mq")
+		s.Close()
 		err = s.connect()
 	}
 	s.lk.Unlock()
 	if err != nil {
-		return
+		reconnect=true
+		goto START
 	}
 	header := stompngo.Headers{"destination", queue, "persistent", s.cfg.Persistent}
 	if timeout > 0 {
 		header = stompngo.Headers{"destination", fmt.Sprintf("/%s/%s", s.cfg.Dest, queue), "persistent", s.cfg.Persistent, "expires",
 			fmt.Sprintf("%d000", time.Now().Add(time.Second*time.Duration(timeout)).Unix())}
 	}
-	return s.conn.Send(header, msg)
+	err= s.conn.Send(header, msg)
+	fmt.Println("----->",err)
+	if err!=nil{		
+		reconnect=true
+		index++
+		goto START
+	}
+	return
 }
 
 //Consume
