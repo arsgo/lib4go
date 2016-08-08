@@ -145,7 +145,7 @@ func TestSchemaExecute(t *testing.T) {
 	tr, err := dbMap.Begin()
 	if err != nil {
 		t.Error(err)
-	}	
+	}
 	r, err := tr.Scalar(`select gas_station_name from cy_order_pre where pre_order_no='1'`, input)
 	fmt.Println(r.Result)
 	if err != nil {
@@ -156,10 +156,10 @@ func TestSchemaExecute(t *testing.T) {
 	if err != nil {
 		return
 	}
-	js:= utility.Escape(string(buffer))
+	js := utility.Escape(string(buffer))
 
-	t.Log("json:",js)
-	t.Log("r:",r.Result)
-	
+	t.Log("json:", js)
+	t.Log("r:", r.Result)
+
 	tr.Commit()
 }

@@ -5,6 +5,8 @@ import (
 	"log"
 	"strings"
 	"time"
+
+	"github.com/arsgo/color"
 )
 
 func (l *Logger) Info(content ...interface{}) {
@@ -75,11 +77,17 @@ func (l *Logger) logPrint(level string, content string) {
 	if levelMap[level] < levelMap[l.Level] {
 		return
 	}
-	if level == SLevel_Error {
-		log.Printf("[%s][%s]: %s\n%s", l.session, level, content, getCaller(3))
-	} else {
-		log.Printf("[%s][%s]: %s", l.session, level, content)
+	rcontext := content
+	switch level {
+	case SLevel_Debug:
+		rcontext = color.MagentaString(content)
+	case SLevel_Error:
+		rcontext = color.YellowString(content)
+	case SLevel_Fatal:
+		rcontext = color.RedString(content)
 	}
+	log.Printf("[%s][%s]: %s", l.session, level[0:1], rcontext)
+
 }
 
 func (l *Logger) getEvents(level string, content string) (events map[string]LoggerEvent) {

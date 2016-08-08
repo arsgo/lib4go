@@ -6,13 +6,13 @@ import (
 )
 
 func Test_CreatePath(t *testing.T) {  
-	zkclient,err := New([]string{"192.168.101.161:2181"}, time.Second*10)
+	zkclient,err := New([]string{"192.168.101.161:2181"}, time.Second*10,"")
 	if err !=nil {
 		t.Fatalf(err.Error())
 		return
 	}
 
-	 ex := zkclient.CreatePath("/grs/pay/configs/provider/message", `[{"msg":"msg"}]`)
+	 ex := zkclient.CreateNode("/grs/pay/configs/provider/message", `[{"msg":"msg"}]`)
 	if  ex!=nil {
 		t.Fatalf(err.Error())
 		return

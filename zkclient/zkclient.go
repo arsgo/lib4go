@@ -13,17 +13,17 @@ import (
 
 //ZKCli zookeeper客户端
 type ZKCli struct {
-	servers    []string
-	timeout    time.Duration
-	conn       *zk.Conn
-	eventChan  <-chan zk.Event
-	Log        logger.ILogger
-	closeQueue chan int
+	servers   []string
+	timeout   time.Duration
+	conn      *zk.Conn
+	eventChan <-chan zk.Event
+	Log       logger.ILogger
+	close     bool
 }
 
 //New 连接到Zookeeper服务器
 func New(servers []string, timeout time.Duration, loggerName string) (*ZKCli, error) {
-	zkcli := &ZKCli{servers: servers, timeout: timeout}
+	zkcli := &ZKCli{servers: servers, timeout: timeout, close: false}
 	conn, eventChan, err := zk.Connect(servers, timeout)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,6 @@ func New(servers []string, timeout time.Duration, loggerName string) (*ZKCli, er
 	zkcli.eventChan = eventChan
 	zkcli.Log, err = logger.Get(loggerName)
 	zkcli.conn.SetLogger(zkcli.Log)
-	zkcli.closeQueue = make(chan int, 1)
 	return zkcli, nil
 }
 
@@ -42,6 +41,7 @@ func (client *ZKCli) Reconnect() error {
 	if err != nil {
 		return err
 	}
+	client.close = false
 	client.eventChan = eventChan
 	client.conn = conn
 	return nil
@@ -127,6 +127,7 @@ func (client *ZKCli) Close() {
 			fmt.Println(r)
 		}
 	}()
+	client.close = true
 	client.conn.Close()
 }
 
@@ -205,12 +206,19 @@ func (client *ZKCli) WatchConnectionChange(data chan string) error {
 
 //WatchValue 监控指定节点的值是否发生变化，变化时返回变化后的值
 func (client *ZKCli) WatchValue(path string, data chan string) error {
+	if client.close {
+		return nil
+	}
 	_, _, event, err := client.conn.GetW(path)
 	if err != nil {
 		return err
 	}
 	e := <-event
 	switch e.Type {
+	case zk.EventNotWatching:
+	case zk.EventNodeCreated:
+	case zk.EventNodeDeleted:
+	case zk.EventSession:
 	case zk.EventNodeDataChanged:
 		v, _ := client.GetValue(path)
 		data <- v
@@ -220,6 +228,9 @@ func (client *ZKCli) WatchValue(path string, data chan string) error {
 
 //WatchChildren 监控指定节点的值是否发生变化，变化时返回变化后的值
 func (client *ZKCli) WatchChildren(path string, data chan []string) (err error) {
+	if client.close {
+		return nil
+	}
 	if !client.Exists(path) {
 		return nil
 	}
