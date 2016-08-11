@@ -48,9 +48,15 @@ func (client *ZKCli) Reconnect() error {
 }
 
 // Exists check whether the path exists
-func (client *ZKCli) Exists(path string) bool {
-	exists, _, _ := client.conn.Exists(path)
-	return exists
+func (client *ZKCli) Exists(path ...string) (string, bool) {
+	for _, v := range path {
+		exists, _, _ := client.conn.Exists(v)
+		if exists {
+			return v, true
+		}
+	}
+
+	return "", false
 }
 
 //CreateNode 创建持久节点
@@ -99,7 +105,7 @@ func (client *ZKCli) GetValue(path string) (string, error) {
 
 //GetChildren 获取指定节点的值
 func (client *ZKCli) GetChildren(path string) ([]string, error) {
-	if !client.Exists(path) {
+	if _, ok := client.Exists(path); !ok {
 		return []string{}, nil
 	}
 	data, _, err := client.conn.Children(path)
@@ -231,7 +237,7 @@ func (client *ZKCli) WatchChildren(path string, data chan []string) (err error) 
 	if client.close {
 		return nil
 	}
-	if !client.Exists(path) {
+	if _, ok := client.Exists(path); !ok {
 		return nil
 	}
 	_, _, event, err := client.conn.ChildrenW(path)

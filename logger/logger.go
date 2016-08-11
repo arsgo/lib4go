@@ -17,6 +17,7 @@ type Logger struct {
 	Level    string
 	Config   LoggerConfig
 	DataChan chan LoggerEvent
+	show     bool
 	session  string
 }
 
@@ -42,7 +43,7 @@ func init() {
 	isDebug = true
 	sysDefaultConfig = concurrent.NewConcurrentMap()
 	sysLoggers = concurrent.NewConcurrentMap()
-	dataChan = make(chan LoggerEvent, 1)
+	dataChan = make(chan LoggerEvent, 1000)
 	go FileAppenderWrite(dataChan)
 	readLoggerConfig()
 	sysLogger = &NilLogger{}
@@ -103,7 +104,7 @@ func createLogger(name string, sourceName string, session string) (log *Logger, 
 	}
 	config := objConfig.(LoggerConfig)
 	log = &Logger{Name: name, Level: config.Appender.Level, Config: config,
-		DataChan: dataChan, session: session}
+		DataChan: dataChan, session: session, show: true}
 	if strings.EqualFold(session, "") {
 		log.session = createSession()
 	}
@@ -111,10 +112,13 @@ func createLogger(name string, sourceName string, session string) (log *Logger, 
 	return
 }
 func createSession() string {
-	return fmt.Sprintf("%s%d", time.Now().Format("150405"), atomic.AddInt32(&currentSession, 1))
+	return fmt.Sprintf("%s%d", time.Now().Format("04"), atomic.AddInt32(&currentSession, 1))
 }
 func (l *Logger) recover() {
 	if r := recover(); r != nil {
 		sysLogger.Fatal(r)
 	}
+}
+func (l *Logger) Show(b bool) {
+	l.show = b
 }

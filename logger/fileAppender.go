@@ -163,7 +163,7 @@ func (entity *FileAppenderWriterEntity) writelog2file(logEvent LoggerEvent) {
 		entity.Log.SetFlags(log.Ldate | log.Lmicroseconds)
 		tag = fmt.Sprintf("[%s]", logEvent.Caller)
 	}
-	entity.Log.Printf("[%s][%s]%s: %s\r\n", logEvent.Session, logEvent.Level, tag, logEvent.Content)
+	entity.Log.Printf("[%s][%s]%s: %s\r\n", logEvent.Session, logEvent.RLevel[0:1], tag, logEvent.Content)
 	entity.LastUse = time.Now()
 }
 func createFileHandler(path string) (*FileAppenderWriterEntity, error) {

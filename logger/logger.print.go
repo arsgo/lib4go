@@ -60,18 +60,19 @@ func (l *Logger) print(level string, content string) {
 		return
 	}
 	events := l.getEvents(level, content)
-	for k, event := range events {
+	v := ""
+	for _, event := range events {
 		select {
 		case l.DataChan <- event:
-			delete(events, k)
 		default:
+			v = ":已丢失"
 		}
 	}
-	l.logPrint(level, content)
+	l.logPrint(level, content+v)
 }
 
 func (l *Logger) logPrint(level string, content string) {
-	if !isDebug {
+	if !isDebug || !l.show {
 		return
 	}
 	if levelMap[level] < levelMap[l.Level] {
@@ -90,13 +91,22 @@ func (l *Logger) logPrint(level string, content string) {
 
 }
 
-func (l *Logger) getEvents(level string, content string) (events map[string]LoggerEvent) {
-	events = make(map[string]LoggerEvent)
+func (l *Logger) getEvents(level string, content string) (events []LoggerEvent) {
+	events = make([]LoggerEvent, 0, 6)
 	currentLevel := levelMap[level]
-	if currentLevel >= levelMap[l.Level] {
-		event := LoggerEvent{Level: level, Name: l.Name, Now: time.Now(), Content: content,
+	if currentLevel < levelMap[l.Level] {
+		return
+	}
+
+	event := LoggerEvent{Level: level, RLevel: level, Name: l.Name, Now: time.Now(), Content: content,
+		Path: l.Config.Appender.Path, Session: l.session, Caller: getCaller(4)}
+	events = append(events, event)
+
+	//添加到info列表
+	if currentLevel > ILevel_Info && currentLevel < ILevel_OFF {
+		event := LoggerEvent{Level: SLevel_Info, RLevel: level, Name: l.Name, Now: time.Now(), Content: content,
 			Path: l.Config.Appender.Path, Session: l.session, Caller: getCaller(4)}
-		events[level] = event
+		events = append(events, event)
 	}
 
 	/*for k, v := range levelMap {
@@ -106,5 +116,14 @@ func (l *Logger) getEvents(level string, content string) (events map[string]Logg
 			events[k] = event
 		}
 	}*/
+	/*
+		ILevel_ALL = iota
+		ILevel_Debug
+		ILevel_Info
+		ILevel_Error
+		ILevel_Fatal
+		ILevel_OFF
+
+	*/
 	return
 }

@@ -36,6 +36,7 @@ type LoggerConfig struct {
 //LoggerEvent 日志
 type LoggerEvent struct {
 	Level   string
+	RLevel  string
 	Now     time.Time
 	Name    string
 	Content string

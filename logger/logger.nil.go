@@ -3,6 +3,7 @@ package logger
 import "fmt"
 
 type NilLogger struct {
+	show bool
 }
 
 func (l *NilLogger) Info(content ...interface{}) {
@@ -54,4 +55,7 @@ func (l *NilLogger) print(level string, content string) {
 }
 func (l *NilLogger) GetName() string {
 	return "nil"
+}
+func (l *NilLogger) Show(b bool) {
+	l.show = b
 }

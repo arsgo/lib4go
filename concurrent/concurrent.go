@@ -1,6 +1,10 @@
 package concurrent
 
-import "strings"
+import (
+	"fmt"
+	"reflect"
+	"strings"
+)
 
 const (
 	GET = iota
@@ -72,11 +76,14 @@ func (c *ConcurrentMap) GetOrAdd(key string, f CallBack, p ...interface{}) (inte
 }
 
 //Set 添加或修改指定KEY对应的值
-func (c *ConcurrentMap) Set(key string, value interface{}) {
+func (c *ConcurrentMap) Set(key string, value interface{}) bool {
 	if c.isClose || strings.EqualFold(key, "") {
-		return
+		return false
 	}
-	c.request <- requestKeyValue{key: key, value: value, method: SET, result: make(chan interface{}, 1)}
+	ch := make(chan interface{}, 1)
+	c.request <- requestKeyValue{key: key, value: value, method: SET, result: ch}
+	v := <-ch
+	return v.(bool)
 }
 
 //Delete 删除指定KEY的数据
@@ -179,13 +186,16 @@ func (c *ConcurrentMap) do() {
 					}
 				case SET:
 					{
+
+						v := !reflect.DeepEqual(c.data[data.key], data.value)
 						c.data[data.key] = data.value
+						fmt.Printf("%v--old:%+v--new:%+v\r\n", reflect.DeepEqual(c.data[data.key], data.value), c.data[data.key], data.value)
+						data.result <- v
 					}
 				case CLOSE:
 					c.isClose = true
 				}
 			}
-
 		}
 	}
 }

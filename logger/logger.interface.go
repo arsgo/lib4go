@@ -11,5 +11,6 @@ type ILogger interface {
 	Fatal(content ...interface{})
 	Fatalf(format string, a ...interface{})
 	Printf(format string, a ...interface{})
+	Show(b bool)
 	GetName()string
 }
