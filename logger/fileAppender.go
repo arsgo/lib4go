@@ -33,10 +33,10 @@ type FileAppenderWriterEntity struct {
 }
 
 func fileWriteRecover() {
-	if r := recover(); r != nil {
-		fmt.Println(r)
-		//sysWrite(sysfilepath, r)
-	}
+	//if r := recover(); r != nil {
+	//	fmt.Println(r)
+	////sysWrite(sysfilepath, r)
+	//	}
 }
 func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) {
 	defer fileWriteRecover()
@@ -49,7 +49,11 @@ func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) 
 		return
 	}
 	var b bool
-	if b, entity, _ = fileAppenders.Add(path, createFileEntity, path); !b {
+	if b, entity, err = fileAppenders.Add(path, createFileEntity, path); !b {
+		if err != nil {
+			return
+		}
+		f = entity.(*FileAppenderWriterEntity)
 		return
 	}
 	f = entity.(*FileAppenderWriterEntity)
@@ -171,11 +175,11 @@ func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
 	dir := filepath.Dir(path)
 	er := os.MkdirAll(dir, 0777)
 	if er != nil {
-		return nil, fmt.Errorf(fmt.Sprintf("can't create dir %s", dir))
+		return nil, fmt.Errorf(fmt.Sprintf("can't create dir %v", er))
 	}
 	logFile, logErr := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if logErr != nil {
-		return nil, fmt.Errorf(fmt.Sprintf("logger.Fail to find file %s", path))
+		return nil, fmt.Errorf(fmt.Sprintf("logger创建失败：%v", logErr))
 	}
 	logger := log.New(logFile, "", log.Ldate|log.Lmicroseconds)
 	return &FileAppenderWriterEntity{LastUse: time.Now(),

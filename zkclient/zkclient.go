@@ -3,7 +3,6 @@ package zkClient
 import (
 	//"fmt"
 
-	"fmt"
 	"strings"
 	"time"
 
@@ -128,11 +127,7 @@ func (client *ZKCli) Delete(path string) error {
 
 //Close 关闭服务
 func (client *ZKCli) Close() {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println(r)
-		}
-	}()
+	defer client.recover()
 	client.close = true
 	client.conn.Close()
 }
@@ -286,4 +281,9 @@ func getPaths(path string) []string {
 		nlist = append(nlist, npath)
 	}
 	return nlist
+}
+func (client *ZKCli) recover() {
+	//	if r := recover(); r != nil {
+	//	client.Log.Error("zk:执行异常,", r)
+	//	}
 }

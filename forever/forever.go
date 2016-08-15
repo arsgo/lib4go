@@ -44,7 +44,7 @@ func (f *forever) Start() {
 		f.log.Error("start error:", err)
 		return
 	}
-	fmt.Println(result)
+//	fmt.Println(result)
 	f.log.Info(result)
 }
 

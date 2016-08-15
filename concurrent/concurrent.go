@@ -1,7 +1,6 @@
 package concurrent
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 )
@@ -155,7 +154,6 @@ func (c *ConcurrentMap) do() {
 								c.data[data.key] = v
 								data.result <- &addResult{add: true, value: v}
 							}
-
 						} else {
 							data.result <- &addResult{add: false, value: c.data[data.key]}
 						}
@@ -189,7 +187,7 @@ func (c *ConcurrentMap) do() {
 
 						v := !reflect.DeepEqual(c.data[data.key], data.value)
 						c.data[data.key] = data.value
-						fmt.Printf("%v--old:%+v--new:%+v\r\n", reflect.DeepEqual(c.data[data.key], data.value), c.data[data.key], data.value)
+						//	fmt.Printf("%v--old:%+v--new:%+v\r\n", reflect.DeepEqual(c.data[data.key], data.value), c.data[data.key], data.value)
 						data.result <- v
 					}
 				case CLOSE:
