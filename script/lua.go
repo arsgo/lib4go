@@ -205,17 +205,6 @@ func (p *LuaPool) call(script string, session string, input string, body string,
 		return
 	}
 	co := o.(*luaPoolObject).state
-	//log.Info("init top：", co.GetTop())
-	/*	dynamicBind(co, map[string]interface{}{
-		"print":  log.Info,
-		"printf": log.Infof,
-		"error":  log.Error,
-		"errorf": log.Errorf,
-		"fatal":  log.Fatal,
-		"fatalf": log.Fatalf,
-		"debug":  log.Debug,
-		"debugf": log.Debugf,
-	})*/
 	defer p.p.Recycle(script, o)
 	co.SetGlobal("__session", lua.LString(session))
 	co.SetGlobal("__logger_name", lua.LString(log.GetName()))

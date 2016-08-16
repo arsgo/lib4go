@@ -158,6 +158,7 @@ func TestSchemaExecute(t *testing.T) {
 	}
 	js := utility.Escape(string(buffer))
 
+	t.Log("buffer:", string(buffer))
 	t.Log("json:", js)
 	t.Log("r:", r.Result)
 

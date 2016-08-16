@@ -184,10 +184,8 @@ func (c *ConcurrentMap) do() {
 					}
 				case SET:
 					{
-
 						v := !reflect.DeepEqual(c.data[data.key], data.value)
 						c.data[data.key] = data.value
-						//	fmt.Printf("%v--old:%+v--new:%+v\r\n", reflect.DeepEqual(c.data[data.key], data.value), c.data[data.key], data.value)
 						data.result <- v
 					}
 				case CLOSE:
