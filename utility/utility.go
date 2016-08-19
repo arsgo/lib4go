@@ -14,7 +14,8 @@ import (
 )
 
 func GetSessionID() string {
-	return GetGUID()[0:8]
+	id := GetGUID()
+	return id[:8]
 }
 
 //GetGuid 生成Guid字串

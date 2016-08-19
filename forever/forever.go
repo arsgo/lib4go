@@ -35,7 +35,7 @@ func NewForever(svs service, log logger.ILogger, name string, desc string) *fore
 func (f *forever) Start() {
 	defer func() {
 		if r := recover(); r != nil {
-			f.log.Error(r, string(debug.Stack()))
+			f.log.Fatal(r, string(debug.Stack()))
 		}
 	}()
 	result, err := f.run()
@@ -44,7 +44,7 @@ func (f *forever) Start() {
 		f.log.Error("start error:", err)
 		return
 	}
-//	fmt.Println(result)
+	fmt.Println(result)
 	f.log.Info(result)
 }
 
@@ -104,7 +104,7 @@ func (f *forever) run() (string, error) {
 		select {
 		case <-interrupt:
 			f.svs.Stop()
-			f.dm.Start()
+			//	f.dm.Start()
 			return fmt.Sprintf("%s was killed", f.name), nil
 		}
 	}

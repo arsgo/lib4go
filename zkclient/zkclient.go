@@ -4,6 +4,7 @@ import (
 	//"fmt"
 
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/arsgo/lib4go/logger"
@@ -18,11 +19,12 @@ type ZKCli struct {
 	eventChan <-chan zk.Event
 	Log       logger.ILogger
 	close     bool
+	useCount  int32
 }
 
 //New 连接到Zookeeper服务器
 func New(servers []string, timeout time.Duration, loggerName string) (*ZKCli, error) {
-	zkcli := &ZKCli{servers: servers, timeout: timeout, close: false}
+	zkcli := &ZKCli{servers: servers, timeout: timeout, close: false, useCount: 0}
 	conn, eventChan, err := zk.Connect(servers, timeout)
 	if err != nil {
 		return nil, err
@@ -32,6 +34,9 @@ func New(servers []string, timeout time.Duration, loggerName string) (*ZKCli, er
 	zkcli.Log, err = logger.Get(loggerName)
 	zkcli.conn.SetLogger(zkcli.Log)
 	return zkcli, nil
+}
+func (client *ZKCli) Open() {
+	atomic.AddInt32(&client.useCount, 1)
 }
 
 //Reconnect 重新连接
@@ -128,6 +133,10 @@ func (client *ZKCli) Delete(path string) error {
 //Close 关闭服务
 func (client *ZKCli) Close() {
 	defer client.recover()
+	atomic.AddInt32(&client.useCount, -1)
+	if client.useCount > 0 {
+		return
+	}
 	client.close = true
 	client.conn.Close()
 }
@@ -283,7 +292,7 @@ func getPaths(path string) []string {
 	return nlist
 }
 func (client *ZKCli) recover() {
-	//	if r := recover(); r != nil {
-	//	client.Log.Error("zk:执行异常,", r)
-	//	}
+	if r := recover(); r != nil {
+		client.Log.Error("zk:执行异常,", r)
+	}
 }

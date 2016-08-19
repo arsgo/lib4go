@@ -18,6 +18,7 @@ type Context struct {
 	Session   string
 	Address   string
 	Script    string
+	Encoding  string
 	Log       logger.ILogger
 }
 
@@ -39,6 +40,7 @@ type WebHandler struct {
 	Path       string
 	Script     string
 	Method     string
+	Encoding   string
 	Handler    func(*Context)
 }
 
@@ -59,6 +61,7 @@ func NewWebServer(address string, loggerName string, handlers ...WebHandler) (se
 }
 func (h WebHandler) call(w http.ResponseWriter, r *http.Request) {
 	context := NewContext(h.LoggerName, w, r, h.Path, h.Script)
+	context.Encoding = h.Encoding
 	defer func() {
 		if r := recover(); r != nil {
 			context.Log.Fatal(r, string(debug.Stack()))

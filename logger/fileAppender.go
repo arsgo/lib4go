@@ -33,10 +33,10 @@ type FileAppenderWriterEntity struct {
 }
 
 func fileWriteRecover() {
-	//if r := recover(); r != nil {
-	//	fmt.Println(r)
-	////sysWrite(sysfilepath, r)
-	//	}
+	if r := recover(); r != nil {
+		fmt.Println(r)
+		//sysWrite(sysfilepath, r)
+	}
 }
 func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) {
 	defer fileWriteRecover()

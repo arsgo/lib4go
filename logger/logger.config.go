@@ -22,9 +22,9 @@ func init() {
 
 func createConfig(config []LoggerConfig) {
 	defer func() {
-		//if r := recover(); r != nil {
-		//	fmt.Printf("创建日志文件错误:%v\n", r)
-		//	}
+		if r := recover(); r != nil {
+			fmt.Printf("创建日志文件错误:%v\n", r)
+		}
 
 	}()
 	data, _ := json.Marshal(config)

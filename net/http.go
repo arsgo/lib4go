@@ -200,7 +200,7 @@ func changeEncodingData(encoding string, data []byte) (content string, err error
 		content = string(data)
 		return
 	}
-	buffer, err := ioutil.ReadAll(transform.NewReader(bytes.NewReader(data), simplifiedchinese.GBK.NewDecoder()))
+	buffer, err := ioutil.ReadAll(transform.NewReader(bytes.NewReader(data), simplifiedchinese.GB18030.NewDecoder()))
 	if err != nil {
 		return
 	}

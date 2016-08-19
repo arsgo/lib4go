@@ -111,17 +111,6 @@ func (p *poolSet) Back(obj Object) {
 	}
 }
 
-//SetSize 设置缓存最小，最大值
-func (p *poolSet) SetSize(min int, max int) {
-	atomic.SwapInt32(&p.maxSize, int32(swap(max, int(p.maxSize))))
-	minValue := atomic.SwapInt32(&p.minSize, int32(min))
-	remain := int(atomic.LoadInt32(&p.minSize) - minValue)
-	if remain == 0 {
-		return
-	}
-	p.startInit()
-}
-
 //startInit 启动初始化
 func (p *poolSet) startInit() {
 	if atomic.LoadInt32(&p.minSize) == 0 {

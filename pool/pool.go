@@ -3,13 +3,17 @@ package pool
 import (
 	"errors"
 	"fmt"
+	"sync/atomic"
+	"time"
 
 	"github.com/arsgo/lib4go/concurrent"
 )
 
 //ObjectPool 对象缓存池, 缓存池中的对象只添加,不会修改或删除,部分代码对锁进行了优化
 type ObjectPool struct {
-	pools *concurrent.ConcurrentMap
+	pools   *concurrent.ConcurrentMap
+	using   int32
+	isClose int32
 }
 
 //ObjectPoolSnap 引擎池快照信息
@@ -28,52 +32,33 @@ type ObjectSnap struct {
 
 //New 创建一个新的对象k
 func New() *ObjectPool {
-	pools := &ObjectPool{}
+	pools := &ObjectPool{isClose: 1, using: 0}
 	pools.pools = concurrent.NewConcurrentMap()
 	return pools
 }
 
-//ResetAllPoolSize 重置所有链接池大小
-func (p *ObjectPool) ResetAllPoolSize(minSize int, maxSize int) {
-	all := p.pools.GetAll()
-	for _, value := range all {
-		value.(*poolSet).SetSize(minSize, maxSize)
-	}
-}
-
-//ResetPoolSize 重置链接池大小
-func (p *ObjectPool) ResetPoolSize(name string, minSize int, maxSize int) {
-	value := p.pools.Get(name)
-	if value != nil {
-		value.(*poolSet).SetSize(minSize, maxSize)
-	}
-}
 func (o *ObjectPool) createSet(p ...interface{}) (interface{}, error) {
 	minSize, maxSize, factory := p[0].(int), p[1].(int), p[2].(ObjectFactory)
 	return newPoolSet(minSize, maxSize, factory)
 }
 
 //Register 注册指定的对象
-func (p *ObjectPool) Register(name string, factory ObjectFactory, minSize int, maxSize int) (err error) {
-	p.pools.Add(name, p.createSet, minSize, maxSize, factory)
-	return nil
-}
-func (p *ObjectPool) UnRegister(name string) {
-	obj := p.pools.Get(name)
-	if obj == nil {
+func (o *ObjectPool) Register(name string, factory ObjectFactory, minSize int, maxSize int) (err error) {
+	if atomic.LoadInt32(&o.isClose) == 0 {
+		err = errors.New(fmt.Sprint("pool is closed", name))
 		return
 	}
-	p.pools.Delete(name)
-	obj.(*poolSet).Close()
-}
-
-func (p *ObjectPool) Exists(name string) bool {
-	return p.pools.Get(name) != nil
+	o.pools.Add(name, o.createSet, minSize, maxSize, factory)
+	return nil
 }
 
 //Get 从对象组中申请一个对象
-func (p *ObjectPool) Get(name string) (obj Object, err error) {
-	v := p.pools.Get(name)
+func (o *ObjectPool) Get(name string) (obj Object, err error) {
+	if atomic.LoadInt32(&o.isClose) == 0 {
+		err = errors.New(fmt.Sprint("pool is closed", name))
+		return
+	}
+	v := o.pools.Get(name)
 	if v == nil {
 		err = errors.New(fmt.Sprint("not find pool: ", name))
 		return
@@ -82,13 +67,15 @@ func (p *ObjectPool) Get(name string) (obj Object, err error) {
 	if err != nil {
 		err = fmt.Errorf("not find object from : %s,%s", name, err)
 	}
+	atomic.AddInt32(&o.using, 1)
 	return
 
 }
 
 //Recycle 回收一个对象
-func (p *ObjectPool) Recycle(name string, obj Object) {
-	v := p.pools.Get(name)
+func (o *ObjectPool) Recycle(name string, obj Object) {
+	atomic.AddInt32(&o.using, -1)
+	v := o.pools.Get(name)
 	if v == nil {
 		return
 	}
@@ -96,8 +83,9 @@ func (p *ObjectPool) Recycle(name string, obj Object) {
 }
 
 //Unusable 标记为不可用，并通知连接池创建新的连接
-func (p *ObjectPool) Unusable(name string, obj Object) {
-	v := p.pools.Get(name)
+func (o *ObjectPool) Unusable(name string, obj Object) {
+	atomic.AddInt32(&o.using, -1)
+	v := o.pools.Get(name)
 	if v == nil {
 		return
 	}
@@ -105,23 +93,23 @@ func (p *ObjectPool) Unusable(name string, obj Object) {
 	obj.Close()
 }
 
-//Close 关闭一个对象
-func (p *ObjectPool) close(name string) bool {
-	v := p.pools.Get(name)
+//UnRegister 关闭一个对象
+func (o *ObjectPool) UnRegister(name string) bool {
+	v := o.pools.Get(name)
 	if v == nil {
 		return false
 	}
 	ps := v.(*poolSet)
 	ps.Close()
-	p.pools.Delete(name)
+	o.pools.Delete(name)
 	return true
 
 }
 
 //GetSnap 获取当前连接池的快照信息
-func (p *ObjectPool) GetSnap() (snaps ObjectPoolSnap) {
+func (o *ObjectPool) GetSnap() (snaps ObjectPoolSnap) {
 	snaps = ObjectPoolSnap{}
-	pools := p.pools.GetAll()
+	pools := o.pools.GetAll()
 	snaps.Snaps = make([]ObjectSnap, 0)
 	for i, v := range pools {
 		snap := ObjectSnap{}
@@ -137,9 +125,33 @@ func (p *ObjectPool) GetSnap() (snaps ObjectPoolSnap) {
 }
 
 //Close 关闭所有连接池
-func (p *ObjectPool) Close() {
-	all := p.pools.GetAll()
-	for name := range all {
-		p.close(name)
+func (o *ObjectPool) Close() {
+	if atomic.CompareAndSwapInt32(&o.isClose, 1, 0) {
+		go o.startClose()
 	}
+}
+func (o *ObjectPool) startClose() {
+	timeout := time.NewTicker(time.Second * 31)
+	timeChecker := time.NewTicker(time.Second * 2)
+START:
+	for {
+		select {
+		case <-timeout.C:
+			break START
+		case <-timeChecker.C:
+			if atomic.LoadInt32(&o.using) > 0 {
+				continue
+			}
+			break START
+		}
+	}
+	all := o.pools.GetAll()
+	for name := range all {
+		fmt.Println("-----关闭引擎:", name)
+		o.UnRegister(name)
+	}
+}
+
+func (o *ObjectPool) Exists(name string) bool {
+	return o.pools.Get(name) != nil
 }
