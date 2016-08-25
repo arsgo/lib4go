@@ -83,3 +83,18 @@ func Clone(src interface{}) (dst interface{}, err error) {
 	err = gob.NewDecoder(bytes.NewBuffer(buf.Bytes())).Decode(dst)
 	return
 }
+
+//GetMax 获取最大wfhg
+func GetMax(d int, x int) int {
+	if d > x {
+		return x
+	}
+	return d
+}
+//GetMax2 当d为0时，返回x的值，否则取d,y的最大值
+func GetMax2(d int, x int, y int) int {
+	if d == 0 {
+		return x
+	}
+	return GetMax(d, y)
+}

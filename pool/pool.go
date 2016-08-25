@@ -147,7 +147,7 @@ START:
 	}
 	all := o.pools.GetAll()
 	for name := range all {
-		fmt.Println("-----关闭引擎:", name)
+		//	fmt.Println("-----关闭引擎:", name)
 		o.UnRegister(name)
 	}
 }

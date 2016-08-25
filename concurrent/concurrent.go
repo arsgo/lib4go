@@ -10,8 +10,12 @@ const (
 	ADD
 	SET
 	DEL
+	EXISTS
 	GETORADD
+	GetANDDEL
 	ALL
+	ALLANDCLEAR
+	CLEAR
 	CLOSE
 	LEN
 )
@@ -69,6 +73,8 @@ func (c *ConcurrentMap) Add(key string, f CallBack, p ...interface{}) (bool, int
 	r := v.(*addResult)
 	return r.add, r.value, r.err
 }
+
+//GetOrAdd 添加或获取指定KEY
 func (c *ConcurrentMap) GetOrAdd(key string, f CallBack, p ...interface{}) (interface{}, error) {
 	_, v, e := c.Add(key, f, p...)
 	return v, e
@@ -85,12 +91,31 @@ func (c *ConcurrentMap) Set(key string, value interface{}) bool {
 	return v.(bool)
 }
 
+//Clear 清除所有数据
+func (c *ConcurrentMap) Clear() {
+	if c.isClose {
+		return
+	}
+	c.request <- requestKeyValue{method: CLEAR}
+}
+
 //Delete 删除指定KEY的数据
 func (c *ConcurrentMap) Delete(key string) {
 	if c.isClose {
 		return
 	}
 	c.request <- requestKeyValue{key: key, method: DEL}
+}
+
+//Exists 指定KEY是否存在
+func (c *ConcurrentMap) Exists(key string) bool {
+	if c.isClose {
+		return false
+	}
+	ch := make(chan interface{}, 1)
+	c.request <- requestKeyValue{result: ch, key: key, method: EXISTS}
+	value := <-ch
+	return value.(bool)
 }
 
 //Get 获取指定KEY对应的数据
@@ -100,6 +125,17 @@ func (c *ConcurrentMap) Get(key string) interface{} {
 	}
 	ch := make(chan interface{}, 1)
 	c.request <- requestKeyValue{key: key, method: GET, result: ch}
+	value := <-ch
+	return value
+}
+
+//GetAndDel 获取指定KEY对应的数据
+func (c *ConcurrentMap) GetAndDel(key string) interface{} {
+	if c.isClose {
+		return nil
+	}
+	ch := make(chan interface{}, 1)
+	c.request <- requestKeyValue{key: key, method: GetANDDEL, result: ch}
 	value := <-ch
 	return value
 }
@@ -122,6 +158,20 @@ func (c *ConcurrentMap) GetAll() map[string]interface{} {
 	}
 	ch := make(chan interface{}, 1)
 	c.request <- requestKeyValue{method: ALL, result: ch}
+	data := <-ch
+	if data != nil {
+		return data.(map[string]interface{})
+	}
+	return make(map[string]interface{})
+}
+
+//GetAllAndClear 获取所有所有元素的拷贝
+func (c *ConcurrentMap) GetAllAndClear() map[string]interface{} {
+	if c.isClose {
+		return make(map[string]interface{})
+	}
+	ch := make(chan interface{}, 1)
+	c.request <- requestKeyValue{method: ALLANDCLEAR, result: ch}
 	data := <-ch
 	if data != nil {
 		return data.(map[string]interface{})
@@ -166,6 +216,29 @@ func (c *ConcurrentMap) do() {
 							data.result <- nil
 						}
 					}
+				case EXISTS:
+					{
+						_, ok := c.data[data.key]
+						data.result <- ok
+					}
+				case GetANDDEL:
+					{
+						if d, ok := c.data[data.key]; ok {
+							data.result <- d
+							delete(c.data, data.key)
+						} else {
+							data.result <- nil
+						}
+					}
+				case ALLANDCLEAR:
+					{
+						values := make(map[string]interface{})
+						for k, v := range c.data {
+							values[k] = v
+						}
+						data.result <- values
+						c.data = make(map[string]interface{})
+					}
 				case ALL:
 					{
 						values := make(map[string]interface{})
@@ -188,6 +261,8 @@ func (c *ConcurrentMap) do() {
 						c.data[data.key] = data.value
 						data.result <- v
 					}
+				case CLEAR:
+					c.data = make(map[string]interface{})
 				case CLOSE:
 					c.isClose = true
 				}

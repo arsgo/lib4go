@@ -5,10 +5,9 @@ import (
 	"log"
 	"strings"
 	"sync"
-	"sync/atomic"
-	"time"
 
 	"github.com/arsgo/lib4go/concurrent"
+	"github.com/arsgo/lib4go/utility"
 )
 
 //Logger 日志组件
@@ -39,7 +38,6 @@ func init() {
 		SLevel_Debug: ILevel_Debug,
 		SLevel_ALL:   ILevel_ALL,
 	}
-	currentSession = 100
 	isDebug = true
 	sysDefaultConfig = concurrent.NewConcurrentMap()
 	sysLoggers = concurrent.NewConcurrentMap()
@@ -112,7 +110,7 @@ func createLogger(name string, sourceName string, session string) (log *Logger, 
 	return
 }
 func createSession() string {
-	return fmt.Sprintf("%s%d", time.Now().Format("04"), atomic.AddInt32(&currentSession, 1))
+	return utility.GetSessionID()
 }
 func (l *Logger) recover() {
 	if r := recover(); r != nil {
