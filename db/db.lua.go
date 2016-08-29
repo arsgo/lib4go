@@ -82,3 +82,7 @@ func (bind *DBScriptBind) Begin() (bts *DBScriptBindTrans, err error) {
 	bts = &DBScriptBindTrans{db: ts}
 	return
 }
+
+func (bind *DBScriptBind) Close() {
+	bind.db.db.db.Close()
+}

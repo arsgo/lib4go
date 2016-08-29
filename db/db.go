@@ -21,12 +21,12 @@ https://github.com/wendal/go-oci8
 
 安装方法
 1. 下载：http://www.oracle.com/technetwork/database/features/instant-client/index.html
-2. 解压文件 unzip instantclient-basic-linux.x64-12.1.0.1.0.zip -d /usr/local/ 
+2. 解压文件 unzip instantclient-basic-linux.x64-12.1.0.1.0.zip -d /usr/local/
 3. 配置环境变量
 vi .bash_profile
-export ora_home=/usr/local/instantclient_12_1 
-export PATH=$PATH:$ora_home 
-export LD_LIBRARY_PATH=$ora_home 
+export ora_home=/usr/local/instantclient_12_1
+export PATH=$PATH:$ora_home
+export LD_LIBRARY_PATH=$ora_home
 
 
 */
@@ -51,26 +51,19 @@ type DB struct {
 //NewDB 创建DB实例
 func NewDB(provider string, connString string) (obj *DB, err error) {
 	fmt.Println(">-创建DB")
-	obj = &DB{provider: provider, maxIdle: 3, maxOpen: 5, connString: connString, lang: "AMERICAN_AMERICA.AL32UTF8"}
+	obj = &DB{provider: provider, connString: connString, lang: "AMERICAN_AMERICA.AL32UTF8"}
 	switch strings.ToLower(provider) {
 	case "oracle":
 		obj.db, err = sql.Open(OCI8, connString)
 	case "sqlite":
 		obj.db, err = sql.Open(SQLITE3, connString)
 	}
-	obj.SetPoolSize(obj.maxIdle, obj.maxOpen)
-	fmt.Println(">-db创建完成")
+	obj.SetPoolSize(0, 0)
 	return
 }
 
 //SetPoolSize 设置连接池大小
 func (db *DB) SetPoolSize(maxIdle int, maxOpen int) {
-	if maxIdle == 0 {
-		maxIdle = 3
-	}
-	if maxOpen == 0 {
-		maxOpen = 5
-	}
 	if maxIdle != db.maxIdle {
 		db.maxIdle = maxIdle
 		db.db.SetMaxIdleConns(maxIdle)

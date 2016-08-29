@@ -36,8 +36,8 @@ func (p *LuaPool) SetPoolSize(minSize int, maxSize int) {
 }
 
 //Call 选取最新的脚本引擎执行当前脚本
-func (p *LuaPool) Call(script string, session string, input string, body string) (result []string, outparams map[string]string, err error) {
-	return p.getVM().Call(script, session, input, body)
+func (p *LuaPool) Call(input InputArgs) (result []string, outparams map[string]string, err error) {
+	return p.getVM().Call(input)
 }
 
 //Reload 重新加载所有引擎

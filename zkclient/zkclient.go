@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/arsgo/lib4go/logger"
+	"github.com/arsgo/lib4go/utility"
 	"github.com/samuel/go-zookeeper/zk"
 )
 
@@ -104,7 +105,7 @@ func (client *ZKCli) GetValue(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(data), nil
+	return utility.DecodeData("gbk", data)
 }
 
 //GetChildren 获取指定节点的值

@@ -6,9 +6,13 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"io"
+	"io/ioutil"
 	"net"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 
 	"github.com/arsgo/lib4go/security/md5"
 )
@@ -87,14 +91,40 @@ func Clone(src interface{}) (dst interface{}, err error) {
 //GetMax 获取最大wfhg
 func GetMax(d int, x int) int {
 	if d > x {
-		return x
+		return d
 	}
-	return d
+	return x
 }
+
 //GetMax2 当d为0时，返回x的值，否则取d,y的最大值
 func GetMax2(d int, x int, y int) int {
 	if d == 0 {
 		return x
 	}
 	return GetMax(d, y)
+}
+
+func CloneMap(current map[string]interface{}) map[string]interface{} {
+	new := make(map[string]interface{})
+	for i, v := range current {
+		new[i] = v
+	}
+	return new
+}
+func Merge(current map[string]interface{}, input map[string]interface{}) {
+	for i, v := range input {
+		current[i] = v
+	}
+}
+func DecodeData(encoding string, data []byte) (content string, err error) {
+	if !strings.EqualFold(encoding, "GBK") && !strings.EqualFold(encoding, "GB2312") {
+		content = string(data)
+		return
+	}
+	buffer, err := ioutil.ReadAll(transform.NewReader(bytes.NewReader(data), simplifiedchinese.GB18030.NewDecoder()))
+	if err != nil {
+		return
+	}
+	content = string(buffer)
+	return
 }

@@ -32,7 +32,7 @@ func GetOracleSchema(format string, data map[string]interface{}) (query string, 
 	return
 
 }
-func ReplaceOracleSchema(query string, args []interface{}) (r string) {	
+func ReplaceOracleSchema(query string, args []interface{}) (r string) {
 	r = query
 	if strings.EqualFold(query, "") || args == nil || len(args) == 0 {
 		return

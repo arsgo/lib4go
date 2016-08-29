@@ -10,6 +10,15 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
+type InputArgs struct {
+	Script   string
+	Session  string
+	Input    string
+	Body     string
+	TaskName string
+	TaskType string
+}
+
 type luavm struct {
 	p       *pool.ObjectPool
 	Binder  *LuaBinder
@@ -33,46 +42,49 @@ func (p *luavm) PreLoad(script string, minSize int, maxSize int) error {
 	p.p.Register(script, &luaPoolFactory{script: script, binders: p.Binder}, minSize, maxSize)
 	return nil
 }
+
 //Call 调用脚本引擎并执行main函数
-func (p *luavm) Call(script string, session string, input string, body string) (result []string, outparams map[string]string, err error) {
-	log, err := logger.NewSession(getScriptLoggerName(script), session)
+func (p *luavm) Call(input InputArgs) (result []string, outparams map[string]string, err error) {
+	log, err := logger.NewSession(getScriptLoggerName(input.Script), input.Session)
 	defer luaRecover(log)
 	if err != nil {
 		return
 	}
-	result, outparams, err = p.call(script, session, input, body, log)
+	result, outparams, err = p.call(input, log)
 	if err != nil {
-		log.Error(script, err)
+		log.Error(input.Script, err)
 	}
 	return
 }
 
 //Call 执行脚本main函数
-func (p *luavm) call(script string, session string, input string, body string, log logger.ILogger) (result []string, outparams map[string]string, er error) {
+func (p *luavm) call(input InputArgs, log logger.ILogger) (result []string, outparams map[string]string, er error) {
 	defer luaRecover(log)
 	result = []string{}
-	if !p.p.Exists(script) {
-		er = p.PreLoad(script, p.minSize, p.maxSize)
+	if !p.p.Exists(input.Script) {
+		er = p.PreLoad(input.Script, p.minSize, p.maxSize)
 		if er != nil {
 			return
 		}
 	}
-	o, er := p.p.Get(script)
+	o, er := p.p.Get(input.Script)
 	if er != nil {
 		return
 	}
 	co := o.(*luaPoolObject).state
-	defer p.p.Recycle(script, o)
-	co.SetGlobal("__session", lua.LString(session))
-	co.SetGlobal("__logger_name", lua.LString(log.GetName()))
+	defer p.p.Recycle(input.Script, o)
+	co.SetGlobal("__session__", lua.LString(input.Session))
+	co.SetGlobal("__logger_name__", lua.LString(log.GetName()))
+	co.SetGlobal("__task_name__", lua.LString(input.TaskName))
+	co.SetGlobal("__task_type__", lua.LString(input.TaskType))
 	main := co.GetGlobal("main")
 	if main == lua.LNil {
 		er = errors.New("cant find main func")
 		return
 	}
 	outparams = getResponse(co)
-	inputArgs := json2LuaTable(co, input, log)
-	values, er := callMain(co, inputArgs, lua.LString(body), log)
+	inputData := json2LuaTable(co, input.Input, log)
+	values, er := callMain(co, inputData, lua.LString(input.Body), log)
 	for _, lv := range values {
 		if strings.EqualFold(lv.Type().String(), "table") {
 			result = append(result, luaTable2Json(co, lv, log))

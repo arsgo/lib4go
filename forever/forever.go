@@ -50,7 +50,7 @@ func (f *forever) Start() {
 
 func (f *forever) run() (string, error) {
 
-	usage := fmt.Sprintf("Usage: %s install | remove | start | stop | status | debug | pprof_mem | pprof_block", f.name)
+	usage := fmt.Sprintf("Usage: %s install | remove | start | stop | status | clear | debug | pprof_mem | pprof_block", f.name)
 	if len(os.Args) > 2 {
 		command := os.Args[2]
 		switch command {
@@ -71,6 +71,8 @@ func (f *forever) run() (string, error) {
 		switch command {
 		case "install":
 			return f.dm.Install()
+		case "clear":
+			return f.dm.Clear()
 		case "remove":
 			return f.dm.Remove()
 		case "start":

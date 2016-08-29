@@ -32,6 +32,9 @@ func (s *Scheduler) AddTask(trigger string, task *TaskDetail) {
 func (s *Scheduler) Start() {
 	s.c.Start()
 }
+func Count() int {
+	return len(Schd.c.Entries())
+}
 
 func (s *Scheduler) Stop() {
 	s.c.Stop()

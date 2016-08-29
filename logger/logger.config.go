@@ -70,6 +70,7 @@ func getConfig() []LoggerConfig {
 	return configs[:]
 }
 func getCaller(index int) string {
+	defer recover()
 	_, file, line, _ := runtime.Caller(index)
 	return fmt.Sprintf("%s%d", filepath.Base(file), line)
 }
