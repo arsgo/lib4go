@@ -55,8 +55,13 @@ func bindLib(l *lua.LState, binder *LuaBinder) (err error) {
 		}
 	}
 	if binder.types != nil {
-		for k, v := range binder.types {
-			l.SetGlobal(k, NewType(l, v))
+		for _, v := range binder.types {
+			mt := l.NewTypeMetatable(v.Name)
+			l.SetGlobal(v.Name, mt)
+			for i, ff := range v.NewFunc {
+				l.SetField(mt, i, l.NewFunction(ff))
+			}
+			l.SetField(mt, "__index", l.SetFuncs(l.NewTable(), v.Methods))
 		}
 	}
 	if binder.global != nil {

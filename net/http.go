@@ -50,7 +50,8 @@ func NewHTTPClientCert(certFile string, keyFile string, caFile string) (client *
 	client = &HTTPClient{}
 	client.client = &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: ssl,
+			DisableKeepAlives: true,
+			TLSClientConfig:   ssl,
 			Dial: func(netw, addr string) (net.Conn, error) {
 				c, err := net.DialTimeout(netw, addr, 0)
 				if err != nil {
@@ -70,6 +71,7 @@ func NewHTTPClient() (client *HTTPClient) {
 	client = &HTTPClient{}
 	client.client = &http.Client{
 		Transport: &http.Transport{
+			DisableKeepAlives: true,
 			Dial: func(netw, addr string) (net.Conn, error) {
 				c, err := net.DialTimeout(netw, addr, 0)
 				if err != nil {
@@ -107,37 +109,15 @@ func NewHTTPClientProxy(proxy string) (client *HTTPClient) {
 	return
 }
 
-//NewRequest 创建新请求
-func (c *HTTPClient) NewRequest(method string, url string, args ...string) *HTTPClientRequest {
-	request := &HTTPClientRequest{}
-	request.client = c.client
-	request.headers = make(map[string]string)
-	request.method = strings.ToUpper(method)
-	request.params = ""
-	request.url = url
-	request.encoding = getEncoding(args...)
-	return request
-}
-
-//SetData 设置请求参数
-func (c *HTTPClientRequest) SetData(params string) {
-	c.params = params
-}
-
-//SetHeader 设置http header
-func (c *HTTPClientRequest) SetHeader(key string, value string) {
-	c.headers[key] = value
-}
-
 //Request 发送http请求, method:http请求方法包括:get,post,delete,put等 url: 请求的HTTP地址,不包括参数,params:请求参数,
 //header,http请求头多个用/n分隔,每个键值之前用=号连接
-func (c *HTTPClientRequest) Request() (content string, status int, err error) {
-	req, err := http.NewRequest(c.method, c.url, strings.NewReader(c.params))
+func (c *HTTPClient) Request(method string, url string, params string, encoding string, header map[string]string) (content string, status int, err error) {
+	req, err := http.NewRequest(method, url, strings.NewReader(params))
 	if err != nil {
 		return
 	}
 	req.Close = true
-	for i, v := range c.headers {
+	for i, v := range header {
 		req.Header.Set(i, v)
 	}
 	resp, err := c.client.Do(req)
@@ -152,8 +132,7 @@ func (c *HTTPClientRequest) Request() (content string, status int, err error) {
 		return
 	}
 	status = resp.StatusCode
-	content, err = changeEncodingData(c.encoding, body)
-
+	content, err = changeEncodingData(encoding, body)
 	return
 }
 

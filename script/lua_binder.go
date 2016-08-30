@@ -8,10 +8,16 @@ type lualoader struct {
 	max    int
 }
 
+type LuaTypesBinder struct {
+	Name    string
+	NewFunc map[string]lua.LGFunction
+	Methods map[string]lua.LGFunction
+}
+
 type LuaBinder struct {
 	packages []string
 	libs     map[string]interface{}
-	types    map[string]interface{}
+	types    []LuaTypesBinder
 	global   map[string]lua.LGFunction
 	modeules map[string]map[string]lua.LGFunction
 	preload  []lualoader
@@ -43,7 +49,7 @@ func (p *LuaBinder) RegisterLibs(libs map[string]interface{}) error {
 }
 
 //RegisterTypes 注册GO类型供lua调用
-func (p *LuaBinder) RegisterTypes(types map[string]interface{}) error {
+func (p *LuaBinder) RegisterTypes(types ...LuaTypesBinder) error {
 	p.types = types
 	return nil
 }

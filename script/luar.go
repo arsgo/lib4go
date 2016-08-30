@@ -92,7 +92,6 @@ func NewType(L *lua.LState, value interface{}) lua.LValue {
 	ud := L.NewUserData()
 	ud.Value = val
 	ud.Metatable = getTypeMetatable(L, val)
-
 	return ud
 }
 

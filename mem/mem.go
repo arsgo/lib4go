@@ -28,13 +28,13 @@ func (c *MemcacheClient) Get(key string) string {
 	return string(data.Value)
 }
 
-func (c *MemcacheClient) Add(key string, value string, expiresAt int32) error {
-	data := &memcache.Item{Key: key, Value: []byte(value), Expiration: expiresAt}
+func (c *MemcacheClient) Add(key string, value string, expiresAt int) error {
+	data := &memcache.Item{Key: key, Value: []byte(value), Expiration: int32(expiresAt)}
 	return c.client.Add(data)
 }
 
-func (c *MemcacheClient) Set(key string, value string, expiresAt int32) error {
-	data := &memcache.Item{Key: key, Value: []byte(value), Expiration: expiresAt}
+func (c *MemcacheClient) Set(key string, value string, expiresAt int) error {
+	data := &memcache.Item{Key: key, Value: []byte(value), Expiration: int32(expiresAt)}
 	err := c.client.Set(data)
 	return err
 }
@@ -43,8 +43,8 @@ func (c *MemcacheClient) Delete(key string) error {
 	return c.client.Delete(key)
 }
 
-func (c *MemcacheClient) Delay(key string, expiresAt int32) error {
+func (c *MemcacheClient) Delay(key string, expiresAt int) error {
 	v := c.Get(key)
-	data := &memcache.Item{Key: key, Value: []byte(v), Expiration: expiresAt}
+	data := &memcache.Item{Key: key, Value: []byte(v), Expiration: int32(expiresAt)}
 	return c.client.Set(data)
 }

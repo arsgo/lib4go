@@ -203,7 +203,6 @@ func getTypeMetatable(L *lua.LState, t reflect.Type) *lua.LTable {
 	mt := L.NewTable()
 	mt.RawSetString("__call", L.NewFunction(typeCall))
 	mt.RawSetString("__eq", L.NewFunction(typeEq))
-
 	cache.types[t] = mt
 	return mt
 }
