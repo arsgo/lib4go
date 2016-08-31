@@ -59,15 +59,16 @@ func NewWebServer(address string, loggerName string, handlers ...WebHandler) (se
 	server.Log, _ = logger.Get(loggerName)
 	return
 }
+func (w WebHandler) recover(log logger.ILogger) {
+	if r := recover(); r != nil {
+		log.Fatal(r, string(debug.Stack()))
+	}
+}
 func (h WebHandler) call(w http.ResponseWriter, r *http.Request) {
 	context := NewContext(h.LoggerName, w, r, h.Path, h.Script)
+	defer h.recover(context.Log)
 	context.Encoding = h.Encoding
-	defer func() {
-		if r := recover(); r != nil {
-			context.Log.Fatal(r, string(debug.Stack()))
-		}
-	}()
-	if strings.EqualFold(h.Method, "*") || strings.EqualFold(strings.ToLower(r.Method), strings.ToLower(h.Method)) {
+	if strings.EqualFold(h.Method, "*") || strings.EqualFold(r.Method, h.Method) {
 		h.Handler(context)
 		return
 	}

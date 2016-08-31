@@ -91,6 +91,7 @@ func (o *ObjectPool) Unusable(name string, obj Object) {
 	}
 	v.(*poolSet).startCacheMaker()
 	obj.Close()
+
 }
 
 //UnRegister 关闭一个对象

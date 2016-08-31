@@ -88,6 +88,14 @@ func Clone(src interface{}) (dst interface{}, err error) {
 	return
 }
 
+//GetMin 获取最大wfhg
+func GetMin(d int, x int) int {
+	if d > x {
+		return x
+	}
+	return d
+}
+
 //GetMax 获取最大wfhg
 func GetMax(d int, x int) int {
 	if d > x {

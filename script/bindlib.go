@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/arsgo/lib4go/security/md5"
 	"github.com/yuin/gopher-lua"
 )
 
@@ -35,7 +34,6 @@ func dynamicBind(l *lua.LState, binder map[string]interface{}) {
 }
 
 func bindLib(l *lua.LState, binder *LuaBinder) (err error) {
-	l.SetGlobal("sys_md5", New(l, md5.Encrypt))
 	l.SetGlobal("print", New(l, fmt.Println))
 
 	if binder.packages != nil && len(binder.packages) > 0 {

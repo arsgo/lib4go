@@ -67,7 +67,7 @@ func (p *poolSet) createNew() (obj Object, err error) {
 	return
 }
 func (p *poolSet) Close() {
-
+	p.factory.Close()
 	if atomic.CompareAndSwapInt32(&p.isClose, 0, 1) {
 		p.closeMessageQueue <- 1
 	START:

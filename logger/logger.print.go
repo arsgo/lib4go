@@ -61,14 +61,16 @@ func (l *Logger) print(level string, content string) {
 	}
 	events := l.getEvents(level, content)
 	v := ""
+START:
 	for _, event := range events {
 		select {
 		case l.DataChan <- event:
 		default:
 			v = ":已丢失"
+			break START
 		}
 	}
-	l.logPrint(level, content+v)
+	go l.logPrint(level, content+v)
 }
 
 func (l *Logger) logPrint(level string, content string) {
