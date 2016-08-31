@@ -126,12 +126,12 @@ func (c *ConcurrentMap) Get(key string) interface{} {
 		return nil
 	}
 	start := time.Now()
-	defer func() {
+	/*defer func() {
 		tk := time.Now().Sub(start)
 		if tk.Nanoseconds()/1000/1000 > 1 {
 			fmt.Printf("+++++++end:%v\n", tk)
 		}
-	}()
+	}()*/
 	ch := make(chan interface{}, 1)
 	c.request <- requestKeyValue{key: key, method: GET, result: ch}
 	value := <-ch
