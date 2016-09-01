@@ -1,10 +1,8 @@
 package concurrent
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
-	"time"
 )
 
 const (
@@ -125,7 +123,7 @@ func (c *ConcurrentMap) Get(key string) interface{} {
 	if c.isClose {
 		return nil
 	}
-	start := time.Now()
+	//start := time.Now()
 	/*defer func() {
 		tk := time.Now().Sub(start)
 		if tk.Nanoseconds()/1000/1000 > 1 {
