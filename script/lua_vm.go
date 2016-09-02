@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/arsgo/ars/base"
 	"github.com/arsgo/lib4go/logger"
 	"github.com/arsgo/lib4go/pool"
 	lua "github.com/yuin/gopher-lua"
@@ -46,6 +48,7 @@ func (p *luavm) PreLoad(script string, minSize int, maxSize int) error {
 //Call 调用脚本引擎并执行main函数
 func (p *luavm) Call(input InputArgs) (result []string, outparams map[string]string, err error) {
 	log, err := logger.NewSession(getScriptLoggerName(input.Script), input.Session)
+	defer base.RunTime("call script  time", time.Now())
 	defer luaRecover(log)
 	if err != nil {
 		return
@@ -84,6 +87,7 @@ func (p *luavm) call(input InputArgs, log logger.ILogger) (result []string, outp
 	}
 	outparams = getResponse(co)
 	inputData := json2LuaTable(co, input.Input, log)
+	log.Infof("luatable,string:%+v", inputData)
 	values, er := callMain(co, inputData, lua.LString(input.Body), log)
 	for _, lv := range values {
 		if strings.EqualFold(lv.Type().String(), "table") {

@@ -10,6 +10,8 @@ import (
 	"github.com/arsgo/lib4go/utility"
 )
 
+var MainLoggerName string
+
 //Logger 日志组件
 type Logger struct {
 	Name     string
@@ -77,8 +79,8 @@ func getLogger(name string, sourceName string, session string, getFromCache bool
 	if getFromCache {
 		logCreateLock.Lock()
 		defer logCreateLock.Unlock()
-		l := sysLoggers.Get(key)
-		if l != nil {
+		l, ok := sysLoggers.Get(key)
+		if ok {
 			logger = l.(*Logger)
 			return
 		}
@@ -93,11 +95,11 @@ func getLogger(name string, sourceName string, session string, getFromCache bool
 	return
 }
 func createLogger(name string, sourceName string, session string) (log *Logger, err error) {
-	objConfig := sysDefaultConfig.Get(sourceName)
-	if objConfig == nil {
-		objConfig = sysDefaultConfig.Get("*")
+	objConfig, ok := sysDefaultConfig.Get(sourceName)
+	if !ok {
+		objConfig, ok = sysDefaultConfig.Get("*")
 	}
-	if objConfig == nil {
+	if !ok {
 		return nil, fmt.Errorf("logger %s is invalid", name)
 	}
 	config := objConfig.(LoggerConfig)

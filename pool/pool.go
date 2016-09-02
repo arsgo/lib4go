@@ -48,7 +48,7 @@ func (o *ObjectPool) Register(name string, factory ObjectFactory, minSize int, m
 		err = errors.New(fmt.Sprint("pool is closed", name))
 		return
 	}
-	o.pools.Add(name, o.createSet, minSize, maxSize, factory)
+	o.pools.GetOrAdd(name, o.createSet, minSize, maxSize, factory)
 	return nil
 }
 
@@ -58,8 +58,8 @@ func (o *ObjectPool) Get(name string) (obj Object, err error) {
 		err = errors.New(fmt.Sprint("pool is closed", name))
 		return
 	}
-	v := o.pools.Get(name)
-	if v == nil {
+	v, ok := o.pools.Get(name)
+	if !ok {
 		err = errors.New(fmt.Sprint("not find pool: ", name))
 		return
 	}
@@ -75,8 +75,8 @@ func (o *ObjectPool) Get(name string) (obj Object, err error) {
 //Recycle 回收一个对象
 func (o *ObjectPool) Recycle(name string, obj Object) {
 	atomic.AddInt32(&o.using, -1)
-	v := o.pools.Get(name)
-	if v == nil {
+	v, ok := o.pools.Get(name)
+	if !ok {
 		return
 	}
 	v.(*poolSet).Back(obj)
@@ -85,8 +85,8 @@ func (o *ObjectPool) Recycle(name string, obj Object) {
 //Unusable 标记为不可用，并通知连接池创建新的连接
 func (o *ObjectPool) Unusable(name string, obj Object) {
 	atomic.AddInt32(&o.using, -1)
-	v := o.pools.Get(name)
-	if v == nil {
+	v, ok := o.pools.Get(name)
+	if !ok {
 		return
 	}
 	v.(*poolSet).startCacheMaker()
@@ -96,8 +96,8 @@ func (o *ObjectPool) Unusable(name string, obj Object) {
 
 //UnRegister 关闭一个对象
 func (o *ObjectPool) UnRegister(name string) bool {
-	v := o.pools.Get(name)
-	if v == nil {
+	v, ok := o.pools.Get(name)
+	if !ok {
 		return false
 	}
 	ps := v.(*poolSet)
@@ -153,6 +153,6 @@ START:
 	}
 }
 
-func (o *ObjectPool) Exists(name string) bool {
-	return o.pools.Get(name) != nil
+func (o *ObjectPool) Exists(name string) (ok bool) {
+	return o.pools.Exists(name)
 }

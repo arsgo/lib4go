@@ -25,7 +25,7 @@ func NewLuaPool() *LuaPool {
 	pool := &LuaPool{Binder: &LuaBinder{}, version: 0}
 	pool.watcher = NewLuaScriptWatch(pool.Reload)
 	pool.vms = concurrent.NewConcurrentMap()
-	pool.vms.Add(string(pool.version+1), pool.createVM, pool.version, pool.version+1)
+	pool.vms.GetOrAdd(string(pool.version+1), pool.createVM, pool.version, pool.version+1)
 	return pool
 }
 
@@ -44,9 +44,9 @@ func (p *LuaPool) Call(input InputArgs) (result []string, outparams map[string]s
 func (p *LuaPool) Reload() {
 	current := atomic.LoadInt32(&p.version)
 	next := current + 1
-	if b, _, er := p.vms.Add(string(next), p.createVM, current, next); b && er == nil {
-		lastVM := p.vms.Get(string(current))
-		if lastVM != nil {
+	if b, _, er := p.vms.GetOrAdd(string(next), p.createVM, current, next); b && er == nil {
+		lastVM, ok := p.vms.Get(string(current))
+		if ok {
 			p.vms.Delete(string(current))
 			lastVM.(*luavm).Close()
 		}
@@ -71,7 +71,7 @@ func (p *LuaPool) Close() {
 }
 
 func (p *LuaPool) getVM() *luavm {
-	vm := p.vms.Get(string(p.version))
+	vm, _ := p.vms.Get(string(p.version))
 	return vm.(*luavm)
 }
 func (p *LuaPool) createVM(args ...interface{}) (interface{}, error) {

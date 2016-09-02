@@ -43,13 +43,13 @@ func getFileAppender(data LoggerEvent) (f *FileAppenderWriterEntity, err error) 
 	path := getAppendPath(data)
 	writeLock.Lock()
 	defer writeLock.Unlock()
-	entity := fileAppenders.Get(path)
-	if entity != nil {
+	entity, ok := fileAppenders.Get(path)
+	if ok {
 		f = entity.(*FileAppenderWriterEntity)
 		return
 	}
 	var b bool
-	if b, entity, err = fileAppenders.Add(path, createFileEntity, path); !b {
+	if b, entity, err = fileAppenders.GetOrAdd(path, createFileEntity, path); !b {
 		if err != nil {
 			return
 		}

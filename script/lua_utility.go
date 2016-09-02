@@ -1,11 +1,15 @@
 package script
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"reflect"
 	"runtime/debug"
 	"strings"
+	"time"
 
+	"github.com/arsgo/ars/base"
 	"github.com/arsgo/lib4go/logger"
 	"github.com/arsgo/lib4go/utility"
 	lua "github.com/yuin/gopher-lua"
@@ -52,15 +56,21 @@ func getScriptLoggerName(name string) string {
 	}
 	return strings.Replace(rname, "scripts-", "script/", -1)
 }
-func callMain(ls *lua.LState, inputValue lua.LValue, others lua.LValue, log logger.ILogger) (rt []lua.LValue, er error) {
-	defer luaRecover(log)
-	ls.Pop(ls.GetTop())
+func callMainFunc(ls *lua.LState, args ...lua.LValue) (err error) {
+	defer base.RunTime("call script  main", time.Now())
 	block := lua.P{
 		Fn:      ls.GetGlobal("main"),
 		NRet:    2,
 		Protect: true,
 	}
-	er = ls.CallByParam(block, inputValue, others)
+	err = ls.CallByParam(block, args...)
+	return err
+}
+
+func callMain(ls *lua.LState, inputValue lua.LValue, others lua.LValue, log logger.ILogger) (rt []lua.LValue, er error) {
+	defer luaRecover(log)
+	ls.Pop(ls.GetTop())
+	er = callMainFunc(ls, inputValue, others)
 	if er != nil {
 		return
 	}
@@ -84,6 +94,7 @@ func callMain(ls *lua.LState, inputValue lua.LValue, others lua.LValue, log logg
 
 func luaTable2Json(L *lua.LState, inputValue lua.LValue, log logger.ILogger) (json string) {
 	defer luaRecover(log)
+	defer base.RunTime("call script  table2json", time.Now())
 	L.Pop(L.GetTop())
 	xjson := L.GetGlobal("xjson")
 	if xjson.String() == "nil" {
@@ -112,9 +123,46 @@ func luaTable2Json(L *lua.LState, inputValue lua.LValue, log logger.ILogger) (js
 	L.Pop(L.GetTop())
 	return
 }
-
-func json2LuaTable(L *lua.LState, json string, log logger.ILogger) (inputValue lua.LValue) {
+func json2LuaTable(L *lua.LState, input string, log logger.ILogger) (inputValue lua.LValue) {
 	defer luaRecover(log)
+	data := make(map[string]interface{})
+	err := json.Unmarshal([]byte(input), &data)
+	if err != nil {
+		inputValue = lua.LString(input)
+		return
+	}
+	tb := L.NewTable()
+	for k, v := range data {
+		tb.RawSetString(k, json2LuaTableValue(L, v, log))
+	}
+	return tb
+}
+func json2LuaTableValue(L *lua.LState, value interface{}, log logger.ILogger) (inputValue lua.LValue) {
+	val := reflect.ValueOf(value)
+	switch val.Kind() {
+	case reflect.Slice:
+		nvalue := value.([]interface{})
+		tb := L.NewTable()
+		for k, v := range nvalue {
+			tb.RawSetInt(k, json2LuaTableValue(L, v, log))
+		}
+		return tb
+	case reflect.Map:
+		nvalue := value.(map[string]interface{})
+		tb := L.NewTable()
+		for k, v := range nvalue {
+			tb.RawSetString(k, json2LuaTableValue(L, v, log))
+		}
+		return tb
+	default:
+		inputValue = New(L, value)
+	}
+	return
+}
+
+func json2LuaTable2(L *lua.LState, json string, log logger.ILogger) (inputValue lua.LValue) {
+	defer luaRecover(log)
+	defer base.RunTime("call script  json2table", time.Now())
 	L.Pop(L.GetTop())
 	xjson := L.GetGlobal("xjson")
 	if xjson.String() == "nil" {

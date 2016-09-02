@@ -70,7 +70,7 @@ START:
 			break START
 		}
 	}
-	go l.logPrint(level, content+v)
+	l.logPrint(level, content+v)
 }
 
 func (l *Logger) logPrint(level string, content string) {

@@ -91,7 +91,7 @@ func (s *Stomp) Consume(queue string, call func(MsgHandler)) (err error) {
 	if err != nil {
 		return
 	}
-	success, ch, err := s.mqQueue.Add(queue, s.createConsumer, queue)
+	success, ch, err := s.mqQueue.GetOrAdd(queue, s.createConsumer, queue)
 	if err != nil {
 		return
 	}
@@ -119,10 +119,11 @@ func (s *Stomp) UnConsume(queue string) {
 	subscriberHeader := stompngo.Headers{"destination",
 		fmt.Sprintf("/%s/%s", s.cfg.Dest, queue), "ack", s.cfg.Ack}
 	s.conn.Unsubscribe(subscriberHeader)
-	ch := s.mqQueue.Get(queue)
-	if ch == nil {
+	_, ok := s.mqQueue.Get(queue)
+	if !ok {
 		return
 	}
+
 }
 
 //Close 关闭当前连接
