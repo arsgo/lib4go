@@ -8,13 +8,20 @@ const (
 
 var coder = base64.NewEncoding(base64Table)
 
-func Encode(src string) string {
-	return base64.StdEncoding.EncodeToString([]byte(src))
-
+func EncodeBytes(src []byte) string {
+	return base64.StdEncoding.EncodeToString(src)
 }
 
+func Encode(src string) string {
+	return EncodeBytes([]byte(src))
+}
+
+func DecodeBytes(src string) (s []byte, err error) {
+	s, err = base64.StdEncoding.DecodeString(src)
+	return
+}
 func Decode(src string) (s string, err error) {
-	buf, err := base64.StdEncoding.DecodeString(src)
+	buf, err := DecodeBytes(src)
 	if err != nil {
 		return
 	}
