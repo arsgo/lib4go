@@ -3,10 +3,12 @@ package zkClient
 import (
 	//"fmt"
 
+	"errors"
 	"strings"
 	"sync/atomic"
 	"time"
 
+	"github.com/arsgo/lib4go/concurrent"
 	"github.com/arsgo/lib4go/logger"
 	"github.com/arsgo/lib4go/utility"
 	"github.com/samuel/go-zookeeper/zk"
@@ -14,18 +16,22 @@ import (
 
 //ZKCli zookeeper客户端
 type ZKCli struct {
-	servers   []string
-	timeout   time.Duration
-	conn      *zk.Conn
-	eventChan <-chan zk.Event
-	Log       logger.ILogger
-	close     bool
-	useCount  int32
+	servers        []string
+	timeout        time.Duration
+	conn           *zk.Conn
+	eventChan      <-chan zk.Event
+	rmWatchValue   *concurrent.ConcurrentMap
+	rmWatchChilren *concurrent.ConcurrentMap
+	Log            logger.ILogger
+	close          bool
+	useCount       int32
 }
 
 //New 连接到Zookeeper服务器
 func New(servers []string, timeout time.Duration, loggerName string) (*ZKCli, error) {
 	zkcli := &ZKCli{servers: servers, timeout: timeout, close: false, useCount: 0}
+	zkcli.rmWatchValue = concurrent.NewConcurrentMap()
+	zkcli.rmWatchChilren = concurrent.NewConcurrentMap()
 	conn, eventChan, err := zk.Connect(servers, timeout)
 	if err != nil {
 		return nil, err
@@ -234,7 +240,21 @@ func (client *ZKCli) WatchValue(path string, data chan string) error {
 		v, _ := client.GetValue(path)
 		data <- v
 	}
+	if client.rmWatchValue.Exists(path) {
+		client.rmWatchValue.Delete(path)
+		return errors.New("已移除节点监控")
+	}
 	return client.WatchValue(path, data)
+}
+
+//RemoveWatchValue 移除值监控
+func (client *ZKCli) RemoveWatchValue(path string) {
+	client.rmWatchValue.Set(path, path)
+}
+
+//RemoveWatchChildren 移除子节点监控
+func (client *ZKCli) RemoveWatchChildren(path string) {
+	client.rmWatchValue.Set(path, path)
 }
 
 //WatchChildren 监控指定节点的值是否发生变化，变化时返回变化后的值
@@ -254,6 +274,10 @@ func (client *ZKCli) WatchChildren(path string, data chan []string) (err error) 
 		{
 			data <- []string{e.Type.String()}
 		}
+	}
+	if client.rmWatchChilren.Exists(path) {
+		client.rmWatchChilren.Delete(path)
+		return errors.New("已移除节点监控")
 	}
 	return client.WatchChildren(path, data)
 }
