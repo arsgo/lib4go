@@ -38,7 +38,7 @@ func Decrypt(ciphertext string, privateKey string) ([]byte, error) {
 }
 
 //Sign 生成签名
-func Sign(ciphertext string, privateKey string) ([]byte, error) {
+func Sign(message string, privateKey string) ([]byte, error) {
 	block, _ := pem.Decode([]byte(privateKey))
 	if block == nil {
 		return nil, errors.New("private key error!")
@@ -47,7 +47,11 @@ func Sign(ciphertext string, privateKey string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA1, []byte(ciphertext))
+
+	t := sha1.New()
+	io.WriteString(t, message)
+	digest := t.Sum(nil)
+	return rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA1, digest)
 }
 
 //Verify 验签

@@ -237,8 +237,10 @@ func (client *ZKCli) WatchValue(path string, data chan string) error {
 	case zk.EventNodeDeleted:
 	case zk.EventSession:
 	case zk.EventNodeDataChanged:
-		v, _ := client.GetValue(path)
-		data <- v
+		if !client.rmWatchValue.Exists(path) {
+			v, _ := client.GetValue(path)
+			data <- v
+		}
 	}
 	if client.rmWatchValue.Exists(path) {
 		client.rmWatchValue.Delete(path)
@@ -271,9 +273,10 @@ func (client *ZKCli) WatchChildren(path string, data chan []string) (err error) 
 	}
 	select {
 	case e := <-event:
-		{
+		if !client.rmWatchChilren.Exists(path) {
 			data <- []string{e.Type.String()}
 		}
+
 	}
 	if client.rmWatchChilren.Exists(path) {
 		client.rmWatchChilren.Delete(path)
