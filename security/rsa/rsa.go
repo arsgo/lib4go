@@ -10,6 +10,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"io"
+
+	"github.com/arsgo/lib4go/encoding"
 )
 
 func Encrypt(origData string, publicKey string) ([]byte, error) {
@@ -49,7 +51,7 @@ func Sign(message string, privateKey string) ([]byte, error) {
 	}
 
 	t := sha1.New()
-	io.WriteString(t, message)
+	io.WriteString(t, encoding.Convert([]byte(message), "gbk"))
 	digest := t.Sum(nil)
 	return rsa.SignPKCS1v15(rand.Reader, priv.(*rsa.PrivateKey), crypto.SHA1, digest)
 }

@@ -9,7 +9,7 @@ const (
 var coder = base64.NewEncoding(base64Table)
 
 func EncodeBytes(src []byte) string {
-	return base64.URLEncoding.EncodeToString(src)
+	return base64.StdEncoding.EncodeToString(src)
 }
 
 func Encode(src string) string {

@@ -11,6 +11,8 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/arsgo/lib4go/encoding"
+
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 )
@@ -158,8 +160,8 @@ func (c *HTTPClient) Get(url string, args ...string) (content string, status int
 
 //Post http Post请求
 func (c *HTTPClient) Post(url string, params string, args ...string) (content string, status int, err error) {
-	encoding := getEncoding(args...)
-	resp, err := c.client.Post(url, "application/x-www-form-urlencoded", strings.NewReader(params))
+	charset := getEncoding(args...)
+	resp, err := c.client.Post(url, "application/x-www-form-urlencoded", encoding.GetReader(params, charset))
 	if resp != nil {
 		defer resp.Body.Close()
 	}
@@ -171,7 +173,7 @@ func (c *HTTPClient) Post(url string, params string, args ...string) (content st
 		return
 	}
 	status = resp.StatusCode
-	content, err = changeEncodingData(encoding, body)
+	content, err = changeEncodingData(charset, body)
 	return
 }
 
