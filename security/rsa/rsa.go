@@ -43,7 +43,7 @@ func Sign(message string, privateKey string) ([]byte, error) {
 	if block == nil {
 		return nil, errors.New("private key error!")
 	}
-	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	priv, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func Sign(message string, privateKey string) ([]byte, error) {
 	t := sha1.New()
 	io.WriteString(t, message)
 	digest := t.Sum(nil)
-	return rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA1, digest)
+	return rsa.SignPKCS1v15(rand.Reader, priv.(*rsa.PrivateKey), crypto.SHA1, digest)
 }
 
 //Verify 验签

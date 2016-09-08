@@ -300,8 +300,8 @@ func (client *ZKCli) createNodeRoot(path string) error {
 
 //create 根据参数创建路径
 func (client *ZKCli) create(path string, data string, flags int32) (string, error) {
-	exists, _, _ := client.conn.Exists(path)
-	if exists {
+	exists, _, err := client.conn.Exists(path)
+	if exists && err == nil {
 		return path, nil
 	}
 	acl := zk.WorldACL(zk.PermAll)
