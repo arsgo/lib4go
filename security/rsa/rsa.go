@@ -10,10 +10,9 @@ import (
 	"encoding/pem"
 	"errors"
 	"io"
-
-	"github.com/arsgo/lib4go/encoding"
 )
 
+//Encrypt RSA加密
 func Encrypt(origData string, publicKey string) ([]byte, error) {
 	block, _ := pem.Decode([]byte(publicKey))
 	if block == nil {
@@ -27,10 +26,11 @@ func Encrypt(origData string, publicKey string) ([]byte, error) {
 	return rsa.EncryptPKCS1v15(rand.Reader, pub, []byte(origData))
 }
 
+//Decrypt RSA解密
 func Decrypt(ciphertext string, privateKey string) ([]byte, error) {
 	block, _ := pem.Decode([]byte(privateKey))
 	if block == nil {
-		return nil, errors.New("private key error!")
+		return nil, errors.New("private key error")
 	}
 	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
@@ -43,17 +43,16 @@ func Decrypt(ciphertext string, privateKey string) ([]byte, error) {
 func Sign(message string, privateKey string) ([]byte, error) {
 	block, _ := pem.Decode([]byte(privateKey))
 	if block == nil {
-		return nil, errors.New("private key error!")
+		return nil, errors.New("private key error")
 	}
-	priv, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
-
 	t := sha1.New()
-	io.WriteString(t, encoding.Convert([]byte(message), "gbk"))
+	io.WriteString(t, message)
 	digest := t.Sum(nil)
-	return rsa.SignPKCS1v15(rand.Reader, priv.(*rsa.PrivateKey), crypto.SHA1, digest)
+	return rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA1, digest)
 }
 
 //Verify 验签
@@ -79,6 +78,5 @@ func Verify(src string, sign string, pubkey string) (pass bool, err error) {
 	if err != nil {
 		return false, err
 	}
-
 	return true, nil
 }

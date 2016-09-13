@@ -1,5 +1,5 @@
 package script
-
+/*
 import (
 	"fmt"
 
@@ -157,3 +157,4 @@ func (p *luavm) Close() {
 func (p *luavm) GetSnap() pool.ObjectPoolSnap {
 	return pool.ObjectPoolSnap{}
 }
+*/
