@@ -60,7 +60,7 @@ func Sign(message string, privateKey string, mode string) ([]byte, error) {
 		return rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA1, digest)
 	case "md5":
 		t := md5.New()
-		t.Write([]byte(message))
+		io.WriteString(t, message)
 		digest := t.Sum(nil)
 		return rsa.SignPKCS1v15(rand.Reader, priv, crypto.MD5, digest)
 	default:
@@ -78,12 +78,7 @@ func Verify(src string, sign string, pubkey string, mode string) (pass bool, err
 		return
 	}
 	rsaPub, _ := pub.(*rsa.PublicKey)
-
-	//步骤3，base64 decode,必须步骤，支付宝对返回的签名做过base64 encode必须要反过来decode才能通过验证
 	data, _ := base64.StdEncoding.DecodeString(sign)
-
-	//步骤4，调用rsa包的VerifyPKCS1v15验证签名有效性
-
 	switch strings.ToLower(mode) {
 	case "sha1":
 		t := sha1.New()
@@ -92,7 +87,7 @@ func Verify(src string, sign string, pubkey string, mode string) (pass bool, err
 		err = rsa.VerifyPKCS1v15(rsaPub, crypto.SHA1, digest, data)
 	case "md5":
 		t := md5.New()
-		t.Write([]byte(src))
+		io.WriteString(t, src)
 		digest := t.Sum(nil)
 		err = rsa.VerifyPKCS1v15(rsaPub, crypto.MD5, digest, data)
 	default:
