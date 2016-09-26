@@ -38,8 +38,8 @@ func New() *ObjectPool {
 }
 
 func (o *ObjectPool) createSet(p ...interface{}) (interface{}, error) {
-	minSize, maxSize, factory := p[0].(int), p[1].(int), p[2].(ObjectFactory)
-	return newPoolSet(minSize, maxSize, factory)
+	minSize, maxSize, factory, name := p[0].(int), p[1].(int), p[2].(ObjectFactory), p[3].(string)
+	return newPoolSet(name, minSize, maxSize, factory)
 }
 
 //Register 注册指定的对象
@@ -48,7 +48,7 @@ func (o *ObjectPool) Register(name string, factory ObjectFactory, minSize int, m
 		err = errors.New(fmt.Sprint("pool is closed", name))
 		return
 	}
-	o.pools.GetOrAdd(name, o.createSet, minSize, maxSize, factory)
+	o.pools.GetOrAdd(name, o.createSet, minSize, maxSize, factory, name)
 	return nil
 }
 
@@ -85,11 +85,11 @@ func (o *ObjectPool) Recycle(name string, obj Object) {
 //Unusable 标记为不可用，并通知连接池创建新的连接
 func (o *ObjectPool) Unusable(name string, obj Object) {
 	atomic.AddInt32(&o.using, -1)
-	v, ok := o.pools.Get(name)
+	_, ok := o.pools.Get(name)
 	if !ok {
 		return
 	}
-	v.(*poolSet).startCacheMaker()
+	//v.(*poolSet).startCacheMaker(0)
 	obj.Close()
 
 }

@@ -22,8 +22,9 @@ func NewLuaScriptWatch(callback func()) *LuaScriptWatch {
 }
 
 //AppendFile 添加监控文件
-func (w *LuaScriptWatch) AppendFile(path string) {
+func (w *LuaScriptWatch) AppendFile(path string) (err error) {
 	w.files.Set(path, path)
+	return nil
 }
 
 func (w *LuaScriptWatch) watch() {

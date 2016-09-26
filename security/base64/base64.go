@@ -2,12 +2,6 @@ package base64
 
 import "encoding/base64"
 
-const (
-	base64Table = "123QRSTUabcdVWXYZHijKLAWDCABDstEFGuvwxyzGHIJklmnopqr234560178912"
-)
-
-var coder = base64.NewEncoding(base64Table)
-
 func EncodeBytes(src []byte) string {
 	return base64.StdEncoding.EncodeToString(src)
 }

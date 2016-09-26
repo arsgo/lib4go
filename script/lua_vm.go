@@ -11,12 +11,14 @@ import (
 )
 
 type InputArgs struct {
-	Script   string
-	Session  string
-	Input    string
-	Body     string
-	TaskName string
-	TaskType string
+	Script      string
+	Session     string
+	Input       string
+	Body        string
+	TaskName    string
+	TaskType    string
+	HTTPContext interface{}
+	MainLogger  logger.ILogger
 }
 
 type luavm struct {
@@ -78,14 +80,15 @@ func (p *luavm) call(input InputArgs, log logger.ILogger) (result []string, outp
 	co.SetGlobal("__logger_name__", lua.LString(log.GetName()))
 	co.SetGlobal("__task_name__", lua.LString(input.TaskName))
 	co.SetGlobal("__task_type__", lua.LString(input.TaskType))
+	co.SetGlobal("__http_context__", New(co, input.HTTPContext))
+	co.SetGlobal("__set_cookie__", lua.LNil)
 	main := co.GetGlobal("main")
 	if main == lua.LNil {
 		er = errors.New("cant find main func")
 		return
 	}
-	outparams = getResponse(co)
+
 	inputData := json2LuaTable(co, input.Input, log)
-	log.Infof("luatable,string:%+v", inputData)
 	values, er := callMain(co, inputData, lua.LString(input.Body), log)
 	for _, lv := range values {
 		if strings.EqualFold(lv.Type().String(), "table") {
@@ -94,7 +97,8 @@ func (p *luavm) call(input InputArgs, log logger.ILogger) (result []string, outp
 			result = append(result, lv.String())
 		}
 	}
-	return
+	outparams = getResponse(co)
+		return
 }
 func (p *luavm) Close() {
 	p.p.Close()

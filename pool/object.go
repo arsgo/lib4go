@@ -25,12 +25,15 @@ type ObjectFactory interface {
 }
 
 type poolSet struct {
+	name               string
 	minSize            int32       //最小缓存个数
 	maxSize            int32       //最大缓存个数
+	createTimes        int32       //创建次数
 	isCreatingStatus   int32       //是否正在创建
 	isCreatingCount    int32       //正在创建个数
 	hasCratedCount     int32       //已经创建个数
-	cacheCount         int32       //当前可用数
+	cacheCount         int32       //当前缓存可用数
+	getCount           int32       //当前已取出个数
 	createMessageQueue chan int    //创建消息
 	isClose            int32       //是否已关闭
 	closeMessageQueue  chan int    //关闭消息
@@ -45,13 +48,14 @@ type poolSet struct {
 //创建失败后不退出该goroutine,并定时创建该Object
 //当调用Get函数创建新的object失败后，会检查是否启动Watch goroutine创建对象，如果未创建则创建goroutine定时创建对象，
 //此时会检查minSize是否为0，为0则会加入创建消息，于Watch创建
-func newPoolSet(minSize int, maxSize int, fac ObjectFactory) (pool *poolSet, err error) {
-	pool = &poolSet{minSize: int32(swap(minSize, 0)), maxSize: int32(swap(maxSize, minSize)), factory: fac}
+func newPoolSet(name string, minSize int, maxSize int, fac ObjectFactory) (pool *poolSet, err error) {
+	pool = &poolSet{name: name, minSize: int32(minSize), maxSize: int32(swap(maxSize, swap(minSize, 500))), factory: fac, createTimes: 2}
 	pool.timeout = time.Second * 10
-	pool.createMessageQueue = make(chan int, minSize)
+	pool.createMessageQueue = make(chan int, pool.maxSize)
 	pool.cacheQueue = make(chan Object, pool.maxSize)
 	pool.closeMessageQueue = make(chan int, 1)
 	pool.startInit()
+	go pool.clear()
 	return
 
 }
@@ -60,12 +64,24 @@ func newPoolSet(minSize int, maxSize int, fac ObjectFactory) (pool *poolSet, err
 //成功时累加已创建个数
 func (p *poolSet) createNew() (obj Object, err error) {
 	if obj, err = p.factory.Create(); err != nil {
-		p.startCacheMaker()
+		go p.startCacheMaker(0)
+		return
+	}
+	atomic.AddInt32(&p.hasCratedCount, 1)
+	go p.startCacheMaker(1)
+	return
+}
+
+//createOne 创建新的Object，创建失败时启动watch流程用于定时创建
+//成功时累加已创建个数
+func (p *poolSet) createOne() (obj Object, err error) {
+	if obj, err = p.factory.Create(); err != nil {
 		return
 	}
 	atomic.AddInt32(&p.hasCratedCount, 1)
 	return
 }
+
 func (p *poolSet) Close() {
 	p.factory.Close()
 	if atomic.CompareAndSwapInt32(&p.isClose, 0, 1) {
@@ -89,6 +105,7 @@ func (p *poolSet) Get() (obj Object, err error) {
 		err = fmt.Errorf("pool is closed")
 		return
 	}
+	atomic.AddInt32(&p.getCount, 1)
 	select {
 	case obj = <-p.cacheQueue:
 		atomic.AddInt32(&p.cacheCount, -1)
@@ -103,8 +120,21 @@ func (p *poolSet) Get() (obj Object, err error) {
 
 //Back 回收Object当，未超过最大缓存大小时回收对象，否则将关闭object并丢弃
 func (p *poolSet) Back(obj Object) {
+	if p.isCreatingStatus == 1 {
+		atomic.AddInt32(&p.cacheCount, 1)
+		select {
+		case p.cacheQueue <- obj:
+		default:
+			obj.Close()
+		}
+		return
+	}
 	if atomic.AddInt32(&p.cacheCount, 1) <= atomic.LoadInt32(&p.maxSize) {
-		p.cacheQueue <- obj
+		select {
+		case p.cacheQueue <- obj:
+		default:
+			obj.Close()
+		}
 	} else {
 		atomic.AddInt32(&p.cacheCount, -1)
 		obj.Close()
@@ -119,7 +149,10 @@ func (p *poolSet) startInit() {
 	for i := 0; i < int(atomic.LoadInt32(&p.minSize)-atomic.LoadInt32(&p.isCreatingCount)-
 		atomic.LoadInt32(&p.hasCratedCount))+i; i++ {
 		atomic.AddInt32(&p.isCreatingCount, 1)
-		p.createMessageQueue <- i
+		select {
+		case p.createMessageQueue <- i:
+		default:
+		}
 	}
 	//修改创建状态
 	if atomic.CompareAndSwapInt32(&p.isCreatingStatus, 0, 1) {
@@ -130,21 +163,27 @@ func (p *poolSet) startInit() {
 //startCacheMaker,检查是否需要创建监控程序
 //1. 已创建个数小于最大缓存个数
 //2. 创建状态为未启动
-func (p *poolSet) startCacheMaker() {
-	if p.minSize == 0 {
+func (p *poolSet) startCacheMaker(r int32) {
+	if r < 0 {
 		return
 	}
-	if atomic.AddInt32(&p.hasCratedCount, 1) < p.maxSize { //已创建个数小于最大缓存个数
-		if !atomic.CompareAndSwapInt32(&p.isCreatingStatus, 0, 1) {
-			atomic.AddInt32(&p.hasCratedCount, -1) //创建状态为已启动
-			return
-		}
-		//添加创建消息
-		if atomic.CompareAndSwapInt32(&p.isCreatingCount, 0, 1) {
-			p.createMessageQueue <- -1
-		}
-		go p.makeCache()
+	if !atomic.CompareAndSwapInt32(&p.isCreatingStatus, 0, 1) {
+		return
 	}
+	c := p.createTimes*2 - r
+	atomic.AddInt32(&p.createTimes, 1)
+	count := min(c, p.maxSize-p.cacheCount)
+	//添加创建消息
+	if atomic.CompareAndSwapInt32(&p.isCreatingCount, 0, count) {
+		for i := 0; i < int(count); i++ {
+			select {
+			case p.createMessageQueue <- -1:
+			}
+
+		}
+	}
+	go p.makeCache()
+
 }
 
 //makeCache 获取创建消息，并循环创建对象，当全部创建成功后自动退出
@@ -155,7 +194,7 @@ START:
 		case <-p.closeMessageQueue:
 			break START
 		case i := <-p.createMessageQueue:
-			obj, err := p.createNew() //创建新的Object
+			obj, err := p.createOne() //创建新的Object
 			if err != nil {
 				fmt.Println(err)
 				p.createMessageQueue <- i
@@ -172,11 +211,43 @@ START:
 }
 
 //push 将新创建的Object放入缓存
-func (p *poolSet) push(obj Object) {
+func (p *poolSet) push(obj Object) bool {
 	if atomic.AddInt32(&p.cacheCount, 1) <= atomic.LoadInt32(&p.maxSize) {
-		p.cacheQueue <- obj
+		select {
+		case p.cacheQueue <- obj:
+			return true
+		default:
+			atomic.AddInt32(&p.cacheCount, -1)
+			obj.Close()
+		}
+
 	} else {
 		atomic.AddInt32(&p.cacheCount, -1)
+		obj.Close()
+	}
+	return false
+}
+
+//clear 减少缓存数量
+func (p *poolSet) clear() {
+	tk := time.NewTicker(time.Second * 10)
+	for {
+		select {
+		case <-tk.C:
+		START:
+			//	fmt.Printf("%s已缓存对象:%d-%d\n", p.name, p.cacheCount, len(p.cacheQueue))
+			if int(p.getCount) < swap(int(p.minSize), 1)*100 && p.cacheCount > p.minSize {
+				select {
+				case obj := <-p.cacheQueue:
+					atomic.AddInt32(&p.cacheCount, -1)
+					atomic.StoreInt32(&p.createTimes, 1)
+					obj.Close()
+					goto START
+				default:
+				}
+			}
+			atomic.StoreInt32(&p.getCount, 0)
+		}
 	}
 }
 
@@ -185,4 +256,10 @@ func swap(v int, def int) int {
 		return def
 	}
 	return v
+}
+func min(a int32, b int32) int32 {
+	if a > b {
+		return b
+	}
+	return a
 }

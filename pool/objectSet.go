@@ -1,9 +1,14 @@
 package pool
+
 /*
+1. 对象池管理，初始化时当最大缓存数量为0时使用最小缓存数量，当最小缓存0时，不启动缓存创建线程
+2. 当最小缓存数量大于0时，启动缓存创建线程，并创建数量达到应创建数量时，退出该线程，创建失败时定时重新创建
+3. Get从缓存区获取对象，当获取失败后立即重新创建对象，获取成功则直接返回
+4. 创建新对象时发生错误则启动缓存创建线程创建对象
+package pool
+
 import (
-	"errors"
 	"fmt"
-	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -18,141 +23,184 @@ type ObjectFactory interface {
 	Close()
 }
 
-//PoolSet
 type poolSet struct {
-	mutex   sync.Mutex
-	minSize int32
-	maxSize int32
-	queue   chan Object
-	factory ObjectFactory
-	current int32
-	canUse  int32
-	added   int32
-	notity  chan int
-	isClose bool
+	name               string
+	minSize            int32       //最小缓存个数
+	maxSize            int32       //最大缓存个数
+	isCreatingStatus   int32       //是否正在创建
+	isCreatingCount    int32       //正在创建个数
+	hasCratedCount     int32       //已经创建个数
+	cacheCount         int32       //当前可用数
+	createMessageQueue chan int    //创建消息
+	isClose            int32       //是否已关闭
+	closeMessageQueue  chan int    //关闭消息
+	cacheQueue         chan Object //可用缓存
+	factory            ObjectFactory
+	lastUseTime        time.Time //最后使用时间
+	timeout            time.Duration
 }
 
-//New 创建对象池
-func newPoolSet(minSize int, maxSize int, fac ObjectFactory) (pool *poolSet, err error) {
-	pool = &poolSet{minSize: int32(minSize), maxSize: int32(swap(maxSize, 999)), factory: fac}
-	pool.queue = make(chan Object, pool.maxSize*10)
-	pool.notity = make(chan int, pool.maxSize*10)
-	go pool.init()
+//newPoolSet 创建对象管理器，当maxSize<=0时，设置默认值为100个，当minSize<=0时默认值为0
+//当minSize==0时，不创建缓存对象，当minSize>0时启动新的goroutine创建当minSize个数的对象，当创建成功后退出该当goroutine
+//创建失败后不退出该goroutine,并定时创建该Object
+//当调用Get函数创建新的object失败后，会检查是否启动Watch goroutine创建对象，如果未创建则创建goroutine定时创建对象，
+//此时会检查minSize是否为0，为0则会加入创建消息，于Watch创建
+func newPoolSet(name string, minSize int, maxSize int, fac ObjectFactory) (pool *poolSet, err error) {
+	pool = &poolSet{name: name, minSize: int32(swap(minSize, 0)), maxSize: int32(swap(maxSize, minSize)), factory: fac}
+	pool.timeout = time.Second * 10
+	pool.createMessageQueue = make(chan int, minSize)
+	pool.cacheQueue = make(chan Object, pool.maxSize)
+	pool.closeMessageQueue = make(chan int, 1)
+	pool.startInit()
+	go pool.clear()
 	return
+
 }
-func (p *poolSet) SetSize(min int, max int) {
-	p.resetMinMaxSize(min, max)
-}
-func (p *poolSet) resetMinMaxSize(min int, max int) {
-	atomic.SwapInt32(&p.maxSize, int32(max))
-	minValue := atomic.SwapInt32(&p.minSize, int32(min))
-	remain := int(atomic.LoadInt32(&p.minSize) - minValue)
-	if remain > 0 {
-		fmt.Printf("reset pool set min:%d,max:%d\r\n", min, max)
-	}
-	for i := 0; i < remain; i++ {
-		p.createNew()
-	}
-}
-func (p *poolSet) Get() (obj Object, err error) {
-	if p.isClose {
-		err = errors.New("cant get object from pool(pool is closed)")
+
+//createNew 创建新的Object，创建失败时启动watch流程用于定时创建
+//成功时累加已创建个数
+func (p *poolSet) createNew() (obj Object, err error) {
+	if obj, err = p.factory.Create(); err != nil {
+		p.startCacheMaker()
 		return
 	}
-	return p.getSingle(true)
-}
-
-func (p *poolSet) getSingle(create bool) (obj Object, err error) {
-	if atomic.LoadInt32(&p.canUse) == 0 {
-		p.createNew()
-	}
-	timeOut := time.NewTicker(time.Millisecond * 80)
-	createNew := time.NewTicker(time.Millisecond * 41)
-BRK:
-	for {
-		select {
-		case ps := <-p.queue:
-			obj = ps
-			atomic.AddInt32(&p.canUse, -1)
-			break BRK
-		case <-createNew.C:
-			p.createNew()
-		case <-timeOut.C:
-			err = fmt.Errorf("cant get object from pool:%d/%d/%d/%d", atomic.LoadInt32(&p.canUse), atomic.LoadInt32(&p.current), p.minSize, p.maxSize)
-			break BRK
-		}
-	}
-
+	atomic.AddInt32(&p.hasCratedCount, 1)
 	return
 }
-
-func (p *poolSet) back(obj Object) {
-	if p.isClose {
-		obj.Close()
-		return
-	}
-	p.queue <- obj
-	atomic.AddInt32(&p.canUse, 1)
-}
-func (p *poolSet) reCreate() {
-	atomic.AddInt32(&p.current, -1)
-	p.createNew()
-}
-
 func (p *poolSet) Close() {
-	p.isClose = true
-	for {
-		obj, err := p.getSingle(false)
-		if err != nil {
-			p.factory.Close()
-			break
-		} else {
-			obj.Close()
-		}
-	}
-
-}
-
-//createNew 创建新的连接
-func (p *poolSet) createNew() {
-	if atomic.LoadInt32(&p.added) < int32(p.maxSize) {
-		v := atomic.AddInt32(&p.added, 1)
-		if v < int32(p.maxSize) {
-			p.notity <- 1
+	p.factory.Close()
+	if atomic.CompareAndSwapInt32(&p.isClose, 0, 1) {
+		p.closeMessageQueue <- 1
+	START:
+		for {
+			select {
+			case ps := <-p.cacheQueue:
+				atomic.AddInt32(&p.cacheCount, -1)
+				ps.Close()
+			default:
+				break START
+			}
 		}
 	}
 }
 
-//init 异步创建对象，factory.create要求返回正确可使用的对象，当对象不能创建成功时
-// 该函数将持续堵塞，直到创建成功或收到关闭指定
-func (p *poolSet) init() {
-	for i := 0; i < int(atomic.LoadInt32(&p.minSize)); i++ {
-		p.createNew()
+//Get 获取可用的Object,当没有可用时立即创建新的Object
+func (p *poolSet) Get() (obj Object, err error) {
+	if atomic.LoadInt32(&p.isClose) != 0 {
+		err = fmt.Errorf("pool is closed")
+		return
 	}
+	select {
+	case obj = <-p.cacheQueue:
+		atomic.AddInt32(&p.cacheCount, -1)
+	default:
+	}
+	if obj == nil {
+		obj, err = p.createNew()
+	}
+	p.lastUseTime = time.Now()
+	return
+}
 
-	pk := time.NewTicker(time.Millisecond * 5)
+//Back 回收Object当，未超过最大缓存大小时回收对象，否则将关闭object并丢弃
+func (p *poolSet) Back(obj Object) {
+	if atomic.AddInt32(&p.cacheCount, 1) <= atomic.LoadInt32(&p.maxSize) {
+		p.cacheQueue <- obj
+	} else {
+		atomic.AddInt32(&p.cacheCount, -1)
+		obj.Close()
+	}
+}
+
+//startInit 启动初始化
+func (p *poolSet) startInit() {
+	if atomic.LoadInt32(&p.minSize) == 0 {
+		return
+	}
+	for i := 0; i < int(atomic.LoadInt32(&p.minSize)-atomic.LoadInt32(&p.isCreatingCount)-
+		atomic.LoadInt32(&p.hasCratedCount))+i; i++ {
+		atomic.AddInt32(&p.isCreatingCount, 1)
+		p.createMessageQueue <- i
+	}
+	//修改创建状态
+	if atomic.CompareAndSwapInt32(&p.isCreatingStatus, 0, 1) {
+		go p.makeCache()
+	}
+}
+
+//startCacheMaker,检查是否需要创建监控程序
+//1. 已创建个数小于最大缓存个数
+//2. 创建状态为未启动
+func (p *poolSet) startCacheMaker() {
+	if p.minSize == 0 {
+		return
+	}
+	if atomic.AddInt32(&p.hasCratedCount, 1) < p.maxSize { //已创建个数小于最大缓存个数
+		if !atomic.CompareAndSwapInt32(&p.isCreatingStatus, 0, 1) {
+			atomic.AddInt32(&p.hasCratedCount, -1) //创建状态为已启动
+			return
+		}
+		//添加创建消息
+		if atomic.CompareAndSwapInt32(&p.isCreatingCount, 0, 1) {
+			p.createMessageQueue <- -1
+		}
+		go p.makeCache()
+	}
+}
+
+//makeCache 获取创建消息，并循环创建对象，当全部创建成功后自动退出
+func (p *poolSet) makeCache() {
+START:
 	for {
 		select {
-		case _, ok := <-p.notity:
-			if !ok || p.isClose {
-				return
-			}
-			obj, err := p.factory.Create()
+		case <-p.closeMessageQueue:
+			break START
+		case i := <-p.createMessageQueue:
+			obj, err := p.createNew() //创建新的Object
 			if err != nil {
 				fmt.Println(err)
-				time.Sleep(time.Second * 5)
-				p.createNew()
-			} else {
-				atomic.AddInt32(&p.current, 1)
-				p.back(obj)
+				p.createMessageQueue <- i
+				time.Sleep(p.timeout) //创建失败休息一定时间继续创建
+				continue
 			}
-		case <-pk.C:
-			if p.isClose {
-				return
+			p.push(obj)
+			if atomic.AddInt32(&p.isCreatingCount, -1) == 0 { //当正在创建数小于0时退出循环
+				break START
+			}
+		}
+	}
+	atomic.CompareAndSwapInt32(&p.isCreatingStatus, 1, 0) //切换状态
+}
+
+//push 将新创建的Object放入缓存
+func (p *poolSet) push(obj Object) {
+	if atomic.AddInt32(&p.cacheCount, 1) <= atomic.LoadInt32(&p.maxSize) {
+		p.cacheQueue <- obj
+	} else {
+		atomic.AddInt32(&p.cacheCount, -1)
+	}
+}
+
+//clear 减少缓存数量
+func (p *poolSet) clear() {
+	tk := time.NewTicker(time.Second * 60)
+	for {
+		select {
+		case <-tk.C:
+		START:
+			if time.Now().Sub(p.lastUseTime) > time.Second*30 && p.cacheCount > p.minSize {
+				select {
+				case obj := <-p.cacheQueue:
+					atomic.AddInt32(&p.cacheCount, -1)
+					obj.Close()
+					goto START
+				default:
+				}
 			}
 		}
 	}
 }
+
 func swap(v int, def int) int {
 	if v == 0 {
 		return def

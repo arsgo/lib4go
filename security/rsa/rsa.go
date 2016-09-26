@@ -2,6 +2,7 @@ package rsa
 
 import (
 	"crypto"
+	"crypto/md5"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha1"
@@ -10,6 +11,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"io"
+	"strings"
 )
 
 //Encrypt RSA加密
@@ -40,7 +42,7 @@ func Decrypt(ciphertext string, privateKey string) ([]byte, error) {
 }
 
 //Sign 生成签名
-func Sign(message string, privateKey string) ([]byte, error) {
+func Sign(message string, privateKey string, mode string) ([]byte, error) {
 	block, _ := pem.Decode([]byte(privateKey))
 	if block == nil {
 		return nil, errors.New("private key error")
@@ -49,14 +51,26 @@ func Sign(message string, privateKey string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	t := sha1.New()
-	io.WriteString(t, message)
-	digest := t.Sum(nil)
-	return rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA1, digest)
+
+	switch strings.ToLower(mode) {
+	case "sha1":
+		t := sha1.New()
+		io.WriteString(t, message)
+		digest := t.Sum(nil)
+		return rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA1, digest)
+	case "md5":
+		t := md5.New()
+		t.Write([]byte(message))
+		digest := t.Sum(nil)
+		return rsa.SignPKCS1v15(rand.Reader, priv, crypto.MD5, digest)
+	default:
+		return nil, errors.New("签名模式不支持")
+	}
+
 }
 
 //Verify 验签
-func Verify(src string, sign string, pubkey string) (pass bool, err error) {
+func Verify(src string, sign string, pubkey string, mode string) (pass bool, err error) {
 	//步骤1，加载RSA的公钥
 	block, _ := pem.Decode([]byte(pubkey))
 	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
@@ -65,16 +79,25 @@ func Verify(src string, sign string, pubkey string) (pass bool, err error) {
 	}
 	rsaPub, _ := pub.(*rsa.PublicKey)
 
-	//步骤2，计算代签名字串的SHA1哈希
-	t := sha1.New()
-	io.WriteString(t, src)
-	digest := t.Sum(nil)
-
 	//步骤3，base64 decode,必须步骤，支付宝对返回的签名做过base64 encode必须要反过来decode才能通过验证
 	data, _ := base64.StdEncoding.DecodeString(sign)
 
 	//步骤4，调用rsa包的VerifyPKCS1v15验证签名有效性
-	err = rsa.VerifyPKCS1v15(rsaPub, crypto.SHA1, digest, data)
+
+	switch strings.ToLower(mode) {
+	case "sha1":
+		t := sha1.New()
+		io.WriteString(t, src)
+		digest := t.Sum(nil)
+		err = rsa.VerifyPKCS1v15(rsaPub, crypto.SHA1, digest, data)
+	case "md5":
+		t := md5.New()
+		t.Write([]byte(src))
+		digest := t.Sum(nil)
+		err = rsa.VerifyPKCS1v15(rsaPub, crypto.MD5, digest, data)
+	default:
+		err = errors.New("验签模式不支持")
+	}
 	if err != nil {
 		return false, err
 	}

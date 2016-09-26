@@ -27,17 +27,26 @@ func collectgarbage(L *lua.LState) error {
 }
 func getResponse(L *lua.LState) (r map[string]string) {
 	fields := map[string]string{
-		"content_type": "Content-Type",
-		"charset":      "Charset",
-		"original":     "_original",
+		"content_type":   "Content-Type",
+		"charset":        "Charset",
+		"original":       "_original",
+		"raw":            "_original",
+		"__raw__":        "_original",
+		"__set_cookie__": "_cookies",
 	}
 	r = make(map[string]string)
 	response := L.GetGlobal("response")
-	if response == lua.LNil {
-		return
+	if response != lua.LNil {
+		for i, v := range fields {
+			fied := L.GetField(response, i)
+			if fied == lua.LNil {
+				continue
+			}
+			r[v] = fied.String()
+		}
 	}
 	for i, v := range fields {
-		fied := L.GetField(response, i)
+		fied := L.GetGlobal(i)
 		if fied == lua.LNil {
 			continue
 		}

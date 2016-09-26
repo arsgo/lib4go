@@ -34,7 +34,7 @@ type FileAppenderWriterEntity struct {
 
 func fileWriteRecover() {
 	if r := recover(); r != nil {
-		fmt.Println(r)
+		fmt.Println(r)		
 		//sysWrite(sysfilepath, r)
 	}
 }
@@ -167,7 +167,7 @@ func (entity *FileAppenderWriterEntity) writelog2file(logEvent LoggerEvent) {
 		entity.Log.SetFlags(log.Ldate | log.Lmicroseconds)
 		tag = fmt.Sprintf("[%s]", logEvent.Caller)
 	}
-	entity.Log.Printf("[%s][%s]%s: %s\r\n", logEvent.Session, logEvent.RLevel[0:1], tag, logEvent.Content)
+	entity.Log.Printf("[%s][%s][%s]%s: %s\r\n", logEvent.Name, logEvent.Session, logEvent.RLevel[0:1], tag, logEvent.Content)
 	entity.LastUse = time.Now()
 }
 func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
@@ -177,11 +177,12 @@ func createFileHandler(path string) (*FileAppenderWriterEntity, error) {
 	if er != nil {
 		return nil, fmt.Errorf(fmt.Sprintf("can't create dir %v", er))
 	}
-	logFile, logErr := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logFile, logErr := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)	
 	if logErr != nil {
 		return nil, fmt.Errorf(fmt.Sprintf("logger创建失败：%v", logErr))
 	}
 	logger := log.New(logFile, "", log.Ldate|log.Lmicroseconds)
+	
 	return &FileAppenderWriterEntity{LastUse: time.Now(),
 		Path: path, Log: logger, FileEntity: logFile, Data: make(chan LoggerEvent, 1000),
 		Close: make(chan int, 1)}, nil
