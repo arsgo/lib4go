@@ -137,11 +137,6 @@ func queryResolve(rows *sql.Rows, col int) (dataRows []map[string]interface{}, c
 	return
 }
 
-//Close 关闭数据库
-func (db *DB) Close() {
-	db.db.Close()
-}
-
 //Execute 执行SQL操作语句
 func (db *DB) Execute(query string, args ...interface{}) (affectedRow int64, err error) {
 	result, err := db.db.Exec(query, args...)
@@ -158,4 +153,9 @@ func (db *DB) setEnv(name string, value string) {
 	if !strings.EqualFold(nlsLang, value) {
 		os.Setenv(name, value)
 	}
+}
+
+//Close 关闭数据库
+func (db *DB) Close() {
+	db.db.Close()
 }
