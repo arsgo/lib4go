@@ -5,10 +5,12 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
+	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/arsgo/lib4go/encoding"
@@ -107,6 +109,45 @@ func NewHTTPClientProxy(proxy string) (client *HTTPClient) {
 			MaxIdleConnsPerHost:   0,
 			ResponseHeaderTimeout: 0,
 		},
+	}
+	return
+}
+
+//Download 发送http请求, method:http请求方法包括:get,post,delete,put等 url: 请求的HTTP地址,不包括参数,params:请求参数,
+//header,http请求头多个用/n分隔,每个键值之前用=号连接
+func (c *HTTPClient) Download(method string, url string, params string, header map[string]string) (body []byte, status int, err error) {
+	req, err := http.NewRequest(strings.ToUpper(method), url, strings.NewReader(params))
+	if err != nil {
+		return
+	}
+	req.Close = true
+	for i, v := range header {
+		req.Header.Set(i, v)
+	}
+	resp, err := c.client.Do(req)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		return
+	}
+	body, err = ioutil.ReadAll(resp.Body)
+	return
+}
+
+//Save 发送http请求, method:http请求方法包括:get,post,delete,put等 url: 请求的HTTP地址,不包括参数,params:请求参数,
+//header,http请求头多个用/n分隔,每个键值之前用=号连接
+func (c *HTTPClient) Save(method string, url string, params string, header map[string]string, path string) (status int, err error) {
+	body, status, err := c.Download(method, url, params, header)
+
+	fl, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0664)
+	if err != nil {
+		return
+	}
+	defer fl.Close()
+	n, err := fl.Write(body)
+	if err == nil && n < len(body) {
+		err = io.ErrShortWrite
 	}
 	return
 }
