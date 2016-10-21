@@ -5,16 +5,14 @@ import (
 	"crypto/cipher"
 	"crypto/des"
 	"encoding/hex"
-	"fmt"
 	"strings"
 )
 
 func Encrypt(input string, skey string) (r string, err error) {
 	origData := []byte(input)
 	key := []byte(skey)
-	block, er := des.NewCipher(key)
-	if er != nil {
-		err = er
+	block, err := des.NewCipher(key)
+	if err != nil {
 		return
 	}
 	iv := []byte{0, 0, 0, 0, 0, 0, 0, 0}
@@ -32,9 +30,8 @@ func Decrypt(input string, skey string) (r string, err error) {
 		return
 	}
 	key := []byte(skey)
-	block, er := des.NewCipher(key)
-	if er != nil {
-		err = er
+	block, err := des.NewCipher(key)
+	if err != nil {
 		return
 	}
 	iv := []byte{0, 0, 0, 0, 0, 0, 0, 0}
@@ -97,7 +94,6 @@ func ZeroUnPadding(origData []byte) []byte {
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
-	fmt.Println("padlen:", padding)
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padtext...)
 }

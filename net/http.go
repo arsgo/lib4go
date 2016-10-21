@@ -131,6 +131,7 @@ func (c *HTTPClient) Download(method string, url string, params string, header m
 	if err != nil {
 		return
 	}
+	status = resp.StatusCode
 	body, err = ioutil.ReadAll(resp.Body)
 	return
 }
@@ -139,7 +140,9 @@ func (c *HTTPClient) Download(method string, url string, params string, header m
 //header,http请求头多个用/n分隔,每个键值之前用=号连接
 func (c *HTTPClient) Save(method string, url string, params string, header map[string]string, path string) (status int, err error) {
 	body, status, err := c.Download(method, url, params, header)
-
+	if err != nil {
+		return
+	}
 	fl, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0664)
 	if err != nil {
 		return
